@@ -219,7 +219,7 @@
   #services { background:var(--black); }
   .services-header { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:40px; max-width:1300px; margin-left:auto; margin-right:auto; }
   .services-header-right { font-size:15px; color:var(--mist); max-width:360px; line-height:1.8; }
-  .services-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--border); max-width:1300px; margin:0 auto; border:1px solid var(--border); }
+  .services-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); max-width:1300px; margin:0 auto; border:1px solid var(--border); }
   .service-card { background:var(--black); padding:42px 34px; position:relative; overflow:hidden; cursor:pointer; transition:all 0.4s cubic-bezier(0.16,1,0.3,1); }
   .service-card::before { content:''; position:absolute; inset:0; background:var(--white); opacity:0; transition:opacity 0.35s; }
   .service-card:hover { transform:translateY(-4px); }
@@ -252,7 +252,10 @@
   .proj-card { position:relative; overflow:hidden; cursor:pointer; grid-column:span 6; }
   .proj-card:nth-child(1) { grid-column:span 7; }
   .proj-card:nth-child(2) { grid-column:span 5; }
-  .proj-card:nth-child(3) { grid-column:span 12; }
+  .proj-card:nth-child(3) { grid-column:span 5; }
+  .proj-card:nth-child(4) { grid-column:span 7; }
+  .proj-card:nth-child(5) { grid-column:span 7; }
+  .proj-card:nth-child(6) { grid-column:span 5; }
   .proj-img { width:100%; height:320px; object-fit:cover; display:block; filter:grayscale(100%) contrast(1.06); transition:transform 0.7s cubic-bezier(0.16,1,0.3,1), filter 0.5s; }
   .proj-card:nth-child(1) .proj-img, .proj-card:nth-child(4) .proj-img { height:400px; }
   .proj-card:hover .proj-img { transform:scale(1.06); filter:grayscale(50%); }
@@ -480,6 +483,41 @@
         <div class="hero-cap-body">Lifecycle-focused engineering decisions.</div>
       </div>
     </div>
+    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1581092335397-9583eb92d232?w=1800&auto=format&fit=crop')">
+      <div class="hero-caption">
+        <div class="hero-cap-kicker">Helmets, hi-vis, real supervision</div>
+        <div class="hero-cap-title">Site Teams</div>
+        <div class="hero-cap-body">On-ground coordination that keeps work moving.</div>
+      </div>
+    </div>
+    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1800&auto=format&fit=crop')">
+      <div class="hero-caption">
+        <div class="hero-cap-kicker">Quality checks you can prove</div>
+        <div class="hero-cap-title">QA/QC Records</div>
+        <div class="hero-cap-body">Testing, audits, and handover-ready documentation.</div>
+      </div>
+    </div>
+    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1800&auto=format&fit=crop')">
+      <div class="hero-caption">
+        <div class="hero-cap-kicker">Safety is non-negotiable</div>
+        <div class="hero-cap-title">HSSE Controls</div>
+        <div class="hero-cap-body">Practical enforcement on active construction sites.</div>
+      </div>
+    </div>
+    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1581091012184-5cce63f0b9a0?w=1800&auto=format&fit=crop')">
+      <div class="hero-caption">
+        <div class="hero-cap-kicker">Fewer clashes, less rework</div>
+        <div class="hero-cap-title">Coordination</div>
+        <div class="hero-cap-body">Align engineering early to protect schedule and cost.</div>
+      </div>
+    </div>
+    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1581092334651-ddf26d9b2c0c?w=1800&auto=format&fit=crop')">
+      <div class="hero-caption">
+        <div class="hero-cap-kicker">From kickoff to handover</div>
+        <div class="hero-cap-title">Delivery Assurance</div>
+        <div class="hero-cap-body">Milestones, reporting, and closeout support.</div>
+      </div>
+    </div>
     <div class="hero-overlay"></div>
   </div>
   <div class="hero-line"></div>
@@ -579,6 +617,30 @@
       <p class="service-text">Green building solutions for lower lifecycle costs - passive design, efficient systems and smarter materials.</p>
       <a href="#contact" class="service-link">Enquire Now -></a><div class="service-accent"></div>
     </div>
+    <div class="service-card reveal">
+      <span class="service-card-num">05</span>
+      <h3 class="service-title">Site Supervision</h3>
+      <p class="service-text">Daily site coordination, progress reporting, and hands-on supervision to keep quality, safety, and schedule aligned.</p>
+      <a href="#contact" class="service-link">Enquire Now -></a><div class="service-accent"></div>
+    </div>
+    <div class="service-card reveal reveal-delay-1">
+      <span class="service-card-num">06</span>
+      <h3 class="service-title">Construction Audits</h3>
+      <p class="service-text">Third-party audits, snag lists, and compliance verification so handover is clean and defensible.</p>
+      <a href="#contact" class="service-link">Enquire Now -></a><div class="service-accent"></div>
+    </div>
+    <div class="service-card reveal reveal-delay-2">
+      <span class="service-card-num">07</span>
+      <h3 class="service-title">Retrofitting &amp; Rehabilitation</h3>
+      <p class="service-text">Condition assessment, strengthening recommendations, and life-extension plans for aging assets.</p>
+      <a href="#contact" class="service-link">Enquire Now -></a><div class="service-accent"></div>
+    </div>
+    <div class="service-card reveal reveal-delay-3">
+      <span class="service-card-num">08</span>
+      <h3 class="service-title">MEP Coordination</h3>
+      <p class="service-text">MEP coordination with engineering oversight to reduce clashes, rework, and delays during execution.</p>
+      <a href="#contact" class="service-link">Enquire Now -></a><div class="service-accent"></div>
+    </div>
   </div>
 </section>
 
@@ -625,6 +687,18 @@
     <div class="proj-card reveal reveal-delay-2">
       <img loading="lazy" class="proj-img" src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&auto=format&fit=crop" alt="Commercial">
       <div class="proj-overlay"><div class="proj-cat">Commercial</div><div class="proj-title">Commercial Complex - Project Management</div><div class="proj-loc">India</div></div>
+    </div>
+    <div class="proj-card reveal reveal-delay-3">
+      <img loading="lazy" class="proj-img" src="https://images.unsplash.com/photo-1496307653780-42ee777d4833?w=900&auto=format&fit=crop" alt="Civil Works">
+      <div class="proj-overlay"><div class="proj-cat">Civil Works</div><div class="proj-title">Site Development - Supervision</div><div class="proj-loc">India</div></div>
+    </div>
+    <div class="proj-card reveal">
+      <img loading="lazy" class="proj-img" src="https://images.unsplash.com/photo-1565008447742-97f6f38c985c?w=900&auto=format&fit=crop" alt="Residential">
+      <div class="proj-overlay"><div class="proj-cat">Residential</div><div class="proj-title">Residential Block - QA/QC</div><div class="proj-loc">India</div></div>
+    </div>
+    <div class="proj-card reveal reveal-delay-1">
+      <img loading="lazy" class="proj-img" src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=900&auto=format&fit=crop" alt="Safety">
+      <div class="proj-overlay"><div class="proj-cat">Safety</div><div class="proj-title">Safety Audit Program - Implementation</div><div class="proj-loc">India</div></div>
     </div>
   </div>
   <p class="reveal" style="text-align:center;margin-top:38px;font-family:var(--font-mono);font-size:10px;color:var(--mist);letter-spacing:0.24em;text-transform:uppercase;">- Projects in Progress - Portfolio Expanding -</p>
@@ -1101,7 +1175,16 @@
         subtitle: "Established 2026 - Infrastructure Excellence",
         body: "Tandem Infra Services delivers end-to-end construction and infrastructure solutions - from structural engineering and project management to quality assurance and sustainable building.",
         items: [
-          { image_url: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1800&auto=format&fit=crop" }
+          { image_url: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1800&auto=format&fit=crop", subtitle: "Roads and highways", title: "Infrastructure Delivery", body: "Engineering-led supervision and quality controls." },
+          { image_url: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1800&auto=format&fit=crop", subtitle: "Industrial sites", title: "Structural Review", body: "Inspections, compliance checks, and reporting." },
+          { image_url: "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?w=1800&auto=format&fit=crop", subtitle: "Commercial builds", title: "Project Leadership", body: "Timelines, QA, and clear reporting." },
+          { image_url: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1800&auto=format&fit=crop", subtitle: "Urban infrastructure", title: "Planning & Delivery", body: "Coordinated execution for resilient cities." },
+          { image_url: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1800&auto=format&fit=crop", subtitle: "Lower impact builds", title: "Sustainability", body: "Lifecycle-focused engineering decisions." },
+          { image_url: "https://images.unsplash.com/photo-1581092335397-9583eb92d232?w=1800&auto=format&fit=crop", subtitle: "Helmets and hi-vis", title: "Site Teams", body: "On-ground coordination that keeps work moving." },
+          { image_url: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1800&auto=format&fit=crop", subtitle: "QA/QC", title: "Testing & Records", body: "Audits and handover-ready documentation." },
+          { image_url: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1800&auto=format&fit=crop", subtitle: "Safety first", title: "HSSE Controls", body: "Practical enforcement on live sites." },
+          { image_url: "https://images.unsplash.com/photo-1581091012184-5cce63f0b9a0?w=1800&auto=format&fit=crop", subtitle: "Coordination", title: "Engineering Alignment", body: "Prevent rework with early coordination." },
+          { image_url: "https://images.unsplash.com/photo-1581092334651-ddf26d9b2c0c?w=1800&auto=format&fit=crop", subtitle: "Delivery assurance", title: "Milestones", body: "Transparent progress and measurable outcomes." }
         ]
       },
       {
@@ -1136,7 +1219,11 @@
           { title: "Project Management", body: "Full-lifecycle delivery from feasibility through handover - schedules, budgets, stakeholder coordination and expert supervision at every stage.", link_url: "#contact", link_label: "Enquire Now ->" },
           { title: "Structural Engineering & Inspection", body: "Structural analysis, load testing, third-party inspections and IS code compliance for commercial, industrial and residential projects.", link_url: "#contact", link_label: "Enquire Now ->" },
           { title: "Quality Assurance & Control", body: "Rigorous QA/QC protocols, material testing, construction audits and ISO-aligned documentation for defect-free project delivery.", link_url: "#contact", link_label: "Enquire Now ->" },
-          { title: "Sustainable Construction", body: "Green building solutions for lower lifecycle costs - passive design, efficient systems and smarter materials.", link_url: "#contact", link_label: "Enquire Now ->" }
+          { title: "Sustainable Construction", body: "Green building solutions for lower lifecycle costs - passive design, efficient systems and smarter materials.", link_url: "#contact", link_label: "Enquire Now ->" },
+          { title: "Site Supervision", body: "Daily site coordination, progress reporting, and hands-on supervision to keep quality, safety, and schedule aligned.", link_url: "#contact", link_label: "Enquire Now ->" },
+          { title: "Construction Audits", body: "Third-party audits, snag lists, and compliance verification so handover is clean and defensible.", link_url: "#contact", link_label: "Enquire Now ->" },
+          { title: "Retrofitting & Rehabilitation", body: "Condition assessment, strengthening recommendations, and life-extension plans for aging assets.", link_url: "#contact", link_label: "Enquire Now ->" },
+          { title: "MEP Coordination", body: "MEP coordination with engineering oversight to reduce clashes, rework, and delays during execution.", link_url: "#contact", link_label: "Enquire Now ->" }
         ]
       },
       {
@@ -1160,7 +1247,10 @@
         items: [
           { title: "Urban Road Infrastructure - Assessment", subtitle: "Infrastructure", body: "India", image_url: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=900&auto=format&fit=crop" },
           { title: "Industrial Facility - Structural Review", subtitle: "Industrial", body: "India", image_url: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=600&auto=format&fit=crop" },
-          { title: "Commercial Complex - Project Management", subtitle: "Commercial", body: "India", image_url: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&auto=format&fit=crop" }
+          { title: "Commercial Complex - Project Management", subtitle: "Commercial", body: "India", image_url: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&auto=format&fit=crop" },
+          { title: "Site Development - Supervision", subtitle: "Civil Works", body: "India", image_url: "https://images.unsplash.com/photo-1496307653780-42ee777d4833?w=900&auto=format&fit=crop" },
+          { title: "Residential Block - QA/QC", subtitle: "Residential", body: "India", image_url: "https://images.unsplash.com/photo-1565008447742-97f6f38c985c?w=900&auto=format&fit=crop" },
+          { title: "Safety Audit Program - Implementation", subtitle: "Safety", body: "India", image_url: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=900&auto=format&fit=crop" }
         ]
       },
       {
