@@ -1,10 +1,13 @@
 import jwt from "jsonwebtoken";
 import type { Request, Response, NextFunction } from "express";
 
-const jwtSecret = process.env.JWT_SECRET;
-if (!jwtSecret) {
-  throw new Error("Missing JWT_SECRET");
+function requiredEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`Missing ${name}`);
+  return value;
 }
+
+const jwtSecret = requiredEnv("JWT_SECRET");
 
 export function signToken(userId: string) {
   return jwt.sign({ sub: userId, role: "candidate" }, jwtSecret, { expiresIn: "7d" });
