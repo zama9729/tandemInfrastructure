@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HR Admin — Tandem Infra Services</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#ffffff; --ink:#f5f5f5; --dark:#ededed; --dim:#e2e2e2;
+  --shadow:#b8b8b8; --mist:#5a5a5a; --smoke:#444444; --silver:#2f2f2f;
+  --pearl:#111111; --white:#000000;
+  --border:rgba(0,0,0,0.12); --border-strong:rgba(0,0,0,0.28);
+  --success:#3fb68b; --danger:#e05252; --warn:#f0b429;
+  --font:'Source Sans 3',sans-serif; --font-display:'Source Sans 3',sans-serif; --font-mono:'Source Sans 3',sans-serif;
+}
+body.theme-dark{
+  --black:#08090a; --ink:#111214; --dark:#191a1c; --dim:#252628;
+  --shadow:#333537; --mist:#72757a; --smoke:#9fa3a9; --silver:#c8cace;
+  --pearl:#eaebec; --white:#ffffff;
+  --border:rgba(255,255,255,0.09); --border-strong:rgba(255,255,255,0.28);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--black);color:var(--pearl);font-family:var(--font);font-size:15px;line-height:1.6;min-height:100vh;}
+img{max-width:100%;height:auto;}
+
+header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,0.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
+body.theme-dark header{background:rgba(8,9,10,0.92);}
+.head-inner{display:flex;align-items:center;justify-content:space-between;padding:20px 32px;}
+.brand{display:flex;flex-direction:column;text-decoration:none;}
+.brand-main{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--white);letter-spacing:0.04em;}
+.brand-sub{font-family:var(--font-mono);font-size:7px;color:var(--smoke);letter-spacing:0.3em;text-transform:uppercase;}
+.head-actions{display:flex;align-items:center;gap:12px;}
+.theme-toggle{display:flex;align-items:center;gap:10px;cursor:pointer;font-family:var(--font-mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--smoke);}
+.theme-switch{width:40px;height:20px;border-radius:20px;border:1px solid var(--border-strong);background:var(--dark);position:relative;transition:all 0.3s ease;}
+.theme-knob{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--white);transition:transform 0.3s ease;}
+body.theme-dark .theme-knob{transform:translateX(20px);}
+
+.wrap{max-width:1300px;margin:0 auto;padding:32px 24px 80px;position:relative;z-index:1;}
+.card{background:var(--ink);border:1px solid var(--border);padding:28px;border-radius:6px;}
+.card + .card{margin-top:22px;}
+.card-title{font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--white);margin-bottom:6px;}
+.card-sub{font-size:13px;color:var(--mist);margin-bottom:20px;}
+
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-field{display:flex;flex-direction:column;gap:7px;margin-bottom:14px;}
+.form-label{font-family:var(--font-mono);font-size:9px;color:var(--mist);letter-spacing:0.22em;text-transform:uppercase;}
+.form-input,.form-textarea,.form-select{background:var(--dark);border:1px solid var(--border);padding:12px 14px;color:var(--pearl);font-family:var(--font);font-size:14px;outline:none;transition:border-color 0.3s;width:100%;border-radius:0;appearance:none;}
+.form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--border-strong);}
+.form-textarea{min-height:90px;resize:vertical;}
+.btn{padding:12px 22px;background:var(--white);color:var(--black);border:none;font-family:var(--font);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all 0.3s;}
+.btn:hover{background:var(--pearl);transform:translateY(-1px);}
+.btn.secondary{background:transparent;color:var(--white);border:1px solid var(--border-strong);}
+.btn.danger{background:transparent;color:var(--danger);border:1px solid rgba(224,82,82,0.4);}
+.btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;}
+
+.table{width:100%;border-collapse:collapse;}
+.table th,.table td{padding:12px;border-bottom:1px solid var(--border);text-align:left;font-size:13px;}
+.table th{font-family:var(--font-mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--mist);}
+.pill{display:inline-block;padding:3px 8px;border-radius:20px;font-size:10px;font-family:var(--font-mono);letter-spacing:0.08em;}
+.pill.open{background:rgba(63,182,139,0.16);color:#3fb68b;}
+.pill.closed{background:rgba(224,82,82,0.16);color:#e05252;}
+.pill.warn{background:rgba(240,180,41,0.16);color:#f0b429;}
+.small{font-size:12px;color:var(--mist);}
+.cms-panel{border-top:1px solid var(--border);padding-top:16px;}
+.table-wrap{width:100%;overflow-x:auto;}
+
+.admin-layout{display:grid;grid-template-columns:220px 1fr;gap:20px;}
+.admin-sidebar{background:var(--ink);border:1px solid var(--border);padding:16px;position:sticky;top:90px;height:fit-content;border-radius:6px;}
+.admin-sidebar h3{font-size:12px;font-weight:700;color:var(--mist);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:10px;font-family:var(--font-mono);}
+.admin-nav{display:flex;flex-direction:column;gap:6px;}
+.admin-nav button{background:transparent;border:1px solid var(--border);padding:10px 12px;text-align:left;font-size:13px;color:var(--pearl);cursor:pointer;transition:border-color 0.2s,background 0.2s;border-radius:4px;}
+.admin-nav button.active{border-color:var(--border-strong);background:var(--dark);font-weight:700;}
+.admin-panel{display:none;}
+.admin-panel.active{display:block;}
+.panel-title{font-size:18px;font-weight:700;margin-bottom:4px;}
+.panel-sub{font-size:12px;color:var(--mist);margin-bottom:16px;}
+.upload-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.upload-preview{width:48px;height:48px;border:1px solid var(--border);background:var(--dark);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--mist);}
+.brand-logo{width:28px;height:28px;object-fit:contain;display:none;}
+.edit-btn{padding:6px 10px;font-size:10px;}
+.advanced-toggle{font-size:11px;color:var(--mist);cursor:pointer;text-decoration:underline;}
+.advanced{display:none;}
+.advanced.show{display:block;}
+
+.hidden{display:none;}
+.login-card{max-width:420px;margin:80px auto;padding:32px;}
+.msg{padding:10px 12px;border:1px solid var(--border);font-size:13px;margin-bottom:12px;}
+.msg.error{border-color:rgba(224,82,82,0.3);color:#e05252;background:rgba(224,82,82,0.08);}
+
+@media(max-width:820px){
+  .form-row{grid-template-columns:1fr;}
+  .head-inner{padding:16px 20px;flex-direction:column;align-items:flex-start;gap:12px;}
+  .admin-layout{grid-template-columns:1fr;}
+  .admin-sidebar{position:static;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <a class="brand" href="index.html">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <img id="siteBrandLogo" class="brand-logo" alt="Logo">
+        <div>
+          <span class="brand-main" id="siteBrandMain">Tandem Infra Services</span>
+          <span class="brand-sub" id="siteBrandSub">Infrastructure &amp; Construction</span>
+        </div>
+      </div>
+    </a>
+    <div class="head-actions">
+      <div class="theme-toggle" onclick="toggleTheme()">
+        <span id="themeLabel">Light</span>
+        <div class="theme-switch"><div class="theme-knob"></div></div>
+      </div>
+      <button class="btn secondary" id="adminLogout" onclick="doLogout()" style="padding:8px 14px;font-size:10px;">Log Out</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="card login-card" id="loginCard">
+    <div class="card-title">HR Admin Login</div>
+    <div class="card-sub">Use your HR credentials to manage jobs and applications.</div>
+    <div class="msg error hidden" id="loginErr"></div>
+    <div class="form-field">
+      <label class="form-label">Email</label>
+      <input class="form-input" id="loginEmail" type="email" placeholder="hr@example.com">
+    </div>
+    <div class="form-field">
+      <label class="form-label">Password</label>
+      <input class="form-input" id="loginPassword" type="password" placeholder="Your password">
+    </div>
+    <button class="btn" onclick="doLogin()">Sign In</button>
+  </div>
+
+  <div id="adminApp" class="hidden">
+    <div class="admin-layout">
+      <aside class="admin-sidebar">
+        <h3>Dashboard</h3>
+        <div class="admin-nav">
+          <button id="navJobs" class="active" onclick="showPanel('jobs')">Jobs</button>
+          <button id="navApplications" onclick="showPanel('applications')">Applications</button>
+          <button id="navContent" onclick="showPanel('content')">Page Content</button>
+          <button id="navMedia" onclick="showPanel('media')">Media</button>
+        </div>
+      </aside>
+
+      <main>
+        <section id="panel-jobs" class="admin-panel active">
+          <div class="card">
+            <div class="panel-title">Post / Edit Job</div>
+            <div class="panel-sub">Create new openings or update existing listings.</div>
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label">Job Key</label>
+          <input class="form-input" id="jobKey" placeholder="civil">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Title</label>
+          <input class="form-input" id="jobTitle" placeholder="Civil Engineer">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label">Department</label>
+          <input class="form-input" id="jobDept" placeholder="Civil & Structural">
+        </div>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Tags (comma separated)</label>
+        <input class="form-input" id="jobTags" placeholder="Fresher OK, Full-Time, Now Hiring">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="jobDesc" placeholder="Role summary..."></textarea>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Requirements (one per line)</label>
+        <textarea class="form-textarea" id="jobReqs" placeholder="B.E. / B.Tech in Civil Engineering"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label">Qualification</label>
+          <input class="form-input" id="jobQual" placeholder="B.E. / B.Tech">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Experience</label>
+          <input class="form-input" id="jobExp" placeholder="0-2 years">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label">Location</label>
+          <input class="form-input" id="jobLoc" placeholder="Vadodara">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="jobStatus">
+            <option>Open</option>
+            <option>Under Review</option>
+            <option>Closed</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Active</label>
+        <select class="form-select" id="jobActive">
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="saveJobBtn" onclick="saveJob()">Save Job</button>
+        <button class="btn secondary" onclick="clearForm()">Clear</button>
+      </div>
+            <input type="hidden" id="jobId">
+          </div>
+
+          <div class="card">
+            <div class="panel-title">Jobs</div>
+            <div class="panel-sub">Edit, enable/disable, or hide jobs from Careers.</div>
+            <div id="jobsTableWrap"></div>
+          </div>
+        </section>
+
+        <section id="panel-applications" class="admin-panel">
+          <div class="card">
+            <div class="panel-title">Applications</div>
+            <div class="panel-sub">Latest applications from candidates.</div>
+            <div id="appsTableWrap"></div>
+          </div>
+        </section>
+
+        <section id="panel-content" class="admin-panel">
+          <div class="card">
+            <div class="panel-title">Page Content</div>
+            <div class="panel-sub">Manage pages, sections, and items. Delete requires superadmin role.</div>
+            <div style="padding:12px;border:1px dashed var(--border);margin-bottom:16px;">
+              <div class="small" style="margin-bottom:8px;">Quick templates (creates standard sections and items)</div>
+              <div class="btn-row">
+                <button class="btn secondary" onclick="applyHomeTemplate()">Apply Home Template</button>
+                <button class="btn secondary" onclick="applyCareersTemplate()">Apply Careers Template</button>
+              </div>
+            </div>
+            <div class="card" style="margin-bottom:16px;">
+              <div class="panel-title">Published Content</div>
+              <div class="panel-sub">See what is currently live on Home/Careers.</div>
+              <div id="contentSummary"></div>
+            </div>
+            <div class="btn-row" style="margin-bottom:14px;">
+              <button class="btn secondary" onclick="showCmsPanel('pages')">Pages</button>
+              <button class="btn secondary" onclick="showCmsPanel('sections')">Sections</button>
+              <button class="btn secondary" onclick="showCmsPanel('items')">Items</button>
+              <button class="btn secondary" onclick="showCmsPanel('settings')">Settings</button>
+            </div>
+
+      <div id="cms-pages" class="cms-panel">
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Slug</label>
+            <input class="form-input" id="pageSlug" placeholder="home">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Title</label>
+            <input class="form-input" id="pageTitle" placeholder="Homepage">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Active</label>
+            <select class="form-select" id="pageActive">
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="savePage()">Save Page</button>
+          <button class="btn secondary" onclick="clearPage()">Clear</button>
+        </div>
+        <input type="hidden" id="pageId">
+        <div id="pagesTableWrap" style="margin-top:16px;"></div>
+      </div>
+
+      <div id="cms-sections" class="cms-panel hidden">
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Page</label>
+            <select class="form-select" id="sectionPage"></select>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Key</label>
+            <input class="form-input" id="sectionKey" placeholder="hero">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Title</label>
+            <input class="form-input" id="sectionTitle" placeholder="Section title">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Subtitle</label>
+            <input class="form-input" id="sectionSubtitle" placeholder="Subtitle">
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Body</label>
+          <textarea class="form-textarea" id="sectionBody" placeholder="Section body"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Sort Order</label>
+            <input class="form-input" id="sectionSort" type="number" value="0">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Active</label>
+            <select class="form-select" id="sectionActive">
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-field">
+          <span class="advanced-toggle" onclick="toggleAdvanced('sectionAdvanced')">Advanced JSON (optional)</span>
+          <div class="advanced" id="sectionAdvanced">
+            <label class="form-label">Settings (JSON)</label>
+            <textarea class="form-textarea" id="sectionSettings" placeholder='{"layout":"grid"}'></textarea>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="saveSection()">Save Section</button>
+          <button class="btn secondary" onclick="clearSection()">Clear</button>
+        </div>
+        <input type="hidden" id="sectionId">
+        <div id="sectionsTableWrap" style="margin-top:16px;"></div>
+      </div>
+
+      <div id="cms-items" class="cms-panel hidden">
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Section</label>
+            <select class="form-select" id="itemSection"></select>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Title</label>
+            <input class="form-input" id="itemTitle" placeholder="Item title">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Subtitle</label>
+            <input class="form-input" id="itemSubtitle" placeholder="Subtitle">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Image URL</label>
+            <input class="form-input" id="itemImage" placeholder="https://...">
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Upload Item Image</label>
+          <div class="upload-row">
+            <input class="form-input" id="itemImageFile" type="file" accept="image/*">
+            <button class="btn secondary" onclick="uploadItemImage()">Upload and Use</button>
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Body</label>
+          <textarea class="form-textarea" id="itemBody" placeholder="Item body"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Link URL</label>
+            <input class="form-input" id="itemLinkUrl" placeholder="https://...">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Link Label</label>
+            <input class="form-input" id="itemLinkLabel" placeholder="Learn More">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Tags (comma separated)</label>
+            <input class="form-input" id="itemTags" placeholder="tag1, tag2">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Sort Order</label>
+            <input class="form-input" id="itemSort" type="number" value="0">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Stat Number (for Why section)</label>
+            <input class="form-input" id="itemStat" placeholder="100%">
+          </div>
+          <div class="form-field">
+            <span class="advanced-toggle" onclick="toggleAdvanced('itemAdvanced')">Advanced JSON (optional)</span>
+            <div class="advanced" id="itemAdvanced">
+              <label class="form-label">Meta (JSON)</label>
+              <textarea class="form-textarea" id="itemMeta" placeholder='{"key":"value"}'></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Active</label>
+            <select class="form-select" id="itemActive">
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="saveItem()">Save Item</button>
+          <button class="btn secondary" onclick="clearItem()">Clear</button>
+        </div>
+        <input type="hidden" id="itemId">
+        <div id="itemsTableWrap" style="margin-top:16px;"></div>
+      </div>
+
+      <div id="cms-settings" class="cms-panel hidden">
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Key</label>
+            <input class="form-input" id="settingKey" placeholder="brand_name">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Value</label>
+            <input class="form-input" id="settingValue" placeholder="Tandem Infra Services">
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="saveSetting()">Save Setting</button>
+          <button class="btn secondary" onclick="clearSetting()">Clear</button>
+        </div>
+        <input type="hidden" id="settingId">
+        <div id="settingsTableWrap" style="margin-top:16px;"></div>
+      </div>
+          </div>
+        </section>
+
+        <section id="panel-media" class="admin-panel">
+          <div class="card">
+            <div class="panel-title">Media Uploads</div>
+            <div class="panel-sub">Upload logo and images to the CMS bucket. Superadmin only.</div>
+            <div class="form-field">
+              <label class="form-label">Brand Logo</label>
+              <div class="upload-row">
+                <div class="upload-preview" id="logoPreview">Logo</div>
+                <input class="form-input" id="logoFile" type="file" accept="image/*">
+                <button class="btn" onclick="uploadLogo()">Upload Logo</button>
+              </div>
+              <div class="small" id="logoUrl"></div>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Image Upload</label>
+              <div class="upload-row">
+                <input class="form-input" id="imageFile" type="file" accept="image/*">
+                <button class="btn" onclick="uploadImage()">Upload Image</button>
+              </div>
+              <div class="small" id="imageUrl"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = location.origin === "null" ? "http://localhost:4000" : "";
+const ADMIN_TOKEN_KEY = "tis_admin_token";
+const THEME_KEY = "tis_theme";
+let jobsCache = [];
+let pagesCache = [];
+let sectionsCache = [];
+let itemsCache = [];
+let settingsCache = [];
+
+function applyTheme(theme){
+  document.body.classList.toggle("theme-dark", theme === "dark");
+  const label = document.getElementById("themeLabel");
+  if(label) label.textContent = theme === "dark" ? "Dark" : "Light";
+  localStorage.setItem(THEME_KEY, theme);
+}
+function toggleTheme(){
+  const next = document.body.classList.contains("theme-dark") ? "light" : "dark";
+  applyTheme(next);
+}
+applyTheme(localStorage.getItem(THEME_KEY) || "light");
+function applySettings(settings = {}){
+  const main = document.getElementById("siteBrandMain");
+  if(main && settings.brand_name) main.textContent = settings.brand_name;
+  const sub = document.getElementById("siteBrandSub");
+  if(sub && settings.brand_subtitle) sub.textContent = settings.brand_subtitle;
+  const logo = document.getElementById("siteBrandLogo");
+  if(logo){
+    if(settings.brand_logo){
+      logo.src = settings.brand_logo;
+      logo.style.display = "block";
+    } else {
+      logo.style.display = "none";
+    }
+  }
+}
+async function loadBrandSettings(){
+  try{
+    const res = await fetch(`${API_BASE}/api/content/admin`);
+    if(!res.ok) return;
+    const data = await res.json();
+    applySettings(data.settings || {});
+    const logoUrl = data.settings?.brand_logo || "";
+    const logoEl = document.getElementById("logoPreview");
+    if(logoUrl && logoEl){
+      logoEl.style.backgroundImage = `url('${logoUrl}')`;
+      logoEl.style.backgroundSize = "contain";
+      logoEl.style.backgroundRepeat = "no-repeat";
+      logoEl.style.backgroundPosition = "center";
+    }
+    const logoUrlEl = document.getElementById("logoUrl");
+    if(logoUrlEl) logoUrlEl.textContent = logoUrl;
+  }catch{}
+}
+loadBrandSettings();
+
+function getToken(){ return localStorage.getItem(ADMIN_TOKEN_KEY); }
+function setToken(t){ localStorage.setItem(ADMIN_TOKEN_KEY, t); }
+function clearToken(){ localStorage.removeItem(ADMIN_TOKEN_KEY); }
+
+function showPanel(key){
+  document.querySelectorAll(".admin-panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".admin-nav button").forEach(b => b.classList.remove("active"));
+  const panel = document.getElementById(`panel-${key}`);
+  const btn = document.getElementById(`nav${key[0].toUpperCase()}${key.slice(1)}`);
+  if(panel) panel.classList.add("active");
+  if(btn) btn.classList.add("active");
+}
+
+function toggleAdvanced(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.classList.toggle("show");
+}
+
+async function api(path, options = {}){
+  const headers = options.headers || {};
+  if(options.body && !headers["Content-Type"]) headers["Content-Type"] = "application/json";
+  const token = getToken();
+  if(token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  const data = await res.json().catch(() => ({}));
+  if(!res.ok) throw new Error(data.error || "Request failed");
+  return data;
+}
+
+async function doLogin(){
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value.trim();
+  const err = document.getElementById("loginErr");
+  err.classList.add("hidden");
+  try{
+    const res = await api("/api/admin/login", { method:"POST", body: JSON.stringify({ email, password }) });
+    setToken(res.token);
+    document.getElementById("loginCard").classList.add("hidden");
+    document.getElementById("adminApp").classList.remove("hidden");
+    await refreshAll();
+  }catch(e){
+    err.textContent = e.message || "Login failed.";
+    err.classList.remove("hidden");
+  }
+}
+
+function doLogout(){
+  clearToken();
+  document.getElementById("adminApp").classList.add("hidden");
+  document.getElementById("loginCard").classList.remove("hidden");
+}
+
+function clearForm(){
+  document.getElementById("jobId").value = "";
+  document.getElementById("jobKey").value = "";
+  document.getElementById("jobTitle").value = "";
+  document.getElementById("jobDept").value = "";
+  document.getElementById("jobTags").value = "";
+  document.getElementById("jobDesc").value = "";
+  document.getElementById("jobReqs").value = "";
+  document.getElementById("jobQual").value = "";
+  document.getElementById("jobExp").value = "";
+  document.getElementById("jobLoc").value = "";
+  document.getElementById("jobStatus").value = "Open";
+  document.getElementById("jobActive").value = "true";
+}
+
+function readForm(){
+  return {
+    id: document.getElementById("jobId").value.trim(),
+    job_key: document.getElementById("jobKey").value.trim(),
+    title: document.getElementById("jobTitle").value.trim(),
+    dept: document.getElementById("jobDept").value.trim(),
+    tags: document.getElementById("jobTags").value.split(",").map(t => t.trim()).filter(Boolean),
+    description: document.getElementById("jobDesc").value.trim(),
+    requirements: document.getElementById("jobReqs").value.split("\n").map(t => t.trim()).filter(Boolean),
+    qualification: document.getElementById("jobQual").value.trim(),
+    experience: document.getElementById("jobExp").value.trim(),
+    location: document.getElementById("jobLoc").value.trim(),
+    status: document.getElementById("jobStatus").value,
+    is_active: document.getElementById("jobActive").value === "true"
+  };
+}
+
+async function saveJob(){
+  const btn = document.getElementById("saveJobBtn");
+  btn.disabled = true;
+  const payload = readForm();
+  try{
+    if(payload.id){
+      const { id, ...rest } = payload;
+      await api(`/api/admin/jobs/${id}`, { method:"PUT", body: JSON.stringify(rest) });
+    }else{
+      await api("/api/admin/jobs", { method:"POST", body: JSON.stringify(payload) });
+    }
+    clearForm();
+    await loadJobs();
+  }catch(e){
+    alert(e.message || "Unable to save job.");
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+function fillForm(job){
+  document.getElementById("jobId").value = job.id || "";
+  document.getElementById("jobKey").value = job.job_key || "";
+  document.getElementById("jobTitle").value = job.title || "";
+  document.getElementById("jobDept").value = job.dept || "";
+  document.getElementById("jobTags").value = (job.tags || []).join(", ");
+  document.getElementById("jobDesc").value = job.description || "";
+  document.getElementById("jobReqs").value = (job.requirements || []).join("\n");
+  document.getElementById("jobQual").value = job.qualification || "";
+  document.getElementById("jobExp").value = job.experience || "";
+  document.getElementById("jobLoc").value = job.location || "";
+  document.getElementById("jobStatus").value = job.status || "Open";
+  document.getElementById("jobActive").value = job.is_active ? "true" : "false";
+}
+
+async function removeJob(id){
+  if(!confirm("Remove this job from Careers?")) return;
+  await api(`/api/admin/jobs/${id}`, { method:"DELETE" });
+  await loadJobs();
+}
+
+async function toggleJobActive(id){
+  const job = jobsCache.find(j => j.id === id);
+  if(!job) return;
+  await api(`/api/admin/jobs/${id}`, { method:"PUT", body: JSON.stringify({ is_active: !job.is_active }) });
+  await loadJobs();
+}
+
+function renderJobs(){
+  if(!jobsCache.length){
+    document.getElementById("jobsTableWrap").innerHTML = "<div class='small'>No jobs yet.</div>";
+    return;
+  }
+  const rows = jobsCache.map(j => `
+    <tr>
+      <td>${j.title}</td>
+      <td>${j.job_key}</td>
+      <td>${j.dept || "-"}</td>
+      <td><span class="pill ${j.is_active ? "open" : "closed"}">${j.is_active ? "Active" : "Hidden"}</span></td>
+      <td>${j.created_at ? new Date(j.created_at).toLocaleDateString() : "-"}</td>
+      <td>
+        <button class="btn secondary edit-btn" onclick='window.__editJob("${j.id}")'>Edit</button>
+        <button class="btn secondary edit-btn" onclick='window.__toggleJob("${j.id}")'>${j.is_active ? "Disable" : "Enable"}</button>
+        <button class="btn danger edit-btn" onclick='window.__removeJob("${j.id}")'>Remove</button>
+      </td>
+    </tr>
+  `).join("");
+  document.getElementById("jobsTableWrap").innerHTML = `
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Title</th><th>Key</th><th>Department</th><th>Status</th><th>Created</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+async function loadJobs(){
+  const res = await api("/api/admin/jobs");
+  jobsCache = res.jobs || [];
+  renderJobs();
+}
+
+async function loadApplications(){
+  const res = await api("/api/admin/applications");
+  const apps = res.applications || [];
+  if(!apps.length){
+    document.getElementById("appsTableWrap").innerHTML = "<div class='small'>No applications yet.</div>";
+    return;
+  }
+  const rows = apps.map(a => {
+    const c = a.candidates || {};
+    return `
+      <tr>
+        <td>${a.job_title || "-"}</td>
+        <td>${c.name || "-"}</td>
+        <td>${c.email || "-"}</td>
+        <td>${c.phone || "-"}</td>
+        <td>${a.status || "-"}</td>
+        <td>${a.cv_file || "-"}</td>
+        <td>${a.applied_at ? new Date(a.applied_at).toLocaleDateString() : "-"}</td>
+      </tr>
+    `;
+  }).join("");
+  document.getElementById("appsTableWrap").innerHTML = `
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Role</th><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>CV</th><th>Date</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function showCmsPanel(id){
+  document.querySelectorAll('.cms-panel').forEach(p => p.classList.add('hidden'));
+  const panel = document.getElementById(`cms-${id}`);
+  if(panel) panel.classList.remove('hidden');
+}
+
+function clearPage(){
+  document.getElementById("pageId").value = "";
+  document.getElementById("pageSlug").value = "";
+  document.getElementById("pageTitle").value = "";
+  document.getElementById("pageActive").value = "true";
+}
+
+async function savePage(){
+  const payload = {
+    id: document.getElementById("pageId").value.trim(),
+    slug: document.getElementById("pageSlug").value.trim(),
+    title: document.getElementById("pageTitle").value.trim(),
+    is_active: document.getElementById("pageActive").value === "true"
+  };
+  try{
+    if(payload.id){
+      const { id, ...rest } = payload;
+      await api(`/api/admin/pages/${id}`, { method:"PUT", body: JSON.stringify(rest) });
+    }else{
+      await api("/api/admin/pages", { method:"POST", body: JSON.stringify(payload) });
+    }
+    clearPage();
+    await loadPages();
+  }catch(e){
+    alert(e.message || "Unable to save page.");
+  }
+}
+
+async function deletePage(id){
+  if(!confirm("Delete this page?")) return;
+  await api(`/api/admin/pages/${id}`, { method:"DELETE" });
+  await loadPages();
+}
+
+function renderPages(){
+  if(!pagesCache.length){
+    document.getElementById("pagesTableWrap").innerHTML = "<div class='small'>No pages yet.</div>";
+    return;
+  }
+  const rows = pagesCache.map(p => `
+    <tr>
+      <td>${p.slug}</td>
+      <td>${p.title || "-"}</td>
+      <td><span class="pill ${p.is_active ? "open" : "closed"}">${p.is_active ? "Active" : "Hidden"}</span></td>
+      <td>${p.created_at ? new Date(p.created_at).toLocaleDateString() : "-"}</td>
+      <td>
+        <button class="btn secondary edit-btn" onclick='window.__editPage("${p.id}")'>Edit</button>
+        <button class="btn danger edit-btn" onclick='window.__deletePage("${p.id}")'>Delete</button>
+      </td>
+    </tr>
+  `).join("");
+  document.getElementById("pagesTableWrap").innerHTML = `
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Slug</th><th>Title</th><th>Status</th><th>Created</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+async function loadPages(){
+  const res = await api("/api/admin/pages");
+  pagesCache = res.pages || [];
+  const pageSelect = document.getElementById("sectionPage");
+  if(pageSelect){
+    pageSelect.innerHTML = pagesCache.map(p => `<option value="${p.id}">${p.slug}</option>`).join("");
+  }
+  renderPages();
+  renderContentSummary();
+}
+
+function clearSection(){
+  document.getElementById("sectionId").value = "";
+  document.getElementById("sectionKey").value = "";
+  document.getElementById("sectionTitle").value = "";
+  document.getElementById("sectionSubtitle").value = "";
+  document.getElementById("sectionBody").value = "";
+  document.getElementById("sectionSort").value = "0";
+  document.getElementById("sectionActive").value = "true";
+  document.getElementById("sectionSettings").value = "";
+}
+
+async function saveSection(){
+  const payload = {
+    id: document.getElementById("sectionId").value.trim(),
+    page_id: document.getElementById("sectionPage").value,
+    key: document.getElementById("sectionKey").value.trim(),
+    title: document.getElementById("sectionTitle").value.trim(),
+    subtitle: document.getElementById("sectionSubtitle").value.trim(),
+    body: document.getElementById("sectionBody").value.trim(),
+    sort_order: Number(document.getElementById("sectionSort").value || 0),
+    is_active: document.getElementById("sectionActive").value === "true",
+    settings: parseJson(document.getElementById("sectionSettings").value)
+  };
+  try{
+    if(payload.id){
+      const { id, ...rest } = payload;
+      await api(`/api/admin/sections/${id}`, { method:"PUT", body: JSON.stringify(rest) });
+    }else{
+      await api("/api/admin/sections", { method:"POST", body: JSON.stringify(payload) });
+    }
+    clearSection();
+    await loadSections();
+  }catch(e){
+    alert(e.message || "Unable to save section.");
+  }
+}
+
+async function deleteSection(id){
+  if(!confirm("Delete this section?")) return;
+  await api(`/api/admin/sections/${id}`, { method:"DELETE" });
+  await loadSections();
+}
+
+function renderSections(){
+  if(!sectionsCache.length){
+    document.getElementById("sectionsTableWrap").innerHTML = "<div class='small'>No sections yet.</div>";
+    return;
+  }
+  const rows = sectionsCache.map(s => `
+    <tr>
+      <td>${s.cms_pages?.slug || "-"}</td>
+      <td>${s.key}</td>
+      <td>${s.title || "-"}</td>
+      <td>${s.sort_order ?? 0}</td>
+      <td><span class="pill ${s.is_active ? "open" : "closed"}">${s.is_active ? "Active" : "Hidden"}</span></td>
+      <td>
+        <button class="btn secondary edit-btn" onclick='window.__editSection("${s.id}")'>Edit</button>
+        <button class="btn danger edit-btn" onclick='window.__deleteSection("${s.id}")'>Delete</button>
+      </td>
+    </tr>
+  `).join("");
+  document.getElementById("sectionsTableWrap").innerHTML = `
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Page</th><th>Key</th><th>Title</th><th>Sort</th><th>Status</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+async function loadSections(){
+  const res = await api("/api/admin/sections");
+  sectionsCache = res.sections || [];
+  const itemSelect = document.getElementById("itemSection");
+  if(itemSelect){
+    itemSelect.innerHTML = sectionsCache.map(s => `<option value="${s.id}">${s.key}</option>`).join("");
+  }
+  renderSections();
+  renderContentSummary();
+}
+
+function clearItem(){
+  document.getElementById("itemId").value = "";
+  document.getElementById("itemTitle").value = "";
+  document.getElementById("itemSubtitle").value = "";
+  document.getElementById("itemBody").value = "";
+  document.getElementById("itemImage").value = "";
+  document.getElementById("itemLinkUrl").value = "";
+  document.getElementById("itemLinkLabel").value = "";
+  document.getElementById("itemTags").value = "";
+  document.getElementById("itemMeta").value = "";
+  document.getElementById("itemStat").value = "";
+  document.getElementById("itemSort").value = "0";
+  document.getElementById("itemActive").value = "true";
+}
+
+async function saveItem(){
+  const payload = {
+    id: document.getElementById("itemId").value.trim(),
+    section_id: document.getElementById("itemSection").value,
+    title: document.getElementById("itemTitle").value.trim(),
+    subtitle: document.getElementById("itemSubtitle").value.trim(),
+    body: document.getElementById("itemBody").value.trim(),
+    image_url: document.getElementById("itemImage").value.trim(),
+    link_url: document.getElementById("itemLinkUrl").value.trim(),
+    link_label: document.getElementById("itemLinkLabel").value.trim(),
+    tags: document.getElementById("itemTags").value.split(",").map(t => t.trim()).filter(Boolean),
+    meta: (() => {
+      const meta = parseJson(document.getElementById("itemMeta").value);
+      const stat = document.getElementById("itemStat").value.trim();
+      if(stat) meta.num = stat;
+      return meta;
+    })(),
+    sort_order: Number(document.getElementById("itemSort").value || 0),
+    is_active: document.getElementById("itemActive").value === "true"
+  };
+  try{
+    if(payload.id){
+      const { id, ...rest } = payload;
+      await api(`/api/admin/items/${id}`, { method:"PUT", body: JSON.stringify(rest) });
+    }else{
+      await api("/api/admin/items", { method:"POST", body: JSON.stringify(payload) });
+    }
+    clearItem();
+    await loadItems();
+  }catch(e){
+    alert(e.message || "Unable to save item.");
+  }
+}
+
+async function deleteItem(id){
+  if(!confirm("Delete this item?")) return;
+  await api(`/api/admin/items/${id}`, { method:"DELETE" });
+  await loadItems();
+}
+
+function renderItems(){
+  if(!itemsCache.length){
+    document.getElementById("itemsTableWrap").innerHTML = "<div class='small'>No items yet.</div>";
+    return;
+  }
+  const rows = itemsCache.map(i => `
+    <tr>
+      <td>${i.cms_sections?.key || "-"}</td>
+      <td>${i.title || "-"}</td>
+      <td>${i.sort_order ?? 0}</td>
+      <td><span class="pill ${i.is_active ? "open" : "closed"}">${i.is_active ? "Active" : "Hidden"}</span></td>
+      <td>
+        <button class="btn secondary edit-btn" onclick='window.__editItem("${i.id}")'>Edit</button>
+        <button class="btn danger edit-btn" onclick='window.__deleteItem("${i.id}")'>Delete</button>
+      </td>
+    </tr>
+  `).join("");
+  document.getElementById("itemsTableWrap").innerHTML = `
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Section</th><th>Title</th><th>Sort</th><th>Status</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+async function loadItems(){
+  const res = await api("/api/admin/items");
+  itemsCache = res.items || [];
+  renderItems();
+  renderContentSummary();
+}
+
+function renderContentSummary(){
+  const wrap = document.getElementById("contentSummary");
+  if(!wrap) return;
+  if(!pagesCache.length){
+    wrap.innerHTML = "<div class='small'>No pages yet.</div>";
+    return;
+  }
+  const sectionsByPage = {};
+  sectionsCache.forEach(s => {
+    const key = s.page_id;
+    if(!sectionsByPage[key]) sectionsByPage[key] = [];
+    sectionsByPage[key].push(s);
+  });
+  wrap.innerHTML = pagesCache.map(p => {
+    const secs = sectionsByPage[p.id] || [];
+    const rows = secs.map(s => {
+      const count = itemsCache.filter(i => i.section_id === s.id).length;
+      return `<div class="small" style="display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);">
+        <span>${s.key} ${s.title ? "- " + s.title : ""}</span>
+        <span>${count} items</span>
+      </div>`;
+    }).join("");
+    return `
+      <div style="margin-bottom:16px;">
+        <div style="font-weight:700;margin-bottom:6px;">${p.slug}</div>
+        ${rows || "<div class='small'>No sections yet.</div>"}
+      </div>
+    `;
+  }).join("");
+}
+
+function clearSetting(){
+  document.getElementById("settingId").value = "";
+  document.getElementById("settingKey").value = "";
+  document.getElementById("settingValue").value = "";
+}
+
+async function saveSetting(){
+  const key = document.getElementById("settingKey").value.trim();
+  const value = document.getElementById("settingValue").value.trim();
+  if(!key) return alert("Missing key.");
+  await api("/api/admin/settings", { method:"POST", body: JSON.stringify({ key, value }) });
+  clearSetting();
+  await loadSettings();
+}
+
+async function deleteSetting(id){
+  if(!confirm("Delete this setting?")) return;
+  await api(`/api/admin/settings/${id}`, { method:"DELETE" });
+  await loadSettings();
+}
+
+function renderSettings(){
+  if(!settingsCache.length){
+    document.getElementById("settingsTableWrap").innerHTML = "<div class='small'>No settings yet.</div>";
+    return;
+  }
+  const rows = settingsCache.map(s => `
+    <tr>
+      <td>${s.key}</td>
+      <td>${s.value ?? ""}</td>
+      <td>
+        <button class="btn secondary edit-btn" onclick='window.__editSetting("${s.id}")'>Edit</button>
+        <button class="btn danger edit-btn" onclick='window.__deleteSetting("${s.id}")'>Delete</button>
+      </td>
+    </tr>
+  `).join("");
+  document.getElementById("settingsTableWrap").innerHTML = `
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Key</th><th>Value</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+async function loadSettings(){
+  const res = await api("/api/admin/settings");
+  settingsCache = res.settings || [];
+  renderSettings();
+}
+
+function parseJson(val){
+  const v = String(val || "").trim();
+  if(!v) return {};
+  try{ return JSON.parse(v); }catch{ return {}; }
+}
+
+async function refreshAll(){
+  await loadJobs();
+  await loadApplications();
+  await loadPages();
+  await loadSections();
+  await loadItems();
+  await loadSettings();
+  await loadBrandSettings();
+}
+
+window.__editJob = (id) => {
+  const job = jobsCache.find(j => j.id === id);
+  if(job) fillForm(job);
+};
+window.__removeJob = (id) => removeJob(id);
+window.__toggleJob = (id) => toggleJobActive(id);
+window.__editPage = (id) => {
+  const p = pagesCache.find(x => x.id === id);
+  if(!p) return;
+  document.getElementById("pageId").value = p.id;
+  document.getElementById("pageSlug").value = p.slug;
+  document.getElementById("pageTitle").value = p.title || "";
+  document.getElementById("pageActive").value = p.is_active ? "true" : "false";
+};
+window.__deletePage = (id) => deletePage(id);
+window.__editSection = (id) => {
+  const s = sectionsCache.find(x => x.id === id);
+  if(!s) return;
+  document.getElementById("sectionId").value = s.id;
+  document.getElementById("sectionPage").value = s.page_id;
+  document.getElementById("sectionKey").value = s.key;
+  document.getElementById("sectionTitle").value = s.title || "";
+  document.getElementById("sectionSubtitle").value = s.subtitle || "";
+  document.getElementById("sectionBody").value = s.body || "";
+  document.getElementById("sectionSort").value = s.sort_order ?? 0;
+  document.getElementById("sectionActive").value = s.is_active ? "true" : "false";
+  document.getElementById("sectionSettings").value = JSON.stringify(s.settings || {});
+};
+window.__deleteSection = (id) => deleteSection(id);
+window.__editItem = (id) => {
+  const i = itemsCache.find(x => x.id === id);
+  if(!i) return;
+  document.getElementById("itemId").value = i.id;
+  document.getElementById("itemSection").value = i.section_id;
+  document.getElementById("itemTitle").value = i.title || "";
+  document.getElementById("itemSubtitle").value = i.subtitle || "";
+  document.getElementById("itemBody").value = i.body || "";
+  document.getElementById("itemImage").value = i.image_url || "";
+  document.getElementById("itemLinkUrl").value = i.link_url || "";
+  document.getElementById("itemLinkLabel").value = i.link_label || "";
+  document.getElementById("itemTags").value = (i.tags || []).join(", ");
+  document.getElementById("itemMeta").value = JSON.stringify(i.meta || {});
+  document.getElementById("itemStat").value = (i.meta && i.meta.num) ? i.meta.num : "";
+  document.getElementById("itemSort").value = i.sort_order ?? 0;
+  document.getElementById("itemActive").value = i.is_active ? "true" : "false";
+};
+window.__deleteItem = (id) => deleteItem(id);
+window.__editSetting = (id) => {
+  const s = settingsCache.find(x => x.id === id);
+  if(!s) return;
+  document.getElementById("settingId").value = s.id;
+  document.getElementById("settingKey").value = s.key;
+  document.getElementById("settingValue").value = s.value ?? "";
+};
+window.__deleteSetting = (id) => deleteSetting(id);
+
+if(getToken()){
+  document.getElementById("loginCard").classList.add("hidden");
+  document.getElementById("adminApp").classList.remove("hidden");
+  showPanel("jobs");
+  showCmsPanel("pages");
+  refreshAll().catch(() => { clearToken(); location.reload(); });
+}
+
+async function uploadFile(inputId){
+  const input = document.getElementById(inputId);
+  const file = input?.files?.[0];
+  if(!file) return null;
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+  const parts = String(dataUrl).split(",");
+  const base64 = parts[1] || "";
+  const res = await api("/api/admin/upload", {
+    method: "POST",
+    body: JSON.stringify({
+      filename: file.name,
+      contentType: file.type,
+      data: base64
+    })
+  });
+  return res.url;
+}
+
+async function uploadLogo(){
+  try{
+    const url = await uploadFile("logoFile");
+    if(!url) return;
+    await api("/api/admin/settings", { method:"POST", body: JSON.stringify({ key:"brand_logo", value:url }) });
+    document.getElementById("logoUrl").textContent = url;
+    await loadBrandSettings();
+  }catch(e){
+    alert(e.message || "Upload failed.");
+  }
+}
+
+async function uploadImage(){
+  try{
+    const url = await uploadFile("imageFile");
+    if(!url) return;
+    document.getElementById("imageUrl").textContent = url;
+  }catch(e){
+    alert(e.message || "Upload failed.");
+  }
+}
+
+async function uploadItemImage(){
+  try{
+    const url = await uploadFile("itemImageFile");
+    if(!url) return;
+    const input = document.getElementById("itemImage");
+    if(input) input.value = url;
+  }catch(e){
+    alert(e.message || "Upload failed.");
+  }
+}
+
+async function ensurePage(slug, title){
+  let page = pagesCache.find(p => p.slug === slug);
+  if(!page){
+    await api("/api/admin/pages", { method:"POST", body: JSON.stringify({ slug, title }) });
+    await loadPages();
+    page = pagesCache.find(p => p.slug === slug);
+  }
+  return page;
+}
+
+async function ensureSection(pageId, key, data){
+  let section = sectionsCache.find(s => s.page_id === pageId && s.key === key);
+  if(!section){
+    await api("/api/admin/sections", { method:"POST", body: JSON.stringify({ page_id: pageId, key, ...data }) });
+    await loadSections();
+    section = sectionsCache.find(s => s.page_id === pageId && s.key === key);
+  }
+  return section;
+}
+
+async function ensureItems(sectionId, items){
+  const existing = itemsCache.filter(i => i.section_id === sectionId);
+  if(existing.length) return;
+  for(const item of items){
+    await api("/api/admin/items", { method:"POST", body: JSON.stringify({ section_id: sectionId, ...item }) });
+  }
+  await loadItems();
+}
+
+async function applyHomeTemplate(){
+  try{
+    const page = await ensurePage("home", "Home");
+    if(!page) return;
+    const hero = await ensureSection(page.id, "hero", {
+      title: "Building<br><em>Strong</em><br>Foundations",
+      subtitle: "Established 2026 - Infrastructure Excellence",
+      body: "Tandem Infra Services delivers end-to-end construction and infrastructure solutions."
+    });
+    await ensureSection(page.id, "ticker", { title: "Ticker" });
+    const about = await ensureSection(page.id, "about", {
+      title: "<strong>Tandem Infra Services</strong> -<br><em>Infrastructure Built Right</em>",
+      subtitle: "Who We Are",
+      body: "Add your company story here."
+    });
+    await ensureItems(about.id, [
+      { title: "Structural Integrity", body: "Every structure built to exceed code and expectations." },
+      { title: "Safety First", body: "Non-negotiable protocols across every phase of work." },
+      { title: "Sustainability", body: "Green building at the core of every decision we make." }
+    ]);
+    const services = await ensureSection(page.id, "services", {
+      title: "<strong>Our</strong> <em>Services</em>",
+      subtitle: "What We Do",
+      body: "End-to-end construction and infrastructure services."
+    });
+    await ensureItems(services.id, [
+      { title: "Project Management", body: "Full-lifecycle delivery and on-site supervision." },
+      { title: "Structural Engineering", body: "Design, analysis, and compliance." },
+      { title: "Quality Assurance", body: "QA processes and audits." }
+    ]);
+    const why = await ensureSection(page.id, "why", {
+      title: "<strong>Small Team,</strong><br><em>Serious Results</em>",
+      subtitle: "Why Tandem Infra",
+      body: "Focused team, senior attention, no compromises."
+    });
+    await ensureItems(why.id, [
+      { title: "Expert Professionals", body: "Specialized team.", meta: { num: "9" } },
+      { title: "Senior-Led Projects", body: "Experienced leadership.", meta: { num: "100%" } }
+    ]);
+    const projects = await ensureSection(page.id, "projects", {
+      title: "<strong>Our</strong> <em>Work</em>",
+      subtitle: "Portfolio"
+    });
+    await ensureItems(projects.id, [
+      { title: "Urban Road Infrastructure", subtitle: "Infrastructure", body: "India" },
+      { title: "Industrial Facility Review", subtitle: "Industrial", body: "India" }
+    ]);
+    const process = await ensureSection(page.id, "process", {
+      title: "<strong>Our</strong> <em>Process</em>",
+      subtitle: "How We Work",
+      body: "A transparent methodology from discovery to handover."
+    });
+    await ensureItems(process.id, [
+      { title: "Discovery & Feasibility", body: "Site analysis and feasibility." },
+      { title: "Design & Engineering", body: "Detailed engineering and BIM." },
+      { title: "Construction & Supervision", body: "On-site management." }
+    ]);
+    await ensureSection(page.id, "testimonials", {
+      title: "<strong>Client</strong> <em>Voices</em>",
+      subtitle: "What Clients Say"
+    });
+    await ensureSection(page.id, "clients", { subtitle: "Serving Clients Across India" });
+    await ensureSection(page.id, "contact", {
+      title: "<strong>Let's Build</strong><br><em>Together</em>",
+      subtitle: "Get In Touch",
+      body: "Ready to discuss your project? Our team responds to every enquiry personally."
+    });
+    alert("Home template applied.");
+  }catch(e){
+    alert(e.message || "Template failed.");
+  }
+}
+
+async function applyCareersTemplate(){
+  try{
+    const page = await ensurePage("careers", "Careers");
+    if(!page) return;
+    await ensureSection(page.id, "hero", {
+      title: "<strong>Build Your</strong><br><em>Career</em> With Us",
+      subtitle: "Join Our Team",
+      body: "We are actively hiring across departments."
+    });
+    await ensureSection(page.id, "jobs", {
+      title: "<strong>Current</strong> <em>Openings</em>"
+    });
+    const fresher = await ensureSection(page.id, "fresher", {
+      title: "<strong>No Experience?</strong><br><em>No Problem.</em>",
+      subtitle: "Fresh Start",
+      body: "All our roles are open to freshers."
+    });
+    await ensureItems(fresher.id, [
+      { title: "Create Your Account", body: "Sign up as a candidate." },
+      { title: "Upload Your CV", body: "Keep your CV updated." },
+      { title: "Apply for Your Role", body: "Submit in one click." }
+    ]);
+    alert("Careers template applied.");
+  }catch(e){
+    alert(e.message || "Template failed.");
+  }
+}
+</script>
+</body>
+</html>
+
+

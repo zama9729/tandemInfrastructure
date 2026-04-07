@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tandem Infra Services — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black:#08090a; --ink:#111214; --dark:#191a1c; --dim:#252628; --shadow:#333537;
+    --mist:#72757a; --smoke:#9fa3a9; --silver:#c8cace; --pearl:#eaebec; --white:#ffffff;
+    --border:rgba(255,255,255,0.08); --border-strong:rgba(255,255,255,0.25);
+    --accent-subtle:rgba(255,255,255,0.06);
+    --success:#3fb68b; --danger:#e05252; --warn:#f0a500; --info:#4ea8de;
+    --sidebar-w:260px;
+    --font:'DM Sans',sans-serif; --font-mono:'Space Mono',monospace; --font-display:'Cormorant Garamond',serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{font-family:var(--font);background:var(--black);color:var(--pearl);display:flex;font-size:14px;overflow:hidden;}
+  ::-webkit-scrollbar{width:3px;}
+  ::-webkit-scrollbar-track{background:var(--black);}
+  ::-webkit-scrollbar-thumb{background:var(--shadow);}
+
+  /* LOGIN */
+  #loginScreen{position:fixed;inset:0;background:var(--black);display:flex;align-items:center;justify-content:center;z-index:9999;background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:60px 60px;}
+  .login-box{background:var(--ink);border:1px solid var(--border);padding:56px 52px;width:420px;position:relative;}
+  .login-box::before{content:'';position:absolute;top:0;left:0;width:3px;height:60px;background:var(--white);}
+  .login-logo{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--white);}
+  .login-subtitle{font-family:var(--font-mono);font-size:9px;color:var(--smoke);letter-spacing:0.3em;text-transform:uppercase;margin-bottom:40px;margin-top:2px;display:block;}
+  .login-field{display:flex;flex-direction:column;gap:7px;margin-bottom:20px;}
+  .login-label{font-family:var(--font-mono);font-size:9px;color:var(--mist);letter-spacing:0.25em;text-transform:uppercase;}
+  .login-input{background:var(--dark);border:1px solid var(--border);padding:13px 16px;color:var(--pearl);font-family:var(--font);font-size:14px;outline:none;transition:border-color 0.3s;width:100%;}
+  .login-input:focus{border-color:var(--border-strong);}
+  .login-btn{width:100%;padding:15px;background:var(--white);color:var(--black);border:none;font-family:var(--font);font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;margin-top:10px;transition:all 0.3s;}
+  .login-btn:hover{background:var(--pearl);}
+  .login-hint{font-size:11px;color:var(--mist);text-align:center;margin-top:14px;}
+  .login-err{color:var(--danger);font-size:12px;margin-top:10px;text-align:center;display:none;}
+
+  /* SIDEBAR */
+  #sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--ink);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;overflow-y:auto;position:fixed;left:0;top:0;bottom:0;z-index:100;}
+  .sidebar-brand{padding:28px 24px;border-bottom:1px solid var(--border);}
+  .sidebar-brand-name{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--white);}
+  .sidebar-brand-sub{font-family:var(--font-mono);font-size:7.5px;color:var(--smoke);letter-spacing:0.25em;text-transform:uppercase;display:block;margin-top:3px;}
+  .sidebar-section{padding:22px 24px 8px;}
+  .sidebar-section-label{font-family:var(--font-mono);font-size:8px;color:var(--mist);letter-spacing:0.3em;text-transform:uppercase;margin-bottom:8px;}
+  .nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:3px;cursor:pointer;transition:all 0.2s;color:var(--mist);font-size:13px;font-weight:500;margin-bottom:2px;text-decoration:none;}
+  .nav-item:hover{background:var(--accent-subtle);color:var(--pearl);}
+  .nav-item.active{background:rgba(255,255,255,0.07);color:var(--white);border-left:2px solid var(--white);font-weight:700;}
+  .nav-item-icon{font-size:15px;width:20px;text-align:center;}
+  .nav-badge{margin-left:auto;background:var(--white);color:var(--black);font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;font-family:var(--font-mono);}
+  .sidebar-footer{margin-top:auto;padding:20px 24px;border-top:1px solid var(--border);}
+  .sidebar-user{display:flex;align-items:center;gap:12px;}
+  .sidebar-avatar{width:36px;height:36px;border-radius:50%;background:var(--dim);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--white);font-size:12px;flex-shrink:0;}
+  .sidebar-user-info span:first-child{font-size:13px;font-weight:700;color:var(--pearl);display:block;}
+  .sidebar-user-info span:last-child{font-size:11px;color:var(--mist);}
+  .logout-btn{margin-left:auto;background:none;border:none;color:var(--mist);cursor:pointer;font-size:16px;transition:color 0.2s;}
+  .logout-btn:hover{color:var(--danger);}
+
+  /* MAIN */
+  #main{margin-left:var(--sidebar-w);flex:1;height:100vh;overflow-y:auto;display:flex;flex-direction:column;}
+  .topbar{background:var(--ink);border-bottom:1px solid var(--border);padding:16px 36px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+  .topbar-title{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--white);}
+  .topbar-right{display:flex;align-items:center;gap:18px;}
+  .topbar-search{background:var(--dark);border:1px solid var(--border);padding:9px 16px;color:var(--pearl);font-family:var(--font);font-size:13px;outline:none;width:220px;border-radius:3px;transition:border-color 0.3s;}
+  .topbar-search:focus{border-color:var(--border-strong);}
+  .notif-btn{position:relative;background:var(--dark);border:1px solid var(--border);width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--silver);transition:border-color 0.3s;}
+  .notif-btn:hover{border-color:var(--border-strong);}
+  .notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--white);border-radius:50%;border:2px solid var(--ink);}
+
+  .content{padding:36px;}
+  .page{display:none;}
+  .page.active{display:block;}
+
+  /* KPI */
+  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:24px;}
+  .kpi-card{background:var(--ink);border:1px solid var(--border);padding:24px 26px;border-radius:3px;position:relative;overflow:hidden;transition:border-color 0.3s;}
+  .kpi-card:hover{border-color:var(--border-strong);}
+  .kpi-card::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:2px;background:var(--white);opacity:0.15;}
+  .kpi-label{font-family:var(--font-mono);font-size:9px;color:var(--mist);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:10px;}
+  .kpi-value{font-family:var(--font-display);font-size:38px;font-weight:700;color:var(--white);line-height:1;margin-bottom:8px;}
+  .kpi-change{font-size:12px;display:flex;align-items:center;gap:4px;}
+  .kpi-change.up{color:var(--success);}
+  .kpi-change.down{color:var(--danger);}
+  .kpi-change.neutral{color:var(--mist);}
+  .kpi-icon{position:absolute;right:20px;top:20px;font-size:28px;opacity:0.1;}
+
+  /* CARDS */
+  .dash-grid{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-bottom:22px;}
+  .card{background:var(--ink);border:1px solid var(--border);border-radius:3px;overflow:hidden;}
+  .card-header{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .card-title{font-size:14px;font-weight:700;color:var(--white);}
+  .card-badge{font-family:var(--font-mono);font-size:10px;color:var(--white);background:rgba(255,255,255,0.1);padding:3px 10px;border-radius:20px;}
+  .card-body{padding:22px;}
+
+  /* TABLE */
+  .data-table{width:100%;border-collapse:collapse;}
+  .data-table th{font-family:var(--font-mono);font-size:9px;color:var(--mist);letter-spacing:0.2em;text-transform:uppercase;text-align:left;padding:0 0 12px;border-bottom:1px solid var(--border);}
+  .data-table td{padding:13px 0;font-size:13px;color:var(--silver);border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle;}
+  .data-table tr:last-child td{border-bottom:none;}
+  .data-table tr:hover td{color:var(--pearl);}
+
+  .proj-status{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;font-family:var(--font-mono);}
+  .status-active{background:rgba(63,182,139,0.14);color:var(--success);}
+  .status-review{background:rgba(240,165,0,0.14);color:var(--warn);}
+  .status-hold{background:rgba(224,82,82,0.14);color:var(--danger);}
+  .status-done{background:rgba(78,168,222,0.14);color:var(--info);}
+
+  .prog-bar-wrap{display:flex;align-items:center;gap:10px;}
+  .prog-bar{flex:1;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;}
+  .prog-fill{height:100%;background:var(--white);opacity:0.7;border-radius:2px;transition:width 1s ease;}
+  .prog-pct{font-family:var(--font-mono);font-size:10px;color:var(--mist);min-width:30px;text-align:right;}
+
+  /* CHART */
+  .mini-chart{display:flex;align-items:flex-end;gap:5px;height:60px;padding-top:10px;}
+  .mini-bar{flex:1;background:rgba(255,255,255,0.15);border-radius:2px 2px 0 0;position:relative;transition:background 0.2s;cursor:pointer;}
+  .mini-bar:hover{background:rgba(255,255,255,0.45);}
+  .mini-bar::after{content:attr(data-val);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);font-size:8px;font-family:var(--font-mono);color:var(--white);white-space:nowrap;display:none;margin-bottom:3px;}
+  .mini-bar:hover::after{display:block;}
+  .chart-labels{display:flex;gap:5px;margin-top:6px;}
+  .chart-labels span{flex:1;text-align:center;font-family:var(--font-mono);font-size:8px;color:var(--mist);}
+
+  /* ACTIVITY */
+  .activity-list{display:flex;flex-direction:column;}
+  .activity-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.03);align-items:flex-start;}
+  .activity-item:last-child{border-bottom:none;}
+  .act-dot{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+  .act-text{font-size:12px;color:var(--silver);line-height:1.5;}
+  .act-time{font-size:10px;color:var(--mist);margin-top:2px;font-family:var(--font-mono);}
+
+  /* PAGE HEADER */
+  .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
+  .page-header h2{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--white);}
+  .add-btn{padding:11px 22px;background:var(--white);color:var(--black);border:none;font-family:var(--font);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.3s;border-radius:2px;}
+  .add-btn:hover{background:var(--pearl);}
+
+  .full-table-card{background:var(--ink);border:1px solid var(--border);border-radius:3px;overflow:hidden;}
+  .table-toolbar{padding:14px 22px;border-bottom:1px solid var(--border);display:flex;gap:10px;}
+  .filter-btn{padding:7px 14px;background:var(--dark);border:1px solid var(--border);color:var(--silver);font-size:12px;cursor:pointer;border-radius:3px;transition:all 0.2s;}
+  .filter-btn:hover,.filter-btn.active{border-color:var(--border-strong);color:var(--white);}
+  .full-table{width:100%;border-collapse:collapse;}
+  .full-table th{font-family:var(--font-mono);font-size:9px;color:var(--mist);letter-spacing:0.2em;text-transform:uppercase;text-align:left;padding:13px 22px;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.02);}
+  .full-table td{padding:13px 22px;font-size:13px;color:var(--silver);border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle;}
+  .full-table tr:hover td{background:rgba(255,255,255,0.02);}
+  .icon-btn{background:none;border:none;font-size:14px;cursor:pointer;padding:4px 7px;border-radius:3px;transition:background 0.2s;color:var(--mist);}
+  .icon-btn:hover{background:rgba(255,255,255,0.06);color:var(--pearl);}
+
+  /* ENQUIRIES */
+  .enquiry-list{display:flex;flex-direction:column;gap:12px;}
+  .enquiry-item{padding:18px;background:var(--ink);border:1px solid var(--border);border-left:3px solid var(--shadow);border-radius:0 3px 3px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;transition:border-color 0.2s;}
+  .enquiry-item:hover{border-color:var(--border-strong);}
+  .enquiry-item.new{border-left-color:var(--white);}
+  .enquiry-name{font-weight:700;color:var(--white);font-size:13px;margin-bottom:3px;}
+  .enquiry-service{font-size:10px;color:var(--silver);font-family:var(--font-mono);letter-spacing:0.1em;}
+  .enquiry-msg{font-size:12px;color:var(--mist);margin-top:5px;}
+  .enquiry-time{font-size:10px;color:var(--mist);font-family:var(--font-mono);white-space:nowrap;}
+  .action-btn{padding:6px 14px;border:1px solid;border-radius:2px;font-size:10px;font-family:var(--font-mono);cursor:pointer;transition:all 0.2s;background:none;}
+  .action-btn.approve{border-color:var(--success);color:var(--success);}
+  .action-btn.approve:hover{background:var(--success);color:var(--black);}
+  .action-btn.reject{border-color:var(--danger);color:var(--danger);}
+  .action-btn.reject:hover{background:var(--danger);color:var(--white);}
+
+  /* SETTINGS */
+  .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .settings-section{background:var(--ink);border:1px solid var(--border);border-radius:3px;overflow:hidden;}
+  .setting-row{display:flex;align-items:center;justify-content:space-between;padding:15px 22px;border-bottom:1px solid rgba(255,255,255,0.03);}
+  .setting-row:last-child{border-bottom:none;}
+  .setting-label{font-size:13px;color:var(--silver);font-weight:500;}
+  .setting-sub{font-size:11px;color:var(--mist);margin-top:2px;}
+  .toggle{width:42px;height:22px;background:var(--shadow);border-radius:20px;position:relative;cursor:pointer;transition:background 0.3s;flex-shrink:0;border:none;}
+  .toggle.on{background:rgba(255,255,255,0.35);}
+  .toggle::after{content:'';position:absolute;width:16px;height:16px;background:var(--white);border-radius:50%;top:3px;left:3px;transition:left 0.3s;}
+  .toggle.on::after{left:23px;}
+  .settings-input{background:var(--dark);border:1px solid var(--border);padding:9px 14px;color:var(--pearl);font-family:var(--font);font-size:13px;outline:none;width:200px;border-radius:2px;transition:border-color 0.3s;}
+  .settings-input:focus{border-color:var(--border-strong);}
+
+  /* MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);z-index:500;display:none;align-items:center;justify-content:center;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--ink);border:1px solid var(--border-strong);padding:40px;width:520px;max-width:90vw;max-height:85vh;overflow-y:auto;position:relative;}
+  .modal h3{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--white);margin-bottom:24px;}
+  .modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--mist);font-size:20px;cursor:pointer;transition:color 0.2s;}
+  .modal-close:hover{color:var(--danger);}
+  .modal-field{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;}
+  .modal-label{font-family:var(--font-mono);font-size:9px;color:var(--mist);letter-spacing:0.2em;text-transform:uppercase;}
+  .modal-input,.modal-select,.modal-textarea{background:var(--dark);border:1px solid var(--border);padding:12px 14px;color:var(--pearl);font-family:var(--font);font-size:13px;outline:none;width:100%;border-radius:2px;transition:border-color 0.3s;}
+  .modal-input:focus,.modal-select:focus,.modal-textarea:focus{border-color:var(--border-strong);}
+  .modal-select option{background:var(--dark);}
+  .modal-textarea{min-height:80px;resize:vertical;}
+  .modal-actions{display:flex;gap:12px;margin-top:8px;}
+  .modal-submit{flex:1;padding:13px;background:var(--white);color:var(--black);border:none;font-family:var(--font);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all 0.3s;border-radius:2px;}
+  .modal-submit:hover{background:var(--pearl);}
+  .modal-cancel{padding:13px 18px;background:transparent;color:var(--mist);border:1px solid var(--border);font-family:var(--font);font-size:11px;cursor:pointer;transition:all 0.3s;border-radius:2px;}
+  .modal-cancel:hover{color:var(--danger);border-color:var(--danger);}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:28px;right:28px;padding:14px 22px;background:var(--white);color:var(--black);font-size:13px;font-weight:600;border-radius:2px;z-index:9999;transform:translateY(20px);opacity:0;transition:all 0.4s;}
+  .toast.show{transform:translateY(0);opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">Tandem Infra Services</div>
+    <span class="login-subtitle">Admin Control Panel</span>
+    <div class="login-field"><label class="login-label">Username</label><input class="login-input" id="loginUser" type="text" placeholder="admin" value="admin"></div>
+    <div class="login-field"><label class="login-label">Password</label><input class="login-input" id="loginPass" type="password" placeholder="••••••••" value="admin123"></div>
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-err" id="loginErr">Invalid credentials. Try admin / admin123</div>
+    <div class="login-hint">Demo: admin / admin123</div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-name">Tandem Infra Services</div>
+    <span class="sidebar-brand-sub">Admin Dashboard</span>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Main</div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-item-icon">📊</span> Dashboard</div>
+    <div class="nav-item" onclick="showPage('projects',this)"><span class="nav-item-icon">🏗️</span> Projects</div>
+    <div class="nav-item" onclick="showPage('enquiries',this)"><span class="nav-item-icon">📬</span> Enquiries <span class="nav-badge">4</span></div>
+    <div class="nav-item" onclick="showPage('team',this)"><span class="nav-item-icon">👥</span> Team</div>
+    <div class="nav-item" onclick="showPage('applications',this)"><span class="nav-item-icon">💼</span> Job Applications <span class="nav-badge" id="appsBadge">0</span></div>
+    <div class="nav-item" onclick="showPage('candidates',this)"><span class="nav-item-icon">👤</span> Candidates <span class="nav-badge" id="candidatesBadge">0</span></div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Content</div>
+    <div class="nav-item" onclick="showPage('services',this)"><span class="nav-item-icon">⚙️</span> Services</div>
+    <div class="nav-item" onclick="showPage('testimonials',this)"><span class="nav-item-icon">💬</span> Testimonials</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">System</div>
+    <div class="nav-item" onclick="showPage('settings',this)"><span class="nav-item-icon">🔧</span> Settings</div>
+    <div class="nav-item" onclick="window.open('careers.html','_blank')"><span class="nav-item-icon">💼</span> Careers Page ↗</div>
+    <div class="nav-item" onclick="window.open('index.html','_blank')"><span class="nav-item-icon">🌐</span> View Website ↗</div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">AD</div>
+      <div class="sidebar-user-info"><span>Admin</span><span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bacedbd4dedfd7d3d4dcc8dbc9dfc8ccd3d9dfc9faddd7dbd3d694d9d5d7">[email&#160;protected]</a></span></div>
+      <button class="logout-btn" onclick="doLogout()" title="Logout">⏻</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <div class="topbar">
+    <div class="topbar-title" id="pageTitle">Dashboard</div>
+    <div class="topbar-right">
+      <input class="topbar-search" type="text" placeholder="🔍  Search...">
+      <div class="notif-btn">🔔<div class="notif-dot"></div></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active">
+      <div class="kpi-row">
+        <div class="kpi-card"><div class="kpi-icon">🏗️</div><div class="kpi-label">Active Projects</div><div class="kpi-value">4</div><div class="kpi-change up">↑ Growing</div></div>
+        <div class="kpi-card"><div class="kpi-icon">📬</div><div class="kpi-label">New Enquiries</div><div class="kpi-value">4</div><div class="kpi-change up">↑ This week</div></div>
+        <div class="kpi-card"><div class="kpi-icon">💼</div><div class="kpi-label">Job Applications</div><div class="kpi-value" id="kpi-apps">0</div><div class="kpi-change up" id="kpi-apps-sub">↑ Live count</div></div>
+        <div class="kpi-card"><div class="kpi-icon">👤</div><div class="kpi-label">Registered Candidates</div><div class="kpi-value" id="kpi-candidates">0</div><div class="kpi-change neutral">→ Career portal</div></div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Active Projects</span><span class="card-badge">In Progress</span></div>
+          <div class="card-body">
+            <table class="data-table">
+              <thead><tr><th>Project</th><th>Client</th><th>Progress</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>Urban Road Infrastructure</td><td style="color:var(--mist)">In Progress</td><td><div class="prog-bar-wrap"><div class="prog-bar"><div class="prog-fill" style="width:35%"></div></div><span class="prog-pct">35%</span></div></td><td><span class="proj-status status-active">Active</span></td></tr>
+                <tr><td>Industrial Facility Structural Review</td><td style="color:var(--mist)">In Progress</td><td><div class="prog-bar-wrap"><div class="prog-bar"><div class="prog-fill" style="width:60%"></div></div><span class="prog-pct">60%</span></div></td><td><span class="proj-status status-active">Active</span></td></tr>
+                <tr><td>Commercial Complex PM</td><td style="color:var(--mist)">In Progress</td><td><div class="prog-bar-wrap"><div class="prog-bar"><div class="prog-fill" style="width:45%"></div></div><span class="prog-pct">45%</span></div></td><td><span class="proj-status status-review">Review</span></td></tr>
+                <tr><td>Township Feasibility Study</td><td style="color:var(--mist)">In Progress</td><td><div class="prog-bar-wrap"><div class="prog-bar"><div class="prog-fill" style="width:20%"></div></div><span class="prog-pct">20%</span></div></td><td><span class="proj-status status-active">Active</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Monthly Enquiries</span><span class="card-badge">2026</span></div>
+            <div class="card-body">
+              <div class="mini-chart">
+                <div class="mini-bar" style="height:40%" data-val="4"></div>
+                <div class="mini-bar" style="height:60%" data-val="6"></div>
+                <div class="mini-bar" style="height:50%" data-val="5"></div>
+                <div class="mini-bar" style="height:80%" data-val="8"></div>
+                <div class="mini-bar" style="height:70%" data-val="7"></div>
+                <div class="mini-bar" style="height:100%" data-val="10"></div>
+              </div>
+              <div class="chart-labels"><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Recent Activity</span></div>
+            <div class="card-body">
+              <div class="activity-list">
+                <div class="activity-item"><div class="act-dot" style="background:var(--white)"></div><div><div class="act-text">New enquiry — BIM Services request</div><div class="act-time">2 hours ago</div></div></div>
+                <div class="activity-item"><div class="act-dot" style="background:var(--success)"></div><div><div class="act-text">Industrial Facility project moved to 60%</div><div class="act-time">5 hours ago</div></div></div>
+                <div class="activity-item"><div class="act-dot" style="background:var(--info)"></div><div><div class="act-text">Website launched successfully</div><div class="act-time">Today</div></div></div>
+                <div class="activity-item"><div class="act-dot" style="background:var(--warn)"></div><div><div class="act-text">Tandem Infra Services officially registered</div><div class="act-time">2026</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROJECTS -->
+    <div id="page-projects" class="page">
+      <div class="page-header"><h2>Projects</h2><button class="add-btn" onclick="openModal('project')">+ Add Project</button></div>
+      <div class="full-table-card">
+        <div class="table-toolbar">
+          <button class="filter-btn active" onclick="filterActive(this)">All</button>
+          <button class="filter-btn" onclick="filterActive(this)">Active</button>
+          <button class="filter-btn" onclick="filterActive(this)">Review</button>
+          <button class="filter-btn" onclick="filterActive(this)">Completed</button>
+          <button class="filter-btn" onclick="filterActive(this)">On Hold</button>
+        </div>
+        <table class="full-table">
+          <thead><tr><th>Project Name</th><th>Client</th><th>Service Type</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--white);font-weight:700">Urban Road Infrastructure</td><td>In Progress</td><td>Infrastructure Planning</td><td><div class="prog-bar-wrap"><div class="prog-bar"><div class="prog-fill" style="width:35%"></div></div><span class="prog-pct">35%</span></div></td><td><span class="proj-status status-active">Active</span></td><td><button class="icon-btn" onclick="showToast('Updated')">✏️</button><button class="icon-btn">🗑️</button></td></tr>
+            <tr><td style="color:var(--white);font-weight:700">Industrial Facility Structural Review</td><td>In Progress</td><td>Structural Engineering</td><td><div class="prog-bar-wrap"><div class="prog-bar"><div class="prog-fill" style="width:60%"></div></div><span class="prog-pct">60%</span></div></td><td><span class="proj-status status-active">Active</span></td><td><button class="icon-btn" onclick="showToast('Updated')">✏️</button><button class="icon-btn">🗑️</button></td></tr>
+            <tr><td style="color:var(--white);font-weight:700">Commercial Complex — PM</td><td>In Progress</td><td>Project Management</td><td><div class="prog-bar-wrap"><div class="prog-bar"><div class="prog-fill" style="width:45%"></div></div><span class="prog-pct">45%</span></div></td><td><span class="proj-status status-review">Review</span></td><td><button class="icon-btn" onclick="showToast('Updated')">✏️</button><button class="icon-btn">🗑️</button></td></tr>
+            <tr><td style="color:var(--white);font-weight:700">Township Infrastructure Feasibility</td><td>In Progress</td><td>Infrastructure Planning</td><td><div class="prog-bar-wrap"><div class="prog-bar"><div class="prog-fill" style="width:20%"></div></div><span class="prog-pct">20%</span></div></td><td><span class="proj-status status-active">Active</span></td><td><button class="icon-btn" onclick="showToast('Updated')">✏️</button><button class="icon-btn">🗑️</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ENQUIRIES -->
+    <div id="page-enquiries" class="page">
+      <div class="page-header"><h2>Enquiries</h2><span class="card-badge" style="padding:8px 16px;font-size:12px;">4 New</span></div>
+      <div class="enquiry-list">
+        <div class="enquiry-item new"><div style="flex:1"><div class="enquiry-name">Rakesh Verma</div><div class="enquiry-service">PROJECT MANAGEMENT</div><div class="enquiry-msg">Commercial tower project in Ahmedabad — looking for full PM services. Approx 12 floors, timeline 18 months.</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px"><div class="enquiry-time">2 hrs ago</div><div style="display:flex;gap:8px"><button class="action-btn approve" onclick="showToast('Approved ✓')">✓ Approve</button><button class="action-btn reject" onclick="showToast('Rejected')">✕ Reject</button></div></div></div>
+        <div class="enquiry-item new"><div style="flex:1"><div class="enquiry-name">Meena Krishnan</div><div class="enquiry-service">SUSTAINABLE CONSTRUCTION</div><div class="enquiry-msg">Hospital building targeting LEED Gold. Need GRIHA-certified consultant. 8,000 sqm project.</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px"><div class="enquiry-time">5 hrs ago</div><div style="display:flex;gap:8px"><button class="action-btn approve" onclick="showToast('Approved ✓')">✓ Approve</button><button class="action-btn reject">✕ Reject</button></div></div></div>
+        <div class="enquiry-item new"><div style="flex:1"><div class="enquiry-name">Aakash Jain</div><div class="enquiry-service">QUALITY ASSURANCE &amp; CONTROL</div><div class="enquiry-msg">Third-party QC audit for residential project — 3 towers, 480 units. Need ISO-compliant documentation.</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px"><div class="enquiry-time">Yesterday</div><div style="display:flex;gap:8px"><button class="action-btn approve" onclick="showToast('Approved ✓')">✓ Approve</button><button class="action-btn reject">✕ Reject</button></div></div></div>
+        <div class="enquiry-item new"><div style="flex:1"><div class="enquiry-name">Sunita Reddy</div><div class="enquiry-service">BIM SOLUTIONS</div><div class="enquiry-msg">BIM coordination for hotel development project. Looking for clash detection and 4D scheduling services.</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px"><div class="enquiry-time">2 days ago</div><div style="display:flex;gap:8px"><button class="action-btn approve" onclick="showToast('Approved ✓')">✓ Approve</button><button class="action-btn reject">✕ Reject</button></div></div></div>
+      </div>
+    </div>
+
+    <!-- TEAM -->
+    <div id="page-team" class="page">
+      <div class="page-header"><h2>Team Members</h2><button class="add-btn" onclick="openModal('team')">+ Add Member</button></div>
+      <div class="full-table-card">
+        <table class="full-table">
+          <thead><tr><th>Name</th><th>Role</th><th>Department</th><th>Certifications</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--white);font-weight:700">Member 1</td><td>Chief Engineer</td><td>Structural</td><td>PE, LEED AP</td><td><span class="proj-status status-active">Active</span></td><td><button class="icon-btn" onclick="showToast('Updated')">✏️</button><button class="icon-btn">🗑️</button></td></tr>
+            <tr><td style="color:var(--white);font-weight:700">Member 2</td><td>BIM Manager</td><td>Design</td><td>Revit Certified, PMP</td><td><span class="proj-status status-active">Active</span></td><td><button class="icon-btn" onclick="showToast('Updated')">✏️</button><button class="icon-btn">🗑️</button></td></tr>
+            <tr><td style="color:var(--white);font-weight:700">Member 3</td><td>QA Lead</td><td>Quality</td><td>ISO 9001 Auditor</td><td><span class="proj-status status-active">Active</span></td><td><button class="icon-btn" onclick="showToast('Updated')">✏️</button><button class="icon-btn">🗑️</button></td></tr>
+            <tr><td style="color:var(--white);font-weight:700">Member 4</td><td>Project Manager</td><td>Operations</td><td>PMP</td><td><span class="proj-status status-active">Active</span></td><td><button class="icon-btn" onclick="showToast('Updated')">✏️</button><button class="icon-btn">🗑️</button></td></tr>
+            <tr><td style="color:var(--white);font-weight:700">Member 5</td><td>Safety Officer</td><td>HSE</td><td>NEBOSH</td><td><span class="proj-status status-active">Active</span></td><td><button class="icon-btn" onclick="showToast('Updated')">✏️</button><button class="icon-btn">🗑️</button></td></tr>
+            <tr><td style="color:var(--white);font-weight:700">Members 6–9</td><td>Various</td><td>Various</td><td>—</td><td><span class="proj-status status-review">Add Info</span></td><td><button class="icon-btn" onclick="openModal('team')">✏️</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SERVICES -->
+    <div id="page-services" class="page">
+      <div class="page-header"><h2>Services Management</h2><button class="add-btn" onclick="openModal('service')">+ Add Service</button></div>
+      <div class="full-table-card">
+        <table class="full-table">
+          <thead><tr><th>#</th><th>Service Name</th><th>Description</th><th>Icon</th><th>Visible</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--smoke);font-family:var(--font-mono)">01</td><td style="color:var(--white);font-weight:700">Project Management</td><td style="max-width:280px;color:var(--mist)">Full-lifecycle delivery from feasibility through handover.</td><td>🏢</td><td><button class="toggle on" onclick="this.classList.toggle('on')"></button></td><td><button class="icon-btn" onclick="showToast('Updated')">✏️</button><button class="icon-btn">🗑️</button></td></tr>
+            <tr><td style="color:var(--smoke);font-family:var(--font-mono)">02</td><td style="color:var(--white);font-weight:700">Structural Engineering</td><td style="max-width:280px;color:var(--mist)">Structural analysis, load testing and IS code compliance.</td><td>🔩</td><td><button class="toggle on" onclick="this.classList.toggle('on')"></button></td><td><button class="icon-btn" onclick="showToast('Updated')">✏️</button><button class="icon-btn">🗑️</button></td></tr>
+            <tr><td style="color:var(--smoke);font-family:var(--font-mono)">03</td><td style="color:var(--white);font-weight:700">BIM Solutions</td><td style="max-width:280px;color:var(--mist)">Advanced BIM for 3D coordination and clash detection.</td><td>💡</td><td><button class="toggle on" onclick="this.classList.toggle('on')"></button></td><td><button class="icon-btn" onclick="showToast('Updated')">✏️</button><button class="icon-btn">🗑️</button></td></tr>
+            <tr><td style="color:var(--smoke);font-family:var(--font-mono)">04</td><td style="color:var(--white);font-weight:700">Quality Assurance &amp; Control</td><td style="max-width:280px;color:var(--mist)">Rigorous QA/QC with ISO-aligned documentation.</td><td>✅</td><td><button class="toggle on" onclick="this.classList.toggle('on')"></button></td><td><button class="icon-btn" onclick="showToast('Updated')">✏️</button><button class="icon-btn">🗑️</button></td></tr>
+            <tr><td style="color:var(--smoke);font-family:var(--font-mono)">05</td><td style="color:var(--white);font-weight:700">Infrastructure Planning</td><td style="max-width:280px;color:var(--mist)">Strategic planning for roads, bridges and civic infrastructure.</td><td>🛣️</td><td><button class="toggle on" onclick="this.classList.toggle('on')"></button></td><td><button class="icon-btn" onclick="showToast('Updated')">✏️</button><button class="icon-btn">🗑️</button></td></tr>
+            <tr><td style="color:var(--smoke);font-family:var(--font-mono)">06</td><td style="color:var(--white);font-weight:700">Sustainable Construction</td><td style="max-width:280px;color:var(--mist)">LEED, GRIHA and IGBC green building solutions.</td><td>🌱</td><td><button class="toggle" onclick="this.classList.toggle('on')"></button></td><td><button class="icon-btn" onclick="showToast('Updated')">✏️</button><button class="icon-btn">🗑️</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TESTIMONIALS -->
+    <div id="page-testimonials" class="page">
+      <div class="page-header"><h2>Testimonials</h2><button class="add-btn" onclick="openModal('testimonial')">+ Add Testimonial</button></div>
+      <div class="full-table-card">
+        <table class="full-table">
+          <thead><tr><th>Name</th><th>Company</th><th>Role</th><th>Rating</th><th>Quote</th><th>Visible</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--white);font-weight:700">Rakesh Verma</td><td>Verma Builders</td><td>Director</td><td style="color:var(--white)">★★★★★</td><td style="max-width:240px;color:var(--mist);font-size:12px">"A team that genuinely cares..."</td><td><button class="toggle on" onclick="this.classList.toggle('on')"></button></td><td><button class="icon-btn" onclick="showToast('Updated')">✏️</button><button class="icon-btn">🗑️</button></td></tr>
+            <tr><td style="color:var(--white);font-weight:700">Priya Desai</td><td>Greenfield Realty</td><td>Operations Head</td><td style="color:var(--white)">★★★★★</td><td style="max-width:240px;color:var(--mist);font-size:12px">"Exceptional project management..."</td><td><button class="toggle on" onclick="this.classList.toggle('on')"></button></td><td><button class="icon-btn" onclick="showToast('Updated')">✏️</button><button class="icon-btn">🗑️</button></td></tr>
+            <tr><td style="color:var(--white);font-weight:700">Arjun Shah</td><td>Shah Group</td><td>CEO</td><td style="color:var(--white)">★★★★★</td><td style="max-width:240px;color:var(--mist);font-size:12px">"QA documentation gave investors confidence..."</td><td><button class="toggle on" onclick="this.classList.toggle('on')"></button></td><td><button class="icon-btn" onclick="showToast('Updated')">✏️</button><button class="icon-btn">🗑️</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="page-settings" class="page">
+      <div class="page-header"><h2>Settings</h2></div>
+      <div class="settings-grid">
+        <div class="settings-section">
+          <div class="card-header"><span class="card-title">Company Info</span></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:14px;">
+            <div class="modal-field"><label class="modal-label">Company Name</label><input class="settings-input" style="width:100%" value="Tandem Infra Services"></div>
+            <div class="modal-field"><label class="modal-label">Phone</label><input class="settings-input" style="width:100%" value="+91 94297 39999"></div>
+            <div class="modal-field"><label class="modal-label">Email</label><input class="settings-input" style="width:100%" value="tandeminfraservices@gmail.com"></div>
+            <div class="modal-field"><label class="modal-label">Address</label><input class="settings-input" style="width:100%" placeholder="Enter address when available"></div>
+            <button class="add-btn" onclick="showToast('Settings saved ✓')">Save Changes</button>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="card-header"><span class="card-title">Notifications</span></div>
+          <div class="setting-row"><div><div class="setting-label">Email on New Enquiry</div><div class="setting-sub">Alert to <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6f1b0e010b0a020601091d0e1c0a1d19060c0a1c2f08020e0603410c0002">[email&#160;protected]</a></div></div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+          <div class="setting-row"><div><div class="setting-label">Project Milestone Alerts</div><div class="setting-sub">Alert at 50%, 75%, 100%</div></div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+          <div class="setting-row"><div><div class="setting-label">Weekly Summary Report</div><div class="setting-sub">Auto-email every Monday</div></div><button class="toggle" onclick="this.classList.toggle('on')"></button></div>
+          <div class="setting-row"><div><div class="setting-label">Safety Incident Alerts</div><div class="setting-sub">Immediate SMS for safety events</div></div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+        </div>
+        <div class="settings-section">
+          <div class="card-header"><span class="card-title">Website Display</span></div>
+          <div class="setting-row"><div><div class="setting-label">Show Testimonials</div></div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+          <div class="setting-row"><div><div class="setting-label">Show Statistics Counter</div></div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+          <div class="setting-row"><div><div class="setting-label">Show Clients Section</div></div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+          <div class="setting-row"><div><div class="setting-label">Maintenance Mode</div><div class="setting-sub">Show maintenance page to visitors</div></div><button class="toggle" onclick="this.classList.toggle('on')"></button></div>
+        </div>
+        <div class="settings-section">
+          <div class="card-header"><span class="card-title">Security</span></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:14px;">
+            <div class="modal-field"><label class="modal-label">New Password</label><input class="settings-input" style="width:100%" type="password" placeholder="New password"></div>
+            <div class="modal-field"><label class="modal-label">Confirm Password</label><input class="settings-input" style="width:100%" type="password" placeholder="Confirm new password"></div>
+            <button class="add-btn" onclick="showToast('Password updated ✓')">Update Password</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBox">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3 id="modalTitle">Add Item</h3>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  function doLogin() {
+    if (document.getElementById('loginUser').value==='admin' && document.getElementById('loginPass').value==='admin123') {
+      const s=document.getElementById('loginScreen');
+      s.style.transition='opacity 0.5s'; s.style.opacity='0';
+      setTimeout(()=>s.style.display='none',500);
+    } else { document.getElementById('loginErr').style.display='block'; }
+  }
+  document.getElementById('loginPass').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+  function doLogout() { const s=document.getElementById('loginScreen'); s.style.display='flex'; setTimeout(()=>s.style.opacity='1',10); s.style.transition='opacity 0.4s'; }
+
+  function showPage(page,el) {
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    document.getElementById('page-'+page).classList.add('active');
+    if(el) el.classList.add('active');
+    const t={dashboard:'Dashboard',projects:'Projects',enquiries:'Enquiries',team:'Team',services:'Services',testimonials:'Testimonials',settings:'Settings'};
+    document.getElementById('pageTitle').textContent=t[page]||page;
+  }
+
+  function filterActive(btn) { btn.closest('.table-toolbar').querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+
+  const forms = {
+    project:{title:'Add New Project',fields:[{label:'Project Name',type:'text',placeholder:'Project name'},{label:'Client',type:'text',placeholder:'Client name'},{label:'Service Type',type:'select',options:['Project Management','Structural Engineering','BIM Solutions','QA & QC','Infrastructure Planning','Sustainable Construction']},{label:'Description',type:'textarea',placeholder:'Project description...'}]},
+    team:{title:'Add Team Member',fields:[{label:'Full Name',type:'text',placeholder:'Full name'},{label:'Role',type:'text',placeholder:'e.g. Senior Engineer'},{label:'Department',type:'select',options:['Structural','Design','Quality','Operations','HSE','BIM']},{label:'Certifications',type:'text',placeholder:'e.g. PE, PMP'}]},
+    service:{title:'Add Service',fields:[{label:'Service Name',type:'text',placeholder:'Service title'},{label:'Icon',type:'text',placeholder:'🏗️'},{label:'Description',type:'textarea',placeholder:'Short description...'}]},
+    testimonial:{title:'Add Testimonial',fields:[{label:'Name',type:'text',placeholder:'Client name'},{label:'Company',type:'text',placeholder:'Company'},{label:'Role',type:'text',placeholder:'Role'},{label:'Rating',type:'select',options:['★★★★★','★★★★☆','★★★☆☆']},{label:'Quote',type:'textarea',placeholder:'Testimonial text...'}]}
+  };
+
+  function openModal(type) {
+    const f=forms[type]; document.getElementById('modalTitle').textContent=f.title;
+    let h='';
+    f.fields.forEach(fld=>{
+      h+=`<div class="modal-field"><label class="modal-label">${fld.label}</label>`;
+      if(fld.type==='select') h+=`<select class="modal-select">${fld.options.map(o=>`<option>${o}</option>`).join('')}</select>`;
+      else if(fld.type==='textarea') h+=`<textarea class="modal-textarea" placeholder="${fld.placeholder}"></textarea>`;
+      else h+=`<input class="modal-input" type="${fld.type}" placeholder="${fld.placeholder}">`;
+      h+='</div>';
+    });
+    h+=`<div class="modal-actions"><button class="modal-submit" onclick="submitModal()">Save</button><button class="modal-cancel" onclick="closeModal()">Cancel</button></div>`;
+    document.getElementById('modalContent').innerHTML=h;
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+  function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+  function submitModal(){closeModal();}
+  document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+  // ── LIVE DATA ─────────────────────────────────────────
+  function getApplications(){try{return JSON.parse(localStorage.getItem('tis_applications')||'[]');}catch{return[];}}
+  function getCandidates(){try{return JSON.parse(localStorage.getItem('tis_candidates')||'[]');}catch{return[];}}
+  function saveApplications(a){localStorage.setItem('tis_applications',JSON.stringify(a));}
+
+  function loadLiveData(){
+    const apps=getApplications(), cands=getCandidates();
+    const kpiA=document.getElementById('kpi-apps');
+    const kpiC=document.getElementById('kpi-candidates');
+    const ab=document.getElementById('appsBadge');
+    const cb=document.getElementById('candidatesBadge');
+    if(kpiA) kpiA.textContent=apps.length;
+    if(kpiC) kpiC.textContent=cands.length;
+    if(ab) ab.textContent=apps.length;
+    if(cb) cb.textContent=cands.length;
+  }
+
+  // Override doLogin to also load live data
+  const _origLogin=doLogin;
+  function doLogin(){
+    if(document.getElementById('loginUser').value==='admin'&&document.getElementById('loginPass').value==='admin123'){
+      const s=document.getElementById('loginScreen');
+      s.style.transition='opacity 0.5s';s.style.opacity='0';
+      setTimeout(()=>{s.style.display='none';loadLiveData();renderApplicationsPage();renderCandidatesPage();},500);
+    } else { document.getElementById('loginErr').style.display='block'; }
+  }
+
+  // ── APPLICATIONS PAGE ─────────────────────────────────
+  function renderApplicationsPage(){
+    const pg=document.getElementById('page-applications');
+    if(!pg) return;
+    const apps=getApplications();
+    const deptInfo=[
+      {key:'civil',title:'Civil Engineer',icon:'🏗️'},
+      {key:'surveyor',title:'Surveyor',icon:'📐'},
+      {key:'safety',title:'Safety Officer',icon:'🦺'},
+      {key:'electrician',title:'Electrician',icon:'⚡'},
+      {key:'mechanical',title:'Mech. Fabrication',icon:'🔧'},
+      {key:'plumber',title:'Plumber',icon:'🔩'},
+      {key:'qc',title:'QC / QS Engineer',icon:'✅'},
+    ];
+
+    let html=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;">`;
+    html+=`<div class="kpi-card"><div class="kpi-icon">💼</div><div class="kpi-label">Total Applications</div><div class="kpi-value">${apps.length}</div><div class="kpi-change ${apps.length?'up':'neutral'}">${apps.length?'↑ Received':'Awaiting'}</div></div>`;
+    html+=`<div class="kpi-card"><div class="kpi-icon">⏳</div><div class="kpi-label">Under Review</div><div class="kpi-value">${apps.filter(a=>!a.status||a.status==='Under Review').length}</div><div class="kpi-change neutral">→ Pending</div></div>`;
+    html+=`<div class="kpi-card"><div class="kpi-icon">✅</div><div class="kpi-label">Shortlisted</div><div class="kpi-value">${apps.filter(a=>a.status==='Shortlisted').length}</div><div class="kpi-change up">↑ Qualified</div></div>`;
+    html+=`<div class="kpi-card"><div class="kpi-icon">👥</div><div class="kpi-label">Unique Candidates</div><div class="kpi-value">${[...new Set(apps.map(a=>a.candidateId))].length}</div><div class="kpi-change neutral">→ From portal</div></div>`;
+    html+=`</div>`;
+
+    // Per-dept breakdown
+    html+=`<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:22px;">`;
+    deptInfo.forEach(d=>{
+      const cnt=apps.filter(a=>a.jobKey===d.key).length;
+      html+=`<div style="background:var(--ink);border:1px solid var(--border);padding:14px 10px;text-align:center;border-radius:3px;">
+        <div style="font-size:20px;margin-bottom:6px;">${d.icon}</div>
+        <div style="font-family:var(--font-mono);font-size:8px;color:var(--mist);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:6px;line-height:1.4;">${d.title}</div>
+        <div style="font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--white);line-height:1;">${cnt}</div>
+      </div>`;
+    });
+    html+=`</div>`;
+
+    html+=`<div class="full-table-card"><div class="table-toolbar" style="flex-wrap:wrap;gap:8px;">`;
+    html+=`<button class="filter-btn active" onclick="adminFilterApps('all',this)">All (${apps.length})</button>`;
+    deptInfo.forEach(d=>{ html+=`<button class="filter-btn" onclick="adminFilterApps('${d.key}',this)">${d.icon} ${d.title} (${apps.filter(a=>a.jobKey===d.key).length})</button>`; });
+    html+=`</div>`;
+
+    if(!apps.length){
+      html+=`<div style="text-align:center;padding:60px;color:var(--mist);"><div style="font-size:40px;margin-bottom:14px;">💼</div><p>No applications yet. Share the <a href="careers.html" target="_blank" style="color:var(--white)">careers page</a> to receive applications.</p></div>`;
+    } else {
+      html+=`<div style="overflow-x:auto;"><table class="full-table"><thead><tr>
+        <th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Qualification</th><th>Experience</th><th>Location</th><th>CV</th><th>Applied On</th><th>Status</th><th>Act.</th>
+      </tr></thead><tbody id="appsRows">
+        ${apps.map((a,i)=>`<tr data-key="${a.jobKey}">
+          <td style="color:var(--white);font-weight:700;white-space:nowrap">${a.candidateName}</td>
+          <td style="font-size:12px">${a.candidateEmail}</td>
+          <td style="font-family:var(--font-mono);font-size:11px">${a.candidatePhone||'—'}</td>
+          <td style="color:var(--pearl);font-weight:600">${a.jobTitle}</td>
+          <td>${a.qualification||'—'}</td>
+          <td>${a.experience||'—'}</td>
+          <td>${a.location||'—'}</td>
+          <td style="font-family:var(--font-mono);font-size:10px;color:var(--smoke)">${a.cvFile||'—'}</td>
+          <td style="font-family:var(--font-mono);font-size:10px;color:var(--mist);white-space:nowrap">${a.appliedAt}</td>
+          <td><select onchange="changeAppStatus(${i},this.value)" style="background:var(--dark);border:1px solid var(--border);color:var(--pearl);font-family:var(--font-mono);font-size:10px;padding:4px 6px;outline:none;border-radius:2px;">
+            <option ${(!a.status||a.status==='Under Review')?'selected':''}>Under Review</option>
+            <option ${a.status==='Shortlisted'?'selected':''}>Shortlisted</option>
+            <option ${a.status==='Interview Scheduled'?'selected':''}>Interview Scheduled</option>
+            <option ${a.status==='Hired'?'selected':''}>Hired</option>
+            <option ${a.status==='Rejected'?'selected':''}>Rejected</option>
+          </select></td>
+          <td>
+            <button class="icon-btn" onclick="viewNote(${i})" title="Note">📝</button>
+            <button class="icon-btn" onclick="deleteApp(${i})" title="Delete">🗑️</button>
+          </td>
+        </tr>`).join('')}
+      </tbody></table></div>`;
+    }
+    html+=`</div>`;
+    pg.innerHTML=html;
+  }
+
+  function adminFilterApps(key,btn){
+    btn.closest('.table-toolbar').querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const rows=document.querySelectorAll('#appsRows tr');
+    rows.forEach(tr=>{ tr.style.display=(key==='all'||tr.dataset.key===key)?'':'none'; });
+  }
+
+  function changeAppStatus(idx,status){
+    const apps=getApplications();
+    if(apps[idx]){apps[idx].status=status;saveApplications(apps);showToast('Status → '+status);}
+  }
+
+  function deleteApp(idx){
+    if(!confirm('Delete this application?')) return;
+    const apps=getApplications();apps.splice(idx,1);saveApplications(apps);
+    renderApplicationsPage();loadLiveData();showToast('Deleted');
+  }
+
+  function viewNote(idx){
+    const a=getApplications()[idx];if(!a) return;
+    document.getElementById('modalTitle').textContent='Cover Note — '+a.candidateName;
+    document.getElementById('modalContent').innerHTML=`<p style="font-size:14px;color:var(--silver);line-height:1.8;padding:8px 0;">"${a.note||'No cover note provided.'}"</p>
+      <div style="margin-top:18px;padding:14px;background:var(--dark);"><div style="font-size:10px;color:var(--mist);font-family:var(--font-mono);letter-spacing:0.14em;margin-bottom:4px;">APPLIED FOR</div><div style="font-size:14px;color:var(--white);font-weight:700;">${a.jobTitle}</div></div>
+      <div class="modal-actions" style="margin-top:18px;"><button class="modal-submit" onclick="closeModal()">Close</button></div>`;
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  // ── CANDIDATES PAGE ────────────────────────────────────
+  function renderCandidatesPage(){
+    const pg=document.getElementById('page-candidates');
+    if(!pg) return;
+    const cands=getCandidates(), apps=getApplications();
+    let html=`<div class="full-table-card"><div class="card-header"><span class="card-title">Registered Candidates</span><span class="card-badge">${cands.length}</span></div>`;
+    if(!cands.length){
+      html+=`<div style="text-align:center;padding:60px;color:var(--mist);"><div style="font-size:40px;margin-bottom:14px;">👤</div><p>No candidates yet. Share <a href="careers.html" target="_blank" style="color:var(--white)">careers page</a> to get sign-ups.</p></div>`;
+    } else {
+      html+=`<div style="overflow-x:auto;"><table class="full-table"><thead><tr>
+        <th>Name</th><th>Email</th><th>Phone</th><th>City</th><th>Qualification</th><th>Dept Interest</th><th>CV</th><th>Apps</th><th>Registered</th><th>View</th>
+      </tr></thead><tbody>
+        ${cands.map(c=>{
+          const myA=apps.filter(a=>a.candidateId===c.id).length;
+          return `<tr>
+            <td style="color:var(--white);font-weight:700">${c.name}</td>
+            <td style="font-size:12px">${c.email}</td>
+            <td style="font-family:var(--font-mono);font-size:11px">${c.phone||'—'}</td>
+            <td>${c.city||'—'}</td>
+            <td>${c.qual||'—'}</td>
+            <td>${c.dept||'—'}</td>
+            <td style="font-family:var(--font-mono);font-size:10px;color:${c.cv?'var(--success)':'var(--mist)'}">${c.cv||'No'}</td>
+            <td style="font-family:var(--font-mono);font-weight:700;color:${myA?'var(--white)':'var(--mist)'}">${myA}</td>
+            <td style="font-family:var(--font-mono);font-size:10px;color:var(--mist);white-space:nowrap">${c.registeredAt||'—'}</td>
+            <td><button class="icon-btn" onclick="viewCandidateDetail('${c.id}')">👁</button></td>
+          </tr>`;
+        }).join('')}
+      </tbody></table></div>`;
+    }
+    html+=`</div>`;
+    pg.innerHTML=html;
+  }
+
+  function viewCandidateDetail(id){
+    const c=getCandidates().find(x=>x.id===id);
+    const apps=getApplications().filter(a=>a.candidateId===id);
+    if(!c) return;
+    document.getElementById('modalTitle').textContent='Candidate — '+c.name;
+    document.getElementById('modalContent').innerHTML=`
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--border);">
+        <div style="width:48px;height:48px;border-radius:50%;background:var(--dim);border:2px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:var(--white);">${c.name.charAt(0)}</div>
+        <div><div style="font-size:17px;font-weight:700;color:var(--white);">${c.name}</div><div style="font-size:12px;color:var(--mist);">${c.email}</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;">
+        ${[['Phone',c.phone||'—'],['City',c.city||'—'],['DOB',c.dob||'—'],['Qualification',c.qual||'—'],['Dept Interest',c.dept||'—'],['CV',c.cv||'Not uploaded'],['Registered',c.registeredAt||'—'],['Applications',apps.length+' submitted']].map(([k,v])=>`<div style="padding:10px;background:var(--dark);border-radius:2px;"><div style="font-size:9px;color:var(--mist);font-family:var(--font-mono);letter-spacing:0.14em;margin-bottom:3px;">${k}</div><div style="font-size:13px;color:var(--pearl);font-weight:600;">${v}</div></div>`).join('')}
+      </div>
+      ${apps.length?`<div style="font-family:var(--font-mono);font-size:9px;color:var(--smoke);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:8px;">Applications</div>
+      ${apps.map(a=>`<div style="padding:10px 12px;background:var(--dark);border-left:2px solid var(--border-strong);margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;"><div style="font-weight:700;color:var(--white);font-size:13px;">${a.jobTitle}</div><span style="font-family:var(--font-mono);font-size:10px;padding:3px 8px;background:rgba(240,165,0,0.14);color:#f0a500;">${a.status||'Under Review'}</span></div>`).join('')}`:''}
+      <div class="modal-actions" style="margin-top:16px;"><button class="modal-submit" onclick="closeModal()">Close</button></div>`;
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  // Override showPage to support new pages
+  function showPage(page,el){
+    document.querySelectorAll('.page').forEach(p=>{p.classList.remove('active');p.style.display='none';});
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    const pg=document.getElementById('page-'+page);
+    if(pg){pg.classList.add('active');pg.style.display='';}
+    if(el) el.classList.add('active');
+    const t={dashboard:'Dashboard',projects:'Projects',enquiries:'Enquiries',team:'Team',services:'Services',testimonials:'Testimonials',settings:'Settings',applications:'Job Applications',candidates:'Registered Candidates'};
+    document.getElementById('pageTitle').textContent=t[page]||page;
+    if(page==='applications') renderApplicationsPage();
+    if(page==='candidates') renderCandidatesPage();
+    loadLiveData();
+  }
+
+  let tt;
+  function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),3000);}
+</script>
+</body>
+</html>

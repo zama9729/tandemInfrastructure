@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Profile — Tandem Infra Services</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#ffffff; --ink:#f5f5f5; --dark:#ededed; --dim:#e2e2e2;
+  --shadow:#b8b8b8; --mist:#5a5a5a; --smoke:#444444; --silver:#2f2f2f;
+  --pearl:#111111; --white:#000000;
+  --border:rgba(0,0,0,0.12); --border-strong:rgba(0,0,0,0.28);
+  --success:#3fb68b; --danger:#e05252; --warn:#f0a500; --info:#4ea8de;
+  --sidebar-w:260px;
+  --font:'Source Sans 3',sans-serif; --font-display:'Source Sans 3',sans-serif; --font-mono:'Source Sans 3',sans-serif;
+}
+body.theme-dark{
+  --black:#08090a; --ink:#111214; --dark:#191a1c; --dim:#252628;
+  --shadow:#333537; --mist:#72757a; --smoke:#9fa3a9; --silver:#c8cace;
+  --pearl:#eaebec; --white:#ffffff;
+  --border:rgba(255,255,255,0.08); --border-strong:rgba(255,255,255,0.26);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--black);color:var(--pearl);font-family:var(--font);font-size:14px;display:flex;overflow:hidden;transition:background 0.4s ease,color 0.4s ease;animation:pageIn 0.7s ease;}
+img{max-width:100%;height:auto;}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:3px;} ::-webkit-scrollbar-track{background:var(--black);} ::-webkit-scrollbar-thumb{background:var(--shadow);}
+
+/* SIDEBAR */
+#sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--ink);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;overflow-y:auto;position:fixed;left:0;top:0;bottom:0;z-index:100;}
+.sidebar-brand{padding:26px 24px;border-bottom:1px solid var(--border);}
+.sidebar-brand-name{font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--white);}
+.sidebar-brand-sub{font-family:var(--font-mono);font-size:7px;color:var(--smoke);letter-spacing:0.25em;text-transform:uppercase;display:block;margin-top:2px;}
+.brand-logo{width:28px;height:28px;object-fit:contain;display:none;margin-bottom:8px;}
+.sidebar-brand-portal{font-family:var(--font-mono);font-size:8px;color:var(--white);letter-spacing:0.2em;text-transform:uppercase;margin-top:10px;background:rgba(255,255,255,0.08);padding:4px 10px;display:inline-block;}
+.sidebar-section{padding:20px 24px 8px;}
+.sidebar-section-label{font-family:var(--font-mono);font-size:8px;color:var(--mist);letter-spacing:0.3em;text-transform:uppercase;margin-bottom:8px;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:3px;cursor:pointer;transition:all 0.2s;color:var(--mist);font-size:13px;font-weight:500;margin-bottom:2px;text-decoration:none;border:none;background:none;width:100%;text-align:left;}
+.nav-item:hover{background:rgba(255,255,255,0.04);color:var(--pearl);}
+.nav-item.active{background:rgba(255,255,255,0.07);color:var(--white);border-left:2px solid var(--white);font-weight:700;}
+.nav-item-icon{display:none;}
+.nav-badge{margin-left:auto;background:var(--white);color:var(--black);font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;font-family:var(--font-mono);}
+.sidebar-footer{margin-top:auto;padding:18px 24px;border-top:1px solid var(--border);}
+.sidebar-user{display:flex;align-items:center;gap:12px;}
+.user-avatar{width:38px;height:38px;border-radius:50%;background:var(--dim);border:2px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--white);font-size:14px;flex-shrink:0;font-family:var(--font-display);}
+.user-info span:first-child{font-size:13px;font-weight:700;color:var(--pearl);display:block;}
+.user-info span:last-child{font-size:11px;color:var(--mist);}
+.logout-btn{margin-left:auto;background:none;border:none;color:var(--mist);cursor:pointer;font-size:16px;transition:color 0.2s;}
+.logout-btn:hover{color:var(--danger);}
+
+/* MAIN */
+#main{margin-left:var(--sidebar-w);flex:1;height:100vh;overflow-y:auto;display:flex;flex-direction:column;}
+.topbar{background:var(--ink);border-bottom:1px solid var(--border);padding:14px 36px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+.topbar-title{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--white);}
+.topbar-right{display:flex;align-items:center;gap:14px;}
+.theme-toggle{display:flex;align-items:center;gap:10px;cursor:pointer;font-family:var(--font-mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--smoke);}
+.theme-switch{width:40px;height:20px;border-radius:20px;border:1px solid var(--border-strong);background:var(--dark);position:relative;transition:all 0.3s ease;}
+.theme-knob{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--white);transition:transform 0.3s ease;}
+body.theme-dark .theme-knob{transform:translateX(20px);}
+.topbar-link{font-family:var(--font-mono);font-size:10px;color:var(--smoke);text-decoration:none;letter-spacing:0.12em;text-transform:uppercase;transition:color 0.2s;padding:8px 14px;border:1px solid var(--border);border-radius:2px;}
+.topbar-link:hover{color:var(--white);border-color:var(--border-strong);}
+.content{padding:32px 36px;flex:1;}
+.page{display:none;} .page.active{display:block;}
+
+/* OVERVIEW CARDS */
+.overview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+.ov-card{background:var(--ink);border:1px solid var(--border);padding:22px 24px;border-radius:3px;position:relative;overflow:hidden;transition:border-color 0.3s;}
+.ov-card:hover{border-color:var(--border-strong);}
+.ov-card::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:2px;background:var(--white);opacity:0.12;}
+.ov-label{font-family:var(--font-mono);font-size:9px;color:var(--mist);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:8px;}
+.ov-value{font-family:var(--font-display);font-size:34px;font-weight:700;color:var(--white);line-height:1;margin-bottom:6px;}
+.ov-sub{font-size:12px;color:var(--mist);}
+.ov-icon{display:none;}
+
+/* PROFILE CARD */
+.profile-header{background:var(--ink);border:1px solid var(--border);padding:32px;margin-bottom:20px;display:flex;gap:28px;align-items:flex-start;}
+.profile-avatar-big{width:80px;height:80px;border-radius:50%;background:var(--dim);border:2px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:32px;font-weight:700;color:var(--white);flex-shrink:0;}
+.profile-info h2{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--white);margin-bottom:4px;}
+.profile-info .profile-email{font-family:var(--font-mono);font-size:11px;color:var(--smoke);letter-spacing:0.08em;margin-bottom:10px;}
+.profile-tags{display:flex;gap:8px;flex-wrap:wrap;}
+.profile-tag{padding:3px 10px;font-family:var(--font-mono);font-size:9px;font-weight:700;border-radius:20px;letter-spacing:0.08em;}
+.tag-registered{background:rgba(63,182,139,0.14);color:var(--success);}
+.tag-dept{background:rgba(255,255,255,0.08);color:var(--smoke);}
+
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.info-card{background:var(--ink);border:1px solid var(--border);padding:24px;}
+.info-card-title{font-family:var(--font-mono);font-size:9px;color:var(--smoke);letter-spacing:0.24em;text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;}
+.edit-btn-sm{background:none;border:1px solid var(--border);padding:4px 12px;color:var(--mist);font-family:var(--font-mono);font-size:9px;cursor:pointer;border-radius:2px;transition:all 0.2s;letter-spacing:0.1em;}
+.edit-btn-sm:hover{border-color:var(--border-strong);color:var(--white);}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.03);}
+.info-row:last-child{border-bottom:none;}
+.info-key{font-size:12px;color:var(--mist);}
+.info-val{font-size:13px;color:var(--pearl);font-weight:600;text-align:right;max-width:60%;}
+
+/* APPLICATIONS TABLE */
+.full-card{background:var(--ink);border:1px solid var(--border);border-radius:3px;overflow:hidden;margin-bottom:20px;}
+.card-head{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-head-title{font-size:14px;font-weight:700;color:var(--white);}
+.card-head-badge{font-family:var(--font-mono);font-size:10px;color:var(--white);background:rgba(255,255,255,0.1);padding:3px 10px;border-radius:20px;}
+.app-table{width:100%;border-collapse:collapse;}
+.app-table th{font-family:var(--font-mono);font-size:9px;color:var(--mist);letter-spacing:0.2em;text-transform:uppercase;text-align:left;padding:12px 22px;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.02);}
+.app-table td{padding:13px 22px;font-size:13px;color:var(--silver);border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle;}
+.app-table tr:hover td{background:rgba(255,255,255,0.02);}
+.app-table tr:last-child td{border-bottom:none;}
+.app-status{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;font-family:var(--font-mono);}
+.status-review{background:rgba(240,165,0,0.14);color:var(--warn);}
+.status-shortlisted{background:rgba(63,182,139,0.14);color:var(--success);}
+.status-rejected{background:rgba(224,82,82,0.14);color:var(--danger);}
+
+/* DOCUMENTS */
+.docs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:20px;}
+.doc-card{background:var(--ink);border:1px solid var(--border);padding:22px;text-align:center;cursor:pointer;transition:all 0.3s;position:relative;}
+.doc-card:hover{border-color:var(--border-strong);}
+.doc-icon{font-size:32px;margin-bottom:12px;display:block;}
+.doc-name{font-size:13px;font-weight:600;color:var(--white);margin-bottom:4px;}
+.doc-meta{font-family:var(--font-mono);font-size:9px;color:var(--mist);letter-spacing:0.08em;}
+.doc-status-ok{position:absolute;top:10px;right:10px;font-size:12px;}
+.doc-upload-zone{background:var(--ink);border:1px dashed var(--border);padding:22px;text-align:center;cursor:pointer;transition:border-color 0.3s;}
+.doc-upload-zone:hover{border-color:var(--border-strong);}
+.doc-upload-label{font-size:13px;color:var(--smoke);}
+.doc-upload-label strong{color:var(--white);display:block;margin-bottom:4px;}
+.doc-upload-input{display:none;}
+
+/* CV SECTION */
+.cv-card{background:var(--ink);border:1px solid var(--border);padding:32px;margin-bottom:20px;}
+.cv-preview{display:flex;align-items:center;gap:20px;padding:22px;background:var(--dark);border:1px solid var(--border);margin-bottom:20px;}
+.cv-file-icon{font-size:36px;}
+.cv-file-info h4{font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px;}
+.cv-file-info span{font-family:var(--font-mono);font-size:10px;color:var(--mist);}
+.cv-actions{margin-left:auto;display:flex;gap:10px;}
+.cv-btn{padding:9px 20px;font-family:var(--font);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all 0.2s;}
+.cv-btn-primary{background:var(--white);color:var(--black);border:none;}
+.cv-btn-primary:hover{background:var(--pearl);}
+.cv-btn-outline{background:transparent;color:var(--smoke);border:1px solid var(--border);}
+.cv-btn-outline:hover{border-color:var(--border-strong);color:var(--white);}
+.upload-zone{border:1px dashed var(--border);padding:40px;text-align:center;transition:border-color 0.3s;cursor:pointer;}
+.upload-zone:hover{border-color:var(--border-strong);}
+.upload-zone input{display:none;}
+.upload-icon{font-size:36px;display:block;margin-bottom:12px;}
+.upload-text{font-size:14px;color:var(--smoke);margin-bottom:6px;}
+.upload-text strong{color:var(--white);}
+.upload-hint{font-family:var(--font-mono);font-size:10px;color:var(--mist);letter-spacing:0.12em;}
+
+/* EDIT MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);z-index:500;display:none;align-items:center;justify-content:center;padding:30px;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--ink);border:1px solid var(--border-strong);width:100%;max-width:500px;max-height:85vh;overflow-y:auto;position:relative;}
+.modal-header{padding:26px 28px 20px;border-bottom:1px solid var(--border);}
+.modal-header h3{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--white);}
+.modal-body{padding:24px 28px 28px;}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--mist);font-size:20px;cursor:pointer;transition:color 0.2s;}
+.modal-close:hover{color:var(--danger);}
+.form-field{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;}
+.form-label{font-family:var(--font-mono);font-size:9px;color:var(--mist);letter-spacing:0.2em;text-transform:uppercase;}
+.form-input,.form-select{background:var(--dark);border:1px solid var(--border);padding:12px 14px;color:var(--pearl);font-family:var(--font);font-size:13px;outline:none;width:100%;border-radius:0;appearance:none;transition:border-color 0.3s;}
+.form-input:focus,.form-select:focus{border-color:var(--border-strong);}
+.form-select option{background:var(--dark);}
+.modal-actions{display:flex;gap:12px;}
+.save-btn{flex:1;padding:12px;background:var(--white);color:var(--black);border:none;font-family:var(--font);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all 0.3s;border-radius:2px;}
+.save-btn:hover{background:var(--pearl);}
+.cancel-btn{padding:12px 18px;background:transparent;color:var(--mist);border:1px solid var(--border);font-family:var(--font);font-size:11px;cursor:pointer;transition:all 0.3s;border-radius:2px;}
+.cancel-btn:hover{color:var(--danger);border-color:var(--danger);}
+
+/* TOAST */
+.toast{position:fixed;bottom:26px;right:26px;padding:13px 20px;background:var(--white);color:var(--black);font-size:13px;font-weight:700;border-radius:2px;z-index:9999;transform:translateY(16px);opacity:0;transition:all 0.4s;max-width:280px;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:60px 20px;color:var(--mist);}
+.empty-state span{font-size:40px;display:block;margin-bottom:14px;}
+.empty-state p{font-size:14px;line-height:1.7;margin-bottom:20px;}
+.empty-link{padding:11px 28px;background:var(--white);color:var(--black);border:none;font-family:var(--font);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;text-decoration:none;display:inline-block;border-radius:2px;}
+
+body:not(.theme-dark) .cv-btn-primary,
+body:not(.theme-dark) .save-btn,
+body:not(.theme-dark) .empty-link{
+  background:#ffffff;
+  color:#000000;
+  border:1px solid var(--border);
+}
+body:not(.theme-dark) .cv-btn-primary:hover,
+body:not(.theme-dark) .save-btn:hover,
+body:not(.theme-dark) .empty-link:hover{
+  background:#f0f0f0;
+}
+
+@media(max-width:768px){
+  #sidebar{display:none;}
+  #main{margin-left:0;}
+  .topbar{padding:14px 20px;}
+  .content{padding:20px;}
+  .overview-grid{grid-template-columns:1fr 1fr;}
+  .info-grid{grid-template-columns:1fr;}
+  .profile-header{flex-direction:column;align-items:center;text-align:center;}
+  .docs-grid{grid-template-columns:1fr 1fr;}
+  .topbar-title{font-size:18px;}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div class="sidebar-brand">
+    <img id="siteBrandLogo" class="brand-logo" alt="Logo">
+    <div class="sidebar-brand-name" id="siteBrandMain">Tandem Infra Services</div>
+    <span class="sidebar-brand-sub" id="siteBrandSub">Infrastructure &amp; Construction</span>
+    <span class="sidebar-brand-portal">Candidate Portal</span>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">My Account</div>
+    <button class="nav-item active" onclick="showPage('overview',this)">Overview</button>
+    <button class="nav-item" onclick="showPage('applications',this)">My Applications <span class="nav-badge" id="appBadge">0</span></button>
+    <button class="nav-item" onclick="showPage('profile',this)">My Profile</button>
+    <button class="nav-item" onclick="showPage('documents',this)">Documents</button>
+    <button class="nav-item" onclick="showPage('cv',this)">CV / Resume</button>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Browse</div>
+    <a class="nav-item" href="careers.html">Job Openings </a>
+    <a class="nav-item" href="index.html">Company Website </a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="user-avatar" id="sidebarAvatar">?</div>
+      <div class="user-info"><span id="sidebarName">Loading...</span><span id="sidebarEmail">—</span></div>
+      <button class="logout-btn" onclick="doLogout()" title="Sign Out">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <div class="topbar">
+    <div class="topbar-title" id="pageTitle">Overview</div>
+    <div class="topbar-right">
+      <div class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+        <span id="themeLabel">Light</span>
+        <div class="theme-switch"><div class="theme-knob"></div></div>
+      </div>
+      <a class="topbar-link" href="careers.html">View Jobs</a>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- OVERVIEW PAGE -->
+    <div id="page-overview" class="page active">
+      <div class="overview-grid">
+        <div class="ov-card"><div class="ov-icon">📋</div><div class="ov-label">Applications</div><div class="ov-value" id="ov-apps">0</div><div class="ov-sub">Total submitted</div></div>
+        <div class="ov-card"><div class="ov-icon">📁</div><div class="ov-label">Documents</div><div class="ov-value" id="ov-docs">0</div><div class="ov-sub">Files stored</div></div>
+        <div class="ov-card"><div class="ov-icon">📄</div><div class="ov-label">CV Status</div><div class="ov-value" id="ov-cv" style="font-size:18px;padding-top:8px;">Not uploaded</div><div class="ov-sub">Latest resume</div></div>
+      </div>
+
+      <!-- Recent Applications -->
+      <div class="full-card">
+        <div class="card-head"><span class="card-head-title">Recent Applications</span><a href="careers.html" style="font-family:var(--font-mono);font-size:10px;color:var(--smoke);text-decoration:none;letter-spacing:0.12em;">View All Jobs →</a></div>
+        <div id="recentAppsBody"></div>
+      </div>
+    </div>
+
+    <!-- APPLICATIONS PAGE -->
+    <div id="page-applications" class="page">
+      <div class="full-card">
+        <div class="card-head"><span class="card-head-title">My Applications</span><span class="card-head-badge" id="appsCount">0</span></div>
+        <div id="appsTableBody"></div>
+      </div>
+    </div>
+
+    <!-- PROFILE PAGE -->
+    <div id="page-profile" class="page">
+      <div class="profile-header" id="profileHeader"></div>
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-card-title">Personal Information <button class="edit-btn-sm" onclick="openEditModal('personal')">Edit</button></div>
+          <div id="personalInfoBody"></div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-title">Professional Details <button class="edit-btn-sm" onclick="openEditModal('professional')">Edit</button></div>
+          <div id="professionalInfoBody"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DOCUMENTS PAGE -->
+    <div id="page-documents" class="page">
+      <div class="full-card" style="margin-bottom:20px;">
+        <div class="card-head"><span class="card-head-title">Stored Documents</span><button class="edit-btn-sm" onclick="document.getElementById('doc-upload-input').click()">+ Upload</button></div>
+        <input type="file" id="doc-upload-input" accept=".pdf,.jpg,.png,.doc,.docx" multiple onchange="uploadDocs(this)" style="display:none">
+        <div style="padding:22px;" id="docsGrid"></div>
+      </div>
+      <p style="font-family:var(--font-mono);font-size:10px;color:var(--mist);letter-spacing:0.14em;text-align:center;">Note: Document names are stored in your profile. Actual files are stored locally in this browser session.</p>
+    </div>
+
+    <!-- CV PAGE -->
+    <div id="page-cv" class="page">
+      <div class="cv-card">
+        <div class="card-head" style="padding:0 0 18px;border-bottom:1px solid var(--border);margin-bottom:24px;"><span class="card-head-title">CV / Resume Store</span></div>
+        <div id="cvContent"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeEditModal()">✕</button>
+    <div class="modal-header"><h3 id="editModalTitle">Edit Information</h3></div>
+    <div class="modal-body" id="editModalBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API_BASE = location.origin === "null" ? "http://localhost:4000" : "";
+const TOKEN_KEY = "tis_token";
+const USER_KEY = "tis_user";
+const THEME_KEY = "tis_theme";
+
+function applyTheme(theme){
+  document.body.classList.toggle("theme-dark", theme === "dark");
+  const label = document.getElementById("themeLabel");
+  if(label) label.textContent = theme === "dark" ? "Dark" : "Light";
+  localStorage.setItem(THEME_KEY, theme);
+}
+function toggleTheme(){
+  const next = document.body.classList.contains("theme-dark") ? "light" : "dark";
+  applyTheme(next);
+}
+applyTheme(localStorage.getItem(THEME_KEY) || "light");
+function applySettings(settings = {}){
+  const main = document.getElementById("siteBrandMain");
+  if(main && settings.brand_name) main.textContent = settings.brand_name;
+  const sub = document.getElementById("siteBrandSub");
+  if(sub && settings.brand_subtitle) sub.textContent = settings.brand_subtitle;
+  const logo = document.getElementById("siteBrandLogo");
+  if(logo){
+    if(settings.brand_logo){
+      logo.src = settings.brand_logo;
+      logo.style.display = "block";
+    } else {
+      logo.style.display = "none";
+    }
+  }
+}
+async function loadSettings(){
+  try{
+    const res = await fetch(`${API_BASE}/api/content/candidate-dashboard`);
+    if(!res.ok) return;
+    const data = await res.json();
+    applySettings(data.settings || {});
+  }catch{}
+}
+loadSettings();
+
+function getToken(){ return localStorage.getItem(TOKEN_KEY); }
+function setUser(user){ localStorage.setItem(USER_KEY, JSON.stringify(user)); }
+function clearSession(){ localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); }
+
+async function api(path, options = {}){
+  const headers = options.headers || {};
+  if(options.body && !headers["Content-Type"]) headers["Content-Type"] = "application/json";
+  const token = getToken();
+  if(token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  const data = await res.json().catch(() => ({}));
+  if(!res.ok) throw new Error(data.error || "Request failed");
+  return data;
+}
+
+let currentUser = null;
+let applications = [];
+
+const token = getToken();
+if(!token){ window.location.href='candidate-auth.html'; }
+
+document.addEventListener('DOMContentLoaded', async () => {
+  try{
+    const me = await api('/api/me');
+    currentUser = me.user;
+    setUser(currentUser);
+    const apps = await api('/api/applications');
+    applications = apps.applications || [];
+  } catch {
+    clearSession();
+    window.location.href='candidate-auth.html';
+    return;
+  }
+
+  document.getElementById('sidebarName').textContent=currentUser.name;
+  document.getElementById('sidebarEmail').textContent=currentUser.email;
+  document.getElementById('sidebarAvatar').textContent=currentUser.name.charAt(0).toUpperCase();
+  renderOverview();
+  renderApplications();
+  renderProfile();
+  renderDocuments();
+  renderCV();
+});
+
+const pageTitles={overview:'Overview',applications:'My Applications',profile:'My Profile',documents:'Documents',cv:'CV / Resume'};
+function showPage(page,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  if(btn) btn.classList.add('active');
+  document.getElementById('pageTitle').textContent=pageTitles[page]||page;
+}
+
+function getMyApps(){ return applications; }
+
+function renderOverview(){
+  const apps=getMyApps();
+  document.getElementById('ov-apps').textContent=apps.length;
+  document.getElementById('appBadge').textContent=apps.length;
+  document.getElementById('appsCount').textContent=apps.length;
+  const docs=currentUser.documents||[];
+  document.getElementById('ov-docs').textContent=docs.length+(currentUser.cv?1:0);
+  document.getElementById('ov-cv').textContent=currentUser.cv?'Uploaded':'Not uploaded';
+  const body=document.getElementById('recentAppsBody');
+  if(!apps.length){
+    body.innerHTML='<div class="empty-state"><span>OK</span><p>You have not applied to any roles yet.<br>Browse our open positions and submit your first application.</p><a class="empty-link" href="careers.html">Browse Jobs</a></div>';
+    return;
+  }
+  const recent=apps.slice(-5).reverse();
+  body.innerHTML=`<table class="app-table"><thead><tr><th>Role</th><th>Department</th><th>Applied On</th><th>Status</th></tr></thead><tbody>
+    ${recent.map(a=>`<tr>
+      <td style="color:var(--white);font-weight:700">${a.job_title}</td>
+      <td>${a.job_dept||'-'}</td>
+      <td style="font-family:var(--font-mono);font-size:11px;color:var(--mist)">${new Date(a.applied_at).toLocaleString()}</td>
+      <td><span class="app-status status-review">${a.status||'Under Review'}</span></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+function renderApplications(){
+  const apps=getMyApps();
+  const body=document.getElementById('appsTableBody');
+  if(!apps.length){
+    body.innerHTML='<div class="empty-state"><span>OK</span><p>No applications yet. Start by browsing our open positions.</p><a class="empty-link" href="careers.html">View Jobs</a></div>';
+    return;
+  }
+  body.innerHTML=`<table class="app-table"><thead><tr><th>Role</th><th>Dept</th><th>Qualification</th><th>Experience</th><th>CV</th><th>Applied</th><th>Status</th></tr></thead><tbody>
+    ${apps.slice().reverse().map(a=>`<tr>
+      <td style="color:var(--white);font-weight:700">${a.job_title}</td>
+      <td style="color:var(--mist)">${a.job_dept||'-'}</td>
+      <td>${a.qualification||'-'}</td>
+      <td>${a.experience||'-'}</td>
+      <td style="font-family:var(--font-mono);font-size:11px;color:var(--smoke)">${a.cv_file||'Not uploaded'}</td>
+      <td style="font-family:var(--font-mono);font-size:10px;color:var(--mist)">${new Date(a.applied_at).toLocaleString()}</td>
+      <td><span class="app-status status-review">${a.status||'Under Review'}</span></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+function renderProfile(){
+  document.getElementById('profileHeader').innerHTML=`
+    <div class="profile-avatar-big">${currentUser.name.charAt(0).toUpperCase()}</div>
+    <div class="profile-info">
+      <h2>${currentUser.name}</h2>
+      <div class="profile-email">${currentUser.email}</div>
+      <div class="profile-tags">
+        <span class="profile-tag tag-registered">Registered</span>
+        ${currentUser.department?`<span class="profile-tag tag-dept">${currentUser.department}</span>`:''}
+        ${currentUser.qualification?`<span class="profile-tag tag-dept">${currentUser.qualification}</span>`:''}
+      </div>
+    </div>`;
+
+  document.getElementById('personalInfoBody').innerHTML=`
+    ${infoRow('Full Name',currentUser.name)}
+    ${infoRow('Email',currentUser.email)}
+    ${infoRow('Phone',currentUser.phone||'-')}
+    ${infoRow('Date of Birth',currentUser.dob||'-')}
+    ${infoRow('City / Location',currentUser.city||'-')}
+    ${infoRow('Member Since',currentUser.registered_at||'-')}`;
+
+  document.getElementById('professionalInfoBody').innerHTML=`
+    ${infoRow('Qualification',currentUser.qualification||'-')}
+    ${infoRow('Department Interest',currentUser.department||'-')}
+    ${infoRow('CV Uploaded',currentUser.cv||'Not yet')}
+    ${infoRow('Applications',getMyApps().length+' submitted')}`;
+}
+
+function infoRow(key,val){
+  return `<div class="info-row"><span class="info-key">${key}</span><span class="info-val">${val}</span></div>`;
+}
+
+function renderDocuments(){
+  const docs=currentUser.documents||[];
+  const grid=document.getElementById('docsGrid');
+  const docTypes=[
+    {type:'Aadhaar Card',icon:'🪪',key:'aadhaar'},
+    {type:'PAN Card',icon:'💳',key:'pan'},
+    {type:'10th Certificate',icon:'📜',key:'tenth'},
+    {type:'12th / Diploma',icon:'📜',key:'diploma'},
+    {type:'Degree Certificate',icon:'🎓',key:'degree'},
+    {type:'Experience Letter',icon:'📋',key:'exp'},
+  ];
+  let html='<div class="docs-grid">';
+  docTypes.forEach(d=>{
+    const uploaded=docs.find(doc=>doc.type===d.type);
+    html+=`<div class="doc-card" onclick="uploadDocType('${d.type}')">
+      <span class="doc-icon">${d.icon}</span>
+      <div class="doc-name">${d.type}</div>
+      <div class="doc-meta">${uploaded?uploaded.filename:'Not uploaded'}</div>
+      ${uploaded?'<span class="doc-status-ok">OK</span>':''}
+    </div>`;
+  });
+  html+=`<div class="doc-upload-zone" onclick="document.getElementById('doc-upload-input').click()">
+    <span class="doc-upload-label"><strong>+ Add Document</strong>Any other document</span>
+  </div>`;
+  html+='</div>';
+  grid.innerHTML=html;
+}
+
+function uploadDocType(type){
+  const input=document.createElement('input');
+  input.type='file'; input.accept='.pdf,.jpg,.png,.doc,.docx';
+  input.onchange=async function(){
+    if(!this.files[0]) return;
+    const docs=currentUser.documents||[];
+    const idx=docs.findIndex(d=>d.type===type);
+    const entry={type,filename:this.files[0].name,uploadedAt:new Date().toLocaleString()};
+    if(idx>-1) docs[idx]=entry; else docs.push(entry);
+    await updateUser({ documents: docs });
+    renderDocuments();
+    showToast(type+' uploaded');
+  };
+  input.click();
+}
+
+async function uploadDocs(input){
+  if(!input.files.length) return;
+  const docs=currentUser.documents||[];
+  Array.from(input.files).forEach(f=>{
+    docs.push({type:'Other',filename:f.name,uploadedAt:new Date().toLocaleString()});
+  });
+  await updateUser({ documents: docs });
+  renderDocuments();
+  showToast(input.files.length+' document(s) added');
+}
+
+function renderCV(){
+  const content=document.getElementById('cvContent');
+  if(currentUser.cv){
+    content.innerHTML=`
+      <div class="cv-preview">
+        <span class="cv-file-icon">📄</span>
+        <div class="cv-file-info">
+          <h4>${currentUser.cv}</h4>
+          <span>Last updated - CV / Resume</span>
+        </div>
+        <div class="cv-actions">
+          <button class="cv-btn cv-btn-outline" onclick="document.getElementById('cv-input').click()">Replace</button>
+        </div>
+      </div>
+      <input type="file" id="cv-input" accept=".pdf,.doc,.docx" onchange="uploadCV(this)" style="display:none">
+      <p style="font-size:13px;color:var(--mist);line-height:1.7;">This CV will be automatically attached to all your job applications. Keep it updated for best results.</p>`;
+  } else {
+    content.innerHTML=`
+      <div class="upload-zone" onclick="document.getElementById('cv-input').click()">
+        <input type="file" id="cv-input" accept=".pdf,.doc,.docx" onchange="uploadCV(this)" style="display:none">
+        <span class="upload-icon">📤</span>
+        <p class="upload-text"><strong>Click to upload your CV</strong></p>
+        <p class="upload-hint">PDF, DOC, DOCX - max 5MB</p>
+      </div>
+      <div style="margin-top:20px;padding:16px;background:rgba(255,255,255,0.03);border:1px solid var(--border);">
+        <p style="font-size:13px;color:var(--mist);line-height:1.7;"><strong style="color:var(--silver)">Tip:</strong> Upload your CV once and it will be auto-attached to every job application you submit.</p>
+      </div>`;
+  }
+}
+
+async function uploadCV(input){
+  if(!input.files[0]) return;
+  await updateUser({ cv: input.files[0].name });
+  renderCV();
+  renderOverview();
+  showToast('CV uploaded: '+currentUser.cv);
+}
+
+function openEditModal(type){
+  document.getElementById('editModal').classList.add('open');
+  if(type==='personal'){
+    document.getElementById('editModalTitle').textContent='Edit Personal Info';
+    document.getElementById('editModalBody').innerHTML=`
+      <div class="form-field"><label class="form-label">Full Name</label><input class="form-input" id="e-name" value="${currentUser.name}"></div>
+      <div class="form-field"><label class="form-label">Phone</label><input class="form-input" id="e-phone" value="${currentUser.phone||''}"></div>
+      <div class="form-field"><label class="form-label">Date of Birth</label><input class="form-input" id="e-dob" type="date" value="${currentUser.dob||''}"></div>
+      <div class="form-field"><label class="form-label">City / Location</label><input class="form-input" id="e-city" value="${currentUser.city||''}"></div>
+      <div class="modal-actions">
+        <button class="save-btn" onclick="savePersonal()">Save Changes</button>
+        <button class="cancel-btn" onclick="closeEditModal()">Cancel</button>
+      </div>`;
+  } else {
+    document.getElementById('editModalTitle').textContent='Edit Professional Details';
+    document.getElementById('editModalBody').innerHTML=`
+      <div class="form-field"><label class="form-label">Highest Qualification</label>
+        <select class="form-select" id="e-qual">
+          ${['10th Pass','12th Pass','ITI','Diploma','B.E. / B.Tech','M.E. / M.Tech','Other'].map(o=>`<option ${currentUser.qualification===o?'selected':''}>${o}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-field"><label class="form-label">Department of Interest</label>
+        <select class="form-select" id="e-dept">
+          ${['Civil Engineer','Surveyor','Safety Department','Electrician','Mechanical Fabrication','Plumber','QC / QS Engineer','Other / Any'].map(o=>`<option ${currentUser.department===o?'selected':''}>${o}</option>`).join('')}
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="save-btn" onclick="saveProfessional()">Save Changes</button>
+        <button class="cancel-btn" onclick="closeEditModal()">Cancel</button>
+      </div>`;
+  }
+}
+
+async function savePersonal(){
+  await updateUser({
+    name: document.getElementById('e-name').value,
+    phone: document.getElementById('e-phone').value,
+    dob: document.getElementById('e-dob').value,
+    city: document.getElementById('e-city').value
+  });
+  closeEditModal();
+  renderProfile();
+  document.getElementById('sidebarName').textContent=currentUser.name;
+  document.getElementById('sidebarAvatar').textContent=currentUser.name.charAt(0).toUpperCase();
+  showToast('Profile updated');
+}
+
+async function saveProfessional(){
+  await updateUser({
+    qualification: document.getElementById('e-qual').value,
+    department: document.getElementById('e-dept').value
+  });
+  closeEditModal();
+  renderProfile();
+  showToast('Profile updated');
+}
+
+function closeEditModal(){ document.getElementById('editModal').classList.remove('open'); }
+document.getElementById('editModal').addEventListener('click',function(e){ if(e.target===this) closeEditModal(); });
+
+async function updateUser(update){
+  const data = await api('/api/me', { method:'PUT', body: JSON.stringify(update) });
+  currentUser = data.user;
+  setUser(currentUser);
+}
+
+function doLogout(){
+  clearSession();
+  window.location.href='candidate-auth.html';
+}
+
+let tt;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>
+
+
+
+
+

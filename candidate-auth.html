@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Candidate Portal — Tandem Infra Services</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#ffffff; --ink:#f5f5f5; --dark:#ededed; --dim:#e2e2e2;
+  --shadow:#b8b8b8; --mist:#5a5a5a; --smoke:#444444; --silver:#2f2f2f;
+  --pearl:#111111; --white:#000000;
+  --border:rgba(0,0,0,0.12); --border-strong:rgba(0,0,0,0.28);
+  --success:#3fb68b; --danger:#e05252;
+  --font:'Source Sans 3',sans-serif; --font-display:'Source Sans 3',sans-serif; --font-mono:'Source Sans 3',sans-serif;
+}
+body.theme-dark{
+  --black:#08090a; --ink:#111214; --dark:#191a1c; --dim:#252628;
+  --shadow:#333537; --mist:#72757a; --smoke:#9fa3a9; --silver:#c8cace;
+  --pearl:#eaebec; --white:#ffffff;
+  --border:rgba(255,255,255,0.09); --border-strong:rgba(255,255,255,0.28);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--black);color:var(--pearl);font-family:var(--font);font-size:15px;line-height:1.6;min-height:100vh;display:flex;flex-direction:column;transition:background 0.4s ease,color 0.4s ease;animation:pageIn 0.7s ease;}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+img{max-width:100%;height:auto;}
+::-webkit-scrollbar{width:3px;} ::-webkit-scrollbar-track{background:var(--black);} ::-webkit-scrollbar-thumb{background:var(--shadow);}
+
+.page-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px 72px;position:relative;}
+
+/* LOGO */
+.auth-logo{text-align:center;margin-bottom:40px;position:relative;z-index:2;}
+.auth-logo a{text-decoration:none;}
+.brand-logo{width:36px;height:36px;object-fit:contain;display:none;margin:0 auto 10px;}
+.auth-logo-main{font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--white);display:block;letter-spacing:0.04em;}
+.auth-logo-sub{font-family:var(--font-mono);font-size:8px;color:var(--smoke);letter-spacing:0.3em;text-transform:uppercase;display:block;margin-top:2px;}
+.auth-logo-tag{font-family:var(--font-mono);font-size:9px;color:var(--mist);letter-spacing:0.2em;text-transform:uppercase;margin-top:8px;display:block;}
+
+/* AUTH CARD */
+.auth-card{background:var(--ink);border:1px solid var(--border);width:100%;max-width:560px;position:relative;z-index:2;box-shadow:0 24px 80px rgba(0,0,0,0.08);}
+.auth-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:70px;background:var(--white);}
+
+/* TABS */
+.auth-tabs{display:flex;border-bottom:1px solid var(--border);}
+.auth-tab{flex:1;padding:18px;font-family:var(--font);font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--mist);border:none;background:none;cursor:pointer;transition:all 0.25s;position:relative;}
+.auth-tab.active{color:var(--white);}
+.auth-tab.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--white);}
+.auth-tab:hover{color:var(--silver);}
+
+/* PANELS */
+.auth-panel{padding:36px 40px;display:none;}
+.auth-panel.active{display:block;}
+
+.form-title{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--white);margin-bottom:6px;}
+.form-subtitle{font-size:13px;color:var(--mist);margin-bottom:28px;line-height:1.6;}
+
+.form-field{display:flex;flex-direction:column;gap:7px;margin-bottom:18px;}
+.form-label{font-family:var(--font-mono);font-size:9px;color:var(--mist);letter-spacing:0.22em;text-transform:uppercase;}
+.form-label span{color:var(--danger);}
+.form-input,.form-select{background:var(--dark);border:1px solid var(--border);padding:13px 16px;color:var(--pearl);font-family:var(--font);font-size:14px;outline:none;transition:border-color 0.3s;width:100%;border-radius:0;appearance:none;}
+.form-input:focus,.form-select:focus{border-color:var(--border-strong);}
+.form-input.error{border-color:var(--danger);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-select option{background:var(--dark);}
+.form-hint{font-size:11px;color:var(--mist);margin-top:-10px;margin-bottom:14px;}
+
+.submit-btn{width:100%;padding:15px;background:var(--white);color:var(--black);border:none;font-family:var(--font);font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;transition:all 0.3s;margin-top:8px;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));}
+.submit-btn:hover{background:var(--pearl);}
+.submit-btn:disabled{background:var(--shadow);cursor:not-allowed;color:var(--mist);clip-path:none;}
+
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--mist);font-size:11px;font-family:var(--font-mono);letter-spacing:0.2em;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.err-msg{background:rgba(224,82,82,0.12);border:1px solid rgba(224,82,82,0.3);padding:12px 16px;color:#e05252;font-size:13px;margin-bottom:16px;display:none;}
+.err-msg.show{display:block;}
+.ok-msg{background:rgba(63,182,139,0.12);border:1px solid rgba(63,182,139,0.3);padding:12px 16px;color:var(--success);font-size:13px;margin-bottom:16px;display:none;}
+.ok-msg.show{display:block;}
+
+.back-link{text-align:center;margin-top:28px;font-size:13px;color:var(--mist);position:relative;z-index:2;}
+.back-link a{color:var(--silver);text-decoration:none;font-weight:600;}
+.back-link a:hover{color:var(--white);}
+
+.admin-top-btn{position:fixed;top:18px;left:18px;padding:8px 14px;border:1px solid var(--border);background:var(--ink);color:var(--pearl);font-family:var(--font);font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;z-index:6;}
+.admin-top-btn:hover{border-color:var(--border-strong);}
+
+.pw-wrap{position:relative;}
+.pw-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--mist);cursor:pointer;font-size:12px;transition:color 0.2s;}
+.pw-toggle:hover{color:var(--white);}
+.theme-toggle{position:fixed;top:24px;right:24px;display:flex;align-items:center;gap:10px;cursor:pointer;font-family:var(--font-mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--smoke);z-index:5;}
+.theme-switch{width:40px;height:20px;border-radius:20px;border:1px solid var(--border-strong);background:var(--dark);position:relative;transition:all 0.3s ease;}
+.theme-knob{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--white);transition:transform 0.3s ease;}
+body.theme-dark .theme-knob{transform:translateX(20px);}
+
+.progress-bar{height:4px;background:var(--dim);border-radius:2px;margin-top:6px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:2px;transition:width 0.4s,background 0.4s;}
+
+.req-check{display:flex;flex-direction:column;gap:4px;margin-top:6px;}
+.req-item{font-size:11px;display:flex;align-items:center;gap:6px;color:var(--mist);}
+.req-item.ok{color:var(--success);}
+.req-item::before{content:'○';font-size:10px;}
+.req-item.ok::before{content:'●';}
+
+body:not(.theme-dark) .submit-btn{
+  background:#ffffff;
+  color:#000000;
+  border:1px solid var(--border);
+}
+body:not(.theme-dark) .submit-btn:hover{background:#f0f0f0;}
+
+@media(max-width:480px){
+  .auth-card{max-width:100%;}
+  .form-row{grid-template-columns:1fr;}
+  .auth-panel{padding:24px;}
+}
+@media (max-height:820px){
+  .page-wrap{justify-content:flex-start;padding-top:96px;}
+}
+</style>
+</head>
+<body>
+<a class="admin-top-btn" href="admin.html">Admin</a>
+<div class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+  <span id="themeLabel">Light</span>
+  <div class="theme-switch"><div class="theme-knob"></div></div>
+</div>
+
+<div class="page-wrap">
+  <!-- LOGO -->
+  <div class="auth-logo">
+    <a href="index.html">
+      <img id="siteBrandLogo" class="brand-logo" alt="Logo">
+      <span class="auth-logo-main" id="siteBrandMain">Tandem Infra Services</span>
+      <span class="auth-logo-sub" id="siteBrandSub">Infrastructure &amp; Construction</span>
+    </a>
+    <span class="auth-logo-tag">Candidate Portal</span>
+  </div>
+
+  <!-- AUTH CARD -->
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
+      <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Create Account</button>
+    </div>
+
+    <!-- SIGN IN -->
+    <div class="auth-panel active" id="panel-signin">
+      <h2 class="form-title">Welcome Back</h2>
+      <p class="form-subtitle">Sign in to your candidate account to view applications and apply for new roles.</p>
+      <div class="err-msg" id="signin-err"></div>
+      <div class="form-field">
+        <label class="form-label">Email Address <span>*</span></label>
+        <input class="form-input" id="si-email" type="email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Password <span>*</span></label>
+        <div class="pw-wrap">
+          <input class="form-input" id="si-password" type="password" placeholder="Your password" autocomplete="current-password">
+          <button class="pw-toggle" type="button" onclick="togglePw('si-password',this)">Show</button>
+        </div>
+      </div>
+      <button class="submit-btn" onclick="doSignIn()">Sign In</button>
+      <div class="divider">OR</div>
+      <button class="submit-btn" style="background:transparent;color:var(--white);border:1px solid var(--border-strong);clip-path:none;" onclick="switchTab('signup')">Create New Account</button>
+    </div>
+
+    <!-- SIGN UP -->
+    <div class="auth-panel" id="panel-signup">
+      <h2 class="form-title">Create Account</h2>
+      <p class="form-subtitle">Register as a candidate to apply for roles at Tandem Infra Services. Free — takes 2 minutes.</p>
+      <div class="err-msg" id="signup-err"></div>
+      <div class="ok-msg" id="signup-ok"></div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label">First Name <span>*</span></label>
+          <input class="form-input" id="su-fname" type="text" placeholder="First name">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Last Name <span>*</span></label>
+          <input class="form-input" id="su-lname" type="text" placeholder="Last name">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label">Email Address <span>*</span></label>
+          <input class="form-input" id="su-email" type="email" placeholder="you@example.com">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Mobile Number <span>*</span></label>
+          <input class="form-input" id="su-phone" type="tel" placeholder="+91 XXXXX XXXXX">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label">Date of Birth</label>
+          <input class="form-input" id="su-dob" type="date">
+        </div>
+        <div class="form-field">
+          <label class="form-label">City / State</label>
+          <input class="form-input" id="su-city" type="text" placeholder="City, State">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label">Highest Qualification</label>
+          <select class="form-select" id="su-qual">
+            <option value="">Select qualification</option>
+            <option>10th Pass</option>
+            <option>12th Pass</option>
+            <option>ITI</option>
+            <option>Diploma</option>
+            <option>B.E. / B.Tech</option>
+            <option>M.E. / M.Tech</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Department of Interest</label>
+          <select class="form-select" id="su-dept">
+            <option value="">Select department</option>
+            <option>Civil Engineer</option>
+            <option>Surveyor</option>
+            <option>Safety Department</option>
+            <option>Electrician</option>
+            <option>Mechanical Fabrication</option>
+            <option>Plumber</option>
+            <option>QC / QS Engineer</option>
+            <option>Other / Any</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Password <span>*</span></label>
+        <div class="pw-wrap">
+          <input class="form-input" id="su-password" type="password" placeholder="Create a password" oninput="checkPw(this.value)">
+          <button class="pw-toggle" type="button" onclick="togglePw('su-password',this)">Show</button>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="pw-strength" style="width:0%"></div></div>
+        <div class="req-check">
+          <div class="req-item" id="req-len">At least 6 characters</div>
+          <div class="req-item" id="req-num">Contains a number</div>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Confirm Password <span>*</span></label>
+        <input class="form-input" id="su-confirm" type="password" placeholder="Repeat your password">
+      </div>
+
+      <button class="submit-btn" onclick="doSignUp()">Create Account</button>
+    </div>
+  </div>
+
+  <div class="back-link">
+    <a href="careers.html">Back to Careers</a> &nbsp;·&nbsp; <a href="index.html">Home</a>
+  </div>
+</div>
+
+<script>
+const API_BASE = location.origin === "null" ? "http://localhost:4000" : "";
+const TOKEN_KEY = "tis_token";
+const USER_KEY = "tis_user";
+const THEME_KEY = "tis_theme";
+
+function applyTheme(theme){
+  document.body.classList.toggle("theme-dark", theme === "dark");
+  const label = document.getElementById("themeLabel");
+  if(label) label.textContent = theme === "dark" ? "Dark" : "Light";
+  localStorage.setItem(THEME_KEY, theme);
+}
+function toggleTheme(){
+  const next = document.body.classList.contains("theme-dark") ? "light" : "dark";
+  applyTheme(next);
+}
+applyTheme(localStorage.getItem(THEME_KEY) || "light");
+function applySettings(settings = {}){
+  const main = document.getElementById("siteBrandMain");
+  if(main && settings.brand_name) main.textContent = settings.brand_name;
+  const sub = document.getElementById("siteBrandSub");
+  if(sub && settings.brand_subtitle) sub.textContent = settings.brand_subtitle;
+  const logo = document.getElementById("siteBrandLogo");
+  if(logo){
+    if(settings.brand_logo){
+      logo.src = settings.brand_logo;
+      logo.style.display = "block";
+    } else {
+      logo.style.display = "none";
+    }
+  }
+}
+async function loadSettings(){
+  try{
+    const res = await fetch(`${API_BASE}/api/content/candidate-auth`);
+    if(!res.ok) return;
+    const data = await res.json();
+    applySettings(data.settings || {});
+  }catch{}
+}
+loadSettings();
+
+function setSession(token, user){
+  localStorage.setItem(TOKEN_KEY, token);
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+}
+function clearSession(){
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
+}
+
+async function api(path, options = {}){
+  const headers = options.headers || {};
+  if(options.body && !headers["Content-Type"]) headers["Content-Type"] = "application/json";
+  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  const data = await res.json().catch(() => ({}));
+  if(!res.ok) throw new Error(data.error || "Request failed");
+  return data;
+}
+
+const urlP = new URLSearchParams(location.search);
+const redirectTo = urlP.get('redirect') || 'candidate-dashboard.html';
+if(urlP.get('mode')==='signup') switchTab('signup');
+
+const token = localStorage.getItem(TOKEN_KEY);
+if(token) window.location.href = redirectTo;
+
+function switchTab(tab){
+  ['signin','signup'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('panel-'+t).classList.toggle('active', t===tab);
+  });
+}
+
+function togglePw(id,btn){
+  const inp=document.getElementById(id);
+  inp.type = inp.type==='password'?'text':'password';
+  btn.textContent = inp.type==='password'?' - ':' - ';
+}
+
+function checkPw(val){
+  const hasLen=val.length>=6;
+  const hasNum=/\d/.test(val);
+  document.getElementById('req-len').classList.toggle('ok',hasLen);
+  document.getElementById('req-num').classList.toggle('ok',hasNum);
+  const score = (hasLen?50:0)+(hasNum?50:0);
+  const bar=document.getElementById('pw-strength');
+  bar.style.width=score+'%';
+  bar.style.background=score<50?'#e05252':score<100?'#f0a500':'#3fb68b';
+}
+
+async function doSignIn(){
+  const email = document.getElementById('si-email').value.trim().toLowerCase();
+  const pw    = document.getElementById('si-password').value;
+  const errEl = document.getElementById('signin-err');
+  if(!email||!pw){ showErr(errEl,'Please enter both email and password.'); return; }
+  try{
+    const data = await api('/api/auth/signin', { method:'POST', body: JSON.stringify({ email, password: pw }) });
+    setSession(data.token, data.user);
+    errEl.classList.remove('show');
+    window.location.href = redirectTo;
+  } catch (err){
+    showErr(errEl, err.message || 'Invalid email or password. Please try again.');
+  }
+}
+
+
+async function doSignUp(){
+  const errEl=document.getElementById('signup-err');
+  const okEl=document.getElementById('signup-ok');
+  const fname=document.getElementById('su-fname').value.trim();
+  const lname=document.getElementById('su-lname').value.trim();
+  const email=document.getElementById('su-email').value.trim().toLowerCase();
+  const phone=document.getElementById('su-phone').value.trim();
+  const dob=document.getElementById('su-dob').value;
+  const city=document.getElementById('su-city').value.trim();
+  const qual=document.getElementById('su-qual').value;
+  const dept=document.getElementById('su-dept').value;
+  const pw=document.getElementById('su-password').value;
+  const confirm=document.getElementById('su-confirm').value;
+
+  if(!fname||!lname||!email||!phone||!pw||!confirm){ showErr(errEl,'Please fill all required fields.'); return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showErr(errEl,'Please enter a valid email address.'); return; }
+  if(pw.length<6){ showErr(errEl,'Password must be at least 6 characters.'); return; }
+  if(pw!==confirm){ showErr(errEl,'Passwords do not match.'); return; }
+
+  try{
+    const data = await api('/api/auth/signup', { method:'POST', body: JSON.stringify({
+      firstName: fname,
+      lastName: lname,
+      email,
+      phone,
+      dob,
+      city,
+      qualification: qual,
+      department: dept,
+      password: pw
+    })});
+    setSession(data.token, data.user);
+    errEl.classList.remove('show');
+    okEl.textContent='Account created! Redirecting...'; okEl.classList.add('show');
+    setTimeout(()=>window.location.href=redirectTo, 1200);
+  } catch (err){
+    showErr(errEl, err.message || 'Unable to create account.');
+  }
+}
+
+function showErr(el,msg){ el.textContent=msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),5000); }
+
+document.addEventListener('keydown',e=>{ if(e.key==='Enter'){ const ap=document.querySelector('.auth-panel.active'); if(ap.id==='panel-signin') doSignIn(); else doSignUp(); }});
+</script>
+</body>
+</html>
+
+
