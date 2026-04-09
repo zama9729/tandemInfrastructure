@@ -8,10 +8,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --black:#ffffff; --ink:#f5f5f5; --dark:#ededed; --dim:#e2e2e2;
-  --shadow:#b8b8b8; --mist:#5a5a5a; --smoke:#444444; --silver:#2f2f2f;
-  --pearl:#111111; --white:#000000;
-  --border:rgba(0,0,0,0.12); --border-strong:rgba(0,0,0,0.28);
+  --black:#f4f7fb; --ink:#ffffff; --dark:#e6ecf5; --dim:#d7e0ec;
+  --shadow:#000000; --mist:#000000; --smoke:#000000; --silver:#16345c;
+  --pearl:#0b1d34; --white:#16345c;
+  --border:rgba(22,52,92,0.12); --border-strong:rgba(22,52,92,0.24);
   --success:#3fb68b; --danger:#e05252;
   --font:'Source Sans 3',sans-serif; --font-display:'Source Sans 3',sans-serif; --font-mono:'Source Sans 3',sans-serif;
 }
@@ -22,13 +22,65 @@ body.theme-dark{
   --border:rgba(255,255,255,0.09); --border-strong:rgba(255,255,255,0.28);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;}
-body{background:var(--black);color:var(--pearl);font-family:var(--font);font-size:15px;line-height:1.6;min-height:100vh;display:flex;flex-direction:column;transition:background 0.4s ease,color 0.4s ease;animation:pageIn 0.7s ease;}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:var(--pearl);font-family:var(--font);font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden;transition:background 0.4s ease,color 0.4s ease;animation:pageIn 0.7s ease;}
+body.menu-open{overflow:hidden;}
 @keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 img{max-width:100%;height:auto;}
 ::-webkit-scrollbar{width:3px;} ::-webkit-scrollbar-track{background:var(--black);} ::-webkit-scrollbar-thumb{background:var(--shadow);}
+nav,.mobile-menu{display:none !important;}
 
-.page-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px 72px;position:relative;}
+/* NAV */
+nav{
+  position:fixed; top:0; left:0; right:0; z-index:1000;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 22px; transition:all 0.4s ease;
+  background:rgba(255,255,255,0.98); backdrop-filter:blur(24px); border-bottom:1px solid var(--border); box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+nav.scrolled{background:rgba(255,255,255,0.98);backdrop-filter:blur(24px);padding:12px 22px;border-bottom:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,0.08);}
+.nav-logo{text-decoration:none;display:flex;align-items:center;flex:0 0 auto;}
+.nav-logo>div{display:flex;align-items:center;gap:10px;}
+.nav-brand-logo{width:58px;height:58px;object-fit:contain;display:none;border-radius:14px;}
+.nav-logo-main{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--white);letter-spacing:0.04em;line-height:1;}
+.nav-logo-sub{font-family:var(--font-mono);font-size:8px;color:var(--silver);letter-spacing:0.3em;text-transform:uppercase;display:block;margin-top:4px;}
+.nav-links{
+  display:flex; align-items:center; gap:6px; list-style:none;
+  flex-wrap:wrap; margin-left:auto;
+}
+.nav-links a{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-height:42px; padding:0 14px; border-radius:999px;
+  font-family:var(--font); font-size:13px; font-weight:700;
+  color:#111111; text-decoration:none; letter-spacing:0.1em; text-transform:uppercase;
+  transition:color 0.25s, background 0.25s, border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+  position:relative; border:1px solid transparent; background:transparent; white-space:nowrap;
+}
+.nav-links a:hover,.nav-links a.active{
+  color:#111111; background:#f4f6fa; border-color:rgba(17,17,17,0.12);
+  transform:translateY(-1px); box-shadow:0 8px 18px rgba(0,0,0,0.06);
+}
+.nav-cta{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 20px !important;border:1px solid #111111 !important;border-radius:999px;background:#ffffff;color:#111111 !important;font-size:13px;font-weight:800;letter-spacing:0.12em;line-height:1;}
+.nav-cta:hover{background:#111111 !important;color:#ffffff !important;}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;}
+.hamburger span{width:22px;height:2px;background:#111111;transition:all 0.3s;}
+.mobile-menu{
+  display:none; position:fixed; inset:0; background:rgba(8,9,10,0.99); z-index:1200;
+  flex-direction:column; align-items:stretch; justify-content:flex-start; gap:10px;
+  padding:88px 24px 32px;
+  overflow-y:auto;
+}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{
+  width:min(100%,460px); margin:0 auto; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.12);
+  font-family:var(--font-display); font-size:clamp(24px,7vw,34px); font-weight:700; color:#ffffff; text-decoration:none; transition:color 0.2s; text-align:left;
+}
+.mobile-menu a:hover{color:#d2dde9;}
+.menu-close{
+  position:absolute; top:22px; right:24px; width:44px; height:44px;
+  font-size:26px; color:#ffffff; cursor:pointer; background:none; border:none;
+}
+
+.page-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:1200px;width:100%;min-height:calc(100vh - 220px);margin:0 auto;padding:72px 24px 72px;position:relative;}
 
 /* LOGO */
 .auth-logo{text-align:center;margin-bottom:40px;position:relative;z-index:2;}
@@ -82,13 +134,26 @@ img{max-width:100%;height:auto;}
 .back-link a{color:var(--silver);text-decoration:none;font-weight:600;}
 .back-link a:hover{color:var(--white);}
 
-.admin-top-btn{position:fixed;top:18px;left:18px;padding:8px 14px;border:1px solid var(--border);background:var(--ink);color:var(--pearl);font-family:var(--font);font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;z-index:6;}
-.admin-top-btn:hover{border-color:var(--border-strong);}
+.footer{background:#ffffff;border-top:1px solid var(--border);padding:72px 64px 40px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:60px;max-width:1300px;margin:0 auto 60px;}
+.footer-brand-name{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--white);letter-spacing:0.04em;}
+.footer-brand-sub{font-family:var(--font-mono);font-size:7.5px;color:var(--silver);letter-spacing:0.3em;text-transform:uppercase;display:block;margin-top:3px;}
+.footer-brand p{font-size:14px;color:var(--smoke);line-height:1.85;margin-top:14px;max-width:280px;}
+.footer-col h5{font-family:var(--font-mono);font-size:9px;color:var(--white);letter-spacing:0.28em;text-transform:uppercase;margin-bottom:18px;font-weight:700;}
+.footer-col ul{list-style:none;}
+.footer-col ul li{margin-bottom:10px;}
+.footer-col ul li a{font-size:14px;color:var(--smoke);text-decoration:none;transition:color 0.2s;}
+.footer-col ul li a:hover{color:var(--white);}
+.footer-bottom{border-top:1px solid var(--border);padding-top:28px;display:flex;justify-content:space-between;align-items:center;max-width:1300px;margin:0 auto;}
+.footer-bottom p{font-size:12px;color:var(--smoke);}
+.footer-bottom a{font-size:12px;font-family:var(--font-mono);color:var(--white);text-decoration:none;font-weight:700;letter-spacing:0.08em;}
+
+.admin-top-btn,.theme-toggle{display:none;}
 
 .pw-wrap{position:relative;}
 .pw-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--mist);cursor:pointer;font-size:12px;transition:color 0.2s;}
 .pw-toggle:hover{color:var(--white);}
-.theme-toggle{position:fixed;top:24px;right:24px;display:flex;align-items:center;gap:10px;cursor:pointer;font-family:var(--font-mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--smoke);z-index:5;}
+.theme-toggle{position:fixed;top:24px;right:24px;align-items:center;gap:10px;cursor:pointer;font-family:var(--font-mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--smoke);z-index:5;}
 .theme-switch{width:40px;height:20px;border-radius:20px;border:1px solid var(--border-strong);background:var(--dark);position:relative;transition:all 0.3s ease;}
 .theme-knob{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--white);transition:transform 0.3s ease;}
 body.theme-dark .theme-knob{transform:translateX(20px);}
@@ -109,10 +174,24 @@ body:not(.theme-dark) .submit-btn{
 }
 body:not(.theme-dark) .submit-btn:hover{background:#f0f0f0;}
 
+@media(max-width:1024px){
+  .nav-links{display:none;}
+  .hamburger{display:flex;}
+}
+
+@media(max-width:768px){
+  nav,nav.scrolled{padding:16px 20px;}
+  .footer{padding:56px 24px 32px;}
+  .footer-grid{grid-template-columns:1fr;gap:36px;}
+  .footer-bottom{flex-direction:column;gap:14px;text-align:center;}
+}
+
 @media(max-width:480px){
   .auth-card{max-width:100%;}
   .form-row{grid-template-columns:1fr;}
   .auth-panel{padding:24px;}
+  .page-wrap{padding:120px 16px 56px;}
+  nav,nav.scrolled{padding:14px 16px;}
 }
 @media (max-height:820px){
   .page-wrap{justify-content:flex-start;padding-top:96px;}
@@ -120,17 +199,43 @@ body:not(.theme-dark) .submit-btn:hover{background:#f0f0f0;}
 </style>
 </head>
 <body>
-<a class="admin-top-btn" href="admin.html">Admin</a>
-<div class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
-  <span id="themeLabel">Light</span>
-  <div class="theme-switch"><div class="theme-knob"></div></div>
+<nav id="navbar">
+  <a class="nav-logo" href="index.html">
+    <div>
+      <img id="navBrandLogo" class="nav-brand-logo" alt="Logo">
+      <div>
+        <span class="nav-logo-main">Tandem Infra Services</span>
+        <span class="nav-logo-sub">Infrastructure &amp; Construction</span>
+      </div>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="index.html#process">Process</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+    <li><a href="careers.html">Careers</a></li>
+    <li><a href="candidate-auth.html" class="nav-cta active">Sign In</a></li>
+  </ul>
+  <div class="hamburger" onclick="toggleMenu()" role="button" tabindex="0" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></div>
+</nav>
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <button class="menu-close" onclick="toggleMenu()">x</button>
+  <a href="index.html#about" onclick="toggleMenu(false)">About</a>
+  <a href="index.html#services" onclick="toggleMenu(false)">Services</a>
+  <a href="index.html#projects" onclick="toggleMenu(false)">Projects</a>
+  <a href="index.html#process" onclick="toggleMenu(false)">Process</a>
+  <a href="index.html#contact" onclick="toggleMenu(false)">Contact</a>
+  <a href="careers.html">Careers</a>
+  <a href="candidate-auth.html">Sign In</a>
 </div>
 
 <div class="page-wrap">
   <!-- LOGO -->
   <div class="auth-logo">
     <a href="index.html">
-      <img id="siteBrandLogo" class="brand-logo" alt="Logo">
+      <img id="authBrandLogo" class="brand-logo" alt="Logo">
       <span class="auth-logo-main" id="siteBrandMain">Tandem Infra Services</span>
       <span class="auth-logo-sub" id="siteBrandSub">Infrastructure &amp; Construction</span>
     </a>
@@ -262,38 +367,107 @@ body:not(.theme-dark) .submit-btn:hover{background:#f0f0f0;}
   </div>
 </div>
 
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-brand-name" id="footerBrandName">Tandem Infra Services</div>
+      <span class="footer-brand-sub" id="footerBrandSub">Infrastructure &amp; Construction</span>
+      <p>Candidate sign-in, profile creation, and applications now share the same clean light theme as the rest of the site.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Explore</h5>
+      <ul>
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#services">Services</a></li>
+        <li><a href="index.html#projects">Projects</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Candidate</h5>
+      <ul>
+        <li><a href="candidate-auth.html">Sign In</a></li>
+        <li><a href="candidate-auth.html?mode=signup">Create Account</a></li>
+        <li><a href="careers.html">Browse Jobs</a></li>
+        <li><a href="candidate-dashboard.html">Candidate Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Contact</h5>
+      <ul>
+        <li><a href="mailto:tandeminfraservices@gmail.com">tandeminfraservices@gmail.com</a></li>
+        <li><a href="index.html#contact">Telangana Branch</a></li>
+        <li><a href="index.html#contact">Andhra Pradesh Branch</a></li>
+        <li><a href="index.html#contact">Maharashtra Branch</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>(c) 2026 Tandem Infra Services. All rights reserved.</p>
+    <a href="careers.html">Open Roles -></a>
+  </div>
+</footer>
+
 <script>
 const API_BASE = location.origin === "null" ? "http://localhost:4000" : "";
 const TOKEN_KEY = "tis_token";
 const USER_KEY = "tis_user";
 const THEME_KEY = "tis_theme";
+const FALLBACK_BRAND_LOGO_URL = "https://cidsqcgqcvzityuwvkel.supabase.co/storage/v1/object/sign/cms/Tandem%20INFRA%20SERVICES.%20logo.jpg.jpeg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82NjcxODRkNy1lZGI2LTRhZDEtYTEwZS1kMmY2NmFhYWM0M2MiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjbXMvVGFuZGVtIElORlJBIFNFUlZJQ0VTLiBsb2dvLmpwZy5qcGVnIiwiaWF0IjoxNzc1NzM3Mzc2LCJleHAiOjE4Mzg4MDkzNzZ9.CYI8oh7JtmB13Ckwg9SX1JtGP85PBSdcoa4twingLnM";
 
-function applyTheme(theme){
-  document.body.classList.toggle("theme-dark", theme === "dark");
-  const label = document.getElementById("themeLabel");
-  if(label) label.textContent = theme === "dark" ? "Dark" : "Light";
-  localStorage.setItem(THEME_KEY, theme);
+function applyTheme(){
+  document.body.classList.remove("theme-dark");
+  localStorage.setItem(THEME_KEY, "light");
 }
-function toggleTheme(){
-  const next = document.body.classList.contains("theme-dark") ? "light" : "dark";
-  applyTheme(next);
-}
-applyTheme(localStorage.getItem(THEME_KEY) || "light");
+function toggleTheme(){}
+applyTheme();
 function applySettings(settings = {}){
   const main = document.getElementById("siteBrandMain");
   if(main && settings.brand_name) main.textContent = settings.brand_name;
   const sub = document.getElementById("siteBrandSub");
   if(sub && settings.brand_subtitle) sub.textContent = settings.brand_subtitle;
-  const logo = document.getElementById("siteBrandLogo");
-  if(logo){
-    if(settings.brand_logo){
-      logo.src = settings.brand_logo;
+  const footerMain = document.getElementById("footerBrandName");
+  if(footerMain && settings.brand_name) footerMain.textContent = settings.brand_name;
+  const footerSub = document.getElementById("footerBrandSub");
+  if(footerSub && settings.brand_subtitle) footerSub.textContent = settings.brand_subtitle;
+  ["navBrandLogo", "authBrandLogo"].forEach(id => {
+    const logo = document.getElementById(id);
+    if(!logo) return;
+    const desiredLogo = settings.brand_logo || FALLBACK_BRAND_LOGO_URL;
+    if(desiredLogo){
+      logo.src = desiredLogo;
       logo.style.display = "block";
     } else {
       logo.style.display = "none";
     }
-  }
+  });
 }
+function updateNav(){
+  const navbar = document.getElementById("navbar");
+  if(!navbar) return;
+  navbar.classList.toggle("scrolled", window.scrollY > 24);
+}
+function toggleMenu(forceOpen){
+  const mobileMenu = document.getElementById("mobileMenu");
+  const hamburger = document.querySelector(".hamburger");
+  if(!mobileMenu) return;
+  const shouldOpen = typeof forceOpen === "boolean" ? forceOpen : !mobileMenu.classList.contains("open");
+  mobileMenu.classList.toggle("open", shouldOpen);
+  mobileMenu.setAttribute("aria-hidden", shouldOpen ? "false" : "true");
+  document.body.classList.toggle("menu-open", shouldOpen);
+  if(hamburger) hamburger.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+}
+window.addEventListener("scroll", updateNav);
+window.addEventListener("resize", () => {
+  if(window.innerWidth > 768) toggleMenu(false);
+});
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape") toggleMenu(false);
+});
+document.querySelectorAll("#mobileMenu a").forEach(link => {
+  link.addEventListener("click", () => toggleMenu(false));
+});
+updateNav();
 async function loadSettings(){
   try{
     const res = await fetch(`${API_BASE}/api/content/candidate-auth`);

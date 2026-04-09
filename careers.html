@@ -8,11 +8,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --black:#ffffff; --ink:#f5f5f5; --dark:#ededed; --dim:#e2e2e2;
-  --shadow:#b8b8b8; --mist:#5a5a5a; --smoke:#444444; --silver:#2f2f2f;
-  --pearl:#111111; --white:#000000;
-  --border:rgba(0,0,0,0.12); --border-strong:rgba(0,0,0,0.28);
-  --accent:rgba(0,0,0,0.04);
+  --black:#f4f7fb; --ink:#ffffff; --dark:#e6ecf5; --dim:#d7e0ec;
+  --shadow:#000000; --mist:#000000; --smoke:#000000; --silver:#16345c;
+  --pearl:#0b1d34; --white:#16345c;
+  --border:rgba(22,52,92,0.12); --border-strong:rgba(22,52,92,0.24);
+  --accent:rgba(255,138,51,0.10);
   --font:'Source Sans 3',sans-serif; --font-display:'Source Sans 3',sans-serif; --font-mono:'Source Sans 3',sans-serif;
 }
 body.theme-dark{
@@ -25,36 +25,62 @@ body.theme-dark{
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
 body{background:var(--black);color:var(--pearl);font-family:var(--font);font-size:16px;line-height:1.6;overflow-x:hidden;transition:background 0.4s ease,color 0.4s ease;animation:pageIn 0.7s ease;}
+body.menu-open{overflow:hidden;}
 @keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 ::-webkit-scrollbar{width:3px;} ::-webkit-scrollbar-track{background:var(--black);} ::-webkit-scrollbar-thumb{background:var(--shadow);}
 img{max-width:100%;height:auto;}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:26px 64px;transition:all 0.4s ease;flex-wrap:wrap;row-gap:12px;}
-nav.scrolled{background:rgba(255,255,255,0.96);backdrop-filter:blur(24px);padding:16px 64px;border-bottom:1px solid var(--border);}
-body.theme-dark nav.scrolled{background:rgba(8,9,10,0.96);}
-.nav-logo{text-decoration:none;display:flex;flex-direction:column;gap:2px;}
-.nav-logo-main{font-family:var(--font-display);font-size:21px;font-weight:700;color:var(--white);letter-spacing:0.04em;line-height:1;}
-.nav-logo-sub{font-family:var(--font-mono);font-size:7.5px;color:var(--smoke);letter-spacing:0.32em;text-transform:uppercase;}
-.brand-logo{width:26px;height:26px;object-fit:contain;display:none;}
-.nav-links{display:flex;align-items:center;gap:28px;list-style:none;flex-wrap:wrap;row-gap:8px;}
-.nav-links a{font-family:var(--font);font-size:12px;font-weight:600;color:var(--smoke);text-decoration:none;letter-spacing:0.1em;text-transform:uppercase;transition:color 0.25s;position:relative;}
-.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:1px;background:var(--white);transform:scaleX(0);transform-origin:left;transition:transform 0.3s;}
-.nav-links a:hover,.nav-links a.active{color:var(--white);}
-.nav-links a:hover::after,.nav-links a.active::after{transform:scaleX(1);}
-.nav-cta{padding:9px 22px !important;border:1px solid var(--border-strong) !important;border-radius:1px;}
-.nav-cta:hover{background:var(--white) !important;color:var(--black) !important;}
-.nav-cta::after{display:none !important;}
+nav{
+  position:fixed; top:0; left:0; right:0; z-index:1000;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 22px; transition:all 0.4s ease;
+  background:rgba(255,255,255,0.98); backdrop-filter:blur(24px); border-bottom:1px solid var(--border); box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+nav.scrolled{background:rgba(255,255,255,0.98);backdrop-filter:blur(24px);padding:12px 22px;border-bottom:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,0.08);}
+.nav-logo{text-decoration:none;display:flex;align-items:center;flex:0 0 auto;}
+.nav-logo>div{display:flex;align-items:center;gap:10px;}
+.brand-logo{width:58px;height:58px;object-fit:contain;display:none;border-radius:14px;}
+.nav-logo-main{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--white);letter-spacing:0.04em;line-height:1;}
+.nav-logo-sub{font-family:var(--font-mono);font-size:8px;color:var(--silver);letter-spacing:0.3em;text-transform:uppercase;display:block;margin-top:4px;}
+.nav-links{
+  display:flex; align-items:center; gap:6px; list-style:none;
+  flex-wrap:wrap; margin-left:auto;
+}
+.nav-links a{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-height:42px; padding:0 14px; border-radius:999px;
+  font-family:var(--font); font-size:13px; font-weight:700;
+  color:#111111; text-decoration:none; letter-spacing:0.1em; text-transform:uppercase;
+  transition:color 0.25s, background 0.25s, border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+  position:relative; border:1px solid transparent; background:transparent; white-space:nowrap;
+}
+.nav-links a:hover,
+.nav-links a.active{
+  color:#111111; background:#f4f6fa; border-color:rgba(17,17,17,0.12);
+  transform:translateY(-1px); box-shadow:0 8px 18px rgba(0,0,0,0.06);
+}
+.nav-cta{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 20px !important;border:1px solid #111111 !important;border-radius:999px;background:#ffffff;color:#111111 !important;font-size:13px;font-weight:800;letter-spacing:0.12em;line-height:1;}
+.nav-cta:hover{background:#111111 !important;color:#ffffff !important;}
 .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;}
-.hamburger span{width:22px;height:1px;background:var(--white);transition:all 0.3s;}
-.theme-toggle{display:flex;align-items:center;gap:10px;cursor:pointer;font-family:var(--font-mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--smoke);}
-.theme-switch{width:40px;height:20px;border-radius:20px;border:1px solid var(--border-strong);background:var(--dark);position:relative;transition:all 0.3s ease;}
-.theme-knob{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--white);transition:transform 0.3s ease;}
-body.theme-dark .theme-knob{transform:translateX(20px);}
-.mobile-menu{display:none;position:fixed;inset:0;background:rgba(8,9,10,0.99);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:32px;}
+.hamburger span{width:22px;height:2px;background:#111111;transition:all 0.3s;}
+.theme-toggle{display:none;}
+.mobile-menu{
+  display:none; position:fixed; inset:0; background:rgba(8,9,10,0.99); z-index:1200;
+  flex-direction:column; align-items:stretch; justify-content:flex-start; gap:10px;
+  padding:88px 24px 32px;
+  overflow-y:auto;
+}
 .mobile-menu.open{display:flex;}
-.mobile-menu a{font-family:var(--font-display);font-size:36px;font-weight:700;color:var(--white);text-decoration:none;}
-.menu-close{position:absolute;top:26px;right:26px;font-size:24px;color:var(--mist);cursor:pointer;background:none;border:none;}
+.mobile-menu a{
+  width:min(100%,460px); margin:0 auto; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.12);
+  font-family:var(--font-display); font-size:clamp(24px,7vw,34px); font-weight:700; color:#ffffff; text-decoration:none; transition:color 0.2s; text-align:left;
+}
+.mobile-menu a:hover{color:#d2dde9;}
+.menu-close{
+  position:absolute; top:22px; right:24px; width:44px; height:44px;
+  font-size:26px; color:#ffffff; cursor:pointer; background:none; border:none;
+}
 
 /* HERO */
 .careers-hero{padding:160px 64px 90px;position:relative;border-bottom:1px solid var(--border);overflow:hidden;}
@@ -73,7 +99,7 @@ body.theme-dark .careers-hero::before{background:linear-gradient(125deg,rgba(8,9
 @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 
 /* FILTERS */
-.filters-bar{padding:28px 64px;background:var(--ink);border-bottom:1px solid var(--border);position:sticky;top:65px;z-index:100;}
+.filters-bar{padding:28px 64px;background:var(--ink);border-bottom:1px solid var(--border);position:sticky;top:71px;z-index:100;}
 .filters-inner{max-width:1200px;margin:0 auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
 .filter-label{font-family:var(--font-mono);font-size:9px;color:var(--mist);letter-spacing:0.24em;text-transform:uppercase;margin-right:6px;}
 .filter-chip{padding:8px 18px;background:var(--dark);border:1px solid var(--border);color:var(--silver);font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;border-radius:2px;transition:all 0.2s;white-space:nowrap;}
@@ -187,6 +213,21 @@ body.theme-dark .modal-overlay{background:rgba(0,0,0,0.8);}
 .success-btn{padding:12px 32px;background:transparent;color:var(--white);border:1px solid var(--border-strong);font-family:var(--font);font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.3s;}
 .success-btn:hover{background:var(--white);color:var(--black);}
 
+/* FOOTER */
+footer{background:#ffffff;border-top:1px solid var(--border);padding:72px 64px 40px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:60px;max-width:1300px;margin:0 auto 60px;}
+.footer-brand-name{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--white);letter-spacing:0.04em;}
+.footer-brand-sub{font-family:var(--font-mono);font-size:7.5px;color:var(--silver);letter-spacing:0.3em;text-transform:uppercase;display:block;margin-top:3px;}
+.footer-brand p{font-size:14px;color:var(--smoke);line-height:1.85;margin-top:14px;max-width:280px;}
+.footer-col h5{font-family:var(--font-mono);font-size:9px;color:var(--white);letter-spacing:0.28em;text-transform:uppercase;margin-bottom:18px;font-weight:700;}
+.footer-col ul{list-style:none;}
+.footer-col ul li{margin-bottom:10px;}
+.footer-col ul li a{font-size:14px;color:var(--smoke);text-decoration:none;transition:color 0.2s;}
+.footer-col ul li a:hover{color:var(--white);}
+.footer-bottom{border-top:1px solid var(--border);padding-top:28px;display:flex;justify-content:space-between;align-items:center;max-width:1300px;margin:0 auto;}
+.footer-bottom p{font-size:12px;color:var(--smoke);}
+.footer-bottom a{font-size:12px;font-family:var(--font-mono);color:var(--white);text-decoration:none;font-weight:700;letter-spacing:0.08em;}
+
 body:not(.theme-dark) .apply-btn,
 body:not(.theme-dark) .submit-btn,
 body:not(.theme-dark) .nav-cta:hover,
@@ -200,8 +241,13 @@ body:not(.theme-dark) .apply-btn:hover{
   box-shadow:0 8px 28px rgba(0,0,0,0.12);
 }
 
+@media(max-width:1024px){
+  .nav-links{display:none;}
+  .hamburger{display:flex;}
+}
+
 @media(max-width:768px){
-  nav,nav.scrolled{padding:16px 24px;}
+  nav,nav.scrolled{padding:16px 20px;}
   .careers-hero{padding:120px 24px 60px;}
   .filters-bar{padding:18px 24px;}
   .careers-body{padding:40px 24px 80px;}
@@ -211,25 +257,17 @@ body:not(.theme-dark) .apply-btn:hover{
   .filter-right{margin-left:0;width:100%;}
   .search-box{width:100%;}
   .form-row{grid-template-columns:1fr;}
-  .nav-links{display:none;}
-  .hamburger{display:flex;}
   .hero-meta{gap:24px;}
+  .footer-grid{grid-template-columns:1fr;gap:36px;}
+  .footer-bottom{flex-direction:column;gap:14px;text-align:center;}
 }
 </style>
 </head>
 <body>
 
 <!-- NAV -->
-<nav>
-  <a class="nav-logo" href="index.html">
-    <div style="display:flex;align-items:center;gap:10px;">
-      <img id="siteBrandLogo" class="brand-logo" alt="Logo">
-      <div>
-        <span class="nav-logo-main" id="siteBrandMain">Tandem Infra Services</span>
-        <span class="nav-logo-sub" id="siteBrandSub">Infrastructure &amp; Construction</span>
-      </div>
-    </div>
-  </a>
+<nav id="navbar">
+  <a class="nav-logo" href="index.html"><img id="navBrandLogo" class="brand-logo" alt="Logo"></a>
   <ul class="nav-links">
     <li><a href="index.html#about">About</a></li>
     <li><a href="index.html#services">Services</a></li>
@@ -239,18 +277,15 @@ body:not(.theme-dark) .apply-btn:hover{
     <li><a href="careers.html" class="active">Careers</a></li>
     <li><a href="candidate-auth.html" class="nav-cta" id="authNavLink">Sign In</a></li>
   </ul>
-  <div class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
-    <span id="themeLabel">Light</span>
-    <div class="theme-switch"><div class="theme-knob"></div></div>
-  </div>
-  <div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+  <div class="hamburger" onclick="toggleMenu()" role="button" tabindex="0" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></div>
 </nav>
-<div class="mobile-menu" id="mobileMenu">
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
   <button class="menu-close" onclick="toggleMenu()">✕</button>
-  <a href="index.html#about">About</a>
-  <a href="index.html#services">Services</a>
-  <a href="index.html#projects">Projects</a>
-  <a href="index.html#process">Process</a>
+  <a href="index.html#about" onclick="toggleMenu(false)">About</a>
+  <a href="index.html#services" onclick="toggleMenu(false)">Services</a>
+  <a href="index.html#projects" onclick="toggleMenu(false)">Projects</a>
+  <a href="index.html#process" onclick="toggleMenu(false)">Process</a>
+  <a href="index.html#contact" onclick="toggleMenu(false)">Contact</a>
   <a href="careers.html">Careers</a>
   <a href="candidate-auth.html" id="mobileAuthLink">Sign In</a>
 </div>
@@ -502,6 +537,47 @@ body:not(.theme-dark) .apply-btn:hover{
 
 </div><!-- /careers-body -->
 
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-brand-name" id="footerBrandName">Tandem Infra Services</div>
+      <span class="footer-brand-sub" id="footerBrandSub">Infrastructure &amp; Construction</span>
+      <p>Explore open roles, create your candidate profile, and apply with the same clean experience used across the main site.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Explore</h5>
+      <ul>
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#services">Services</a></li>
+        <li><a href="index.html#projects">Projects</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Careers</h5>
+      <ul>
+        <li><a href="careers.html">Open Roles</a></li>
+        <li><a href="candidate-auth.html">Candidate Sign In</a></li>
+        <li><a href="candidate-auth.html?mode=signup">Create Account</a></li>
+        <li><a href="candidate-dashboard.html">Candidate Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Contact</h5>
+      <ul>
+        <li><a href="mailto:tandeminfraservices@gmail.com">tandeminfraservices@gmail.com</a></li>
+        <li><a href="index.html#contact">Telangana Branch</a></li>
+        <li><a href="index.html#contact">Andhra Pradesh Branch</a></li>
+        <li><a href="index.html#contact">Maharashtra Branch</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>(c) 2026 Tandem Infra Services. All rights reserved.</p>
+    <a href="candidate-auth.html">Candidate Login -></a>
+  </div>
+</footer>
+
 <!-- APPLICATION MODAL -->
 <div class="modal-overlay" id="applyModal">
   <div class="modal-box">
@@ -517,18 +593,14 @@ const API_BASE = location.origin === "null" ? "http://localhost:4000" : "";
 const TOKEN_KEY = "tis_token";
 const USER_KEY = "tis_user";
 const THEME_KEY = "tis_theme";
+const FALLBACK_BRAND_LOGO_URL = "https://cidsqcgqcvzityuwvkel.supabase.co/storage/v1/object/sign/cms/Tandem%20INFRA%20SERVICES.%20logo.jpg.jpeg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82NjcxODRkNy1lZGI2LTRhZDEtYTEwZS1kMmY2NmFhYWM0M2MiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjbXMvVGFuZGVtIElORlJBIFNFUlZJQ0VTLiBsb2dvLmpwZy5qcGVnIiwiaWF0IjoxNzc1NzM3Mzc2LCJleHAiOjE4Mzg4MDkzNzZ9.CYI8oh7JtmB13Ckwg9SX1JtGP85PBSdcoa4twingLnM";
 
-function applyTheme(theme){
-  document.body.classList.toggle("theme-dark", theme === "dark");
-  const label = document.getElementById("themeLabel");
-  if(label) label.textContent = theme === "dark" ? "Dark" : "Light";
-  localStorage.setItem(THEME_KEY, theme);
+function applyTheme(){
+  document.body.classList.remove("theme-dark");
+  localStorage.setItem(THEME_KEY, "light");
 }
-function toggleTheme(){
-  const next = document.body.classList.contains("theme-dark") ? "light" : "dark";
-  applyTheme(next);
-}
-applyTheme(localStorage.getItem(THEME_KEY) || "light");
+function toggleTheme(){}
+applyTheme();
 function setText(id, value){
   const el = document.getElementById(id);
   if(el && value) el.textContent = value;
@@ -540,12 +612,13 @@ function setHtml(id, value){
   }
 }
 function applySettings(settings = {}){
-  setText("siteBrandMain", settings.brand_name);
-  setText("siteBrandSub", settings.brand_subtitle);
-  const logo = document.getElementById("siteBrandLogo");
+  setText("footerBrandName", settings.brand_name);
+  setText("footerBrandSub", settings.brand_subtitle);
+  const logo = document.getElementById("navBrandLogo");
   if(logo){
-    if(settings.brand_logo){
-      logo.src = settings.brand_logo;
+    const desiredLogo = settings.brand_logo || FALLBACK_BRAND_LOGO_URL;
+    if(desiredLogo){
+      logo.src = desiredLogo;
       logo.style.display = "block";
     } else {
       logo.style.display = "none";
@@ -591,13 +664,22 @@ async function loadContent(){
 }
 loadContent();
 
-const navbar = document.querySelector("nav");
+const navbar = document.getElementById("navbar");
 function updateNav(){
   if(!navbar) return;
   navbar.classList.toggle("scrolled", window.scrollY > 80);
 }
 window.addEventListener("scroll", updateNav);
 updateNav();
+window.addEventListener("resize", () => {
+  if(window.innerWidth > 768) toggleMenu(false);
+});
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape") toggleMenu(false);
+});
+document.querySelectorAll("#mobileMenu a").forEach(link => {
+  link.addEventListener("click", () => toggleMenu(false));
+});
 
 function getToken(){ return localStorage.getItem(TOKEN_KEY); }
 function setSession(token, user){
@@ -900,7 +982,16 @@ async function submitApplication(key,title,dept){
 function closeModal(){ document.getElementById('applyModal').classList.remove('open'); }
 document.getElementById('applyModal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
 
-function toggleMenu(){ document.getElementById('mobileMenu').classList.toggle('open'); }
+function toggleMenu(forceOpen){
+  const mobileMenu = document.getElementById('mobileMenu');
+  const hamburger = document.querySelector('.hamburger');
+  if(!mobileMenu) return;
+  const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !mobileMenu.classList.contains('open');
+  mobileMenu.classList.toggle('open', shouldOpen);
+  mobileMenu.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
+  document.body.classList.toggle('menu-open', shouldOpen);
+  if(hamburger) hamburger.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+}
 
 let tt;
 function showToast(msg,type=''){

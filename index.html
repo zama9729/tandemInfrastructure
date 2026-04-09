@@ -351,22 +351,22 @@
   .form-textarea { resize:vertical; min-height:120px; }
   .form-select option { background:var(--ink); }
   .form-submit { padding:16px 44px; background:var(--white); color:var(--black); border:none; font-family:var(--font-body); font-size:12px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; cursor:pointer; align-self:flex-start; transition:all 0.3s; clip-path:polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px)); }
-  .form-submit:hover { background:var(--pearl); transform:translateY(-2px); box-shadow:0 10px 36px rgba(255,255,255,0.15); }
+  .form-submit:hover { background:var(--pearl); color:#ffffff; transform:translateY(-2px); box-shadow:0 10px 36px rgba(255,255,255,0.15); }
 
   /* FOOTER */
-  footer { background:var(--white); padding:72px 64px 40px; }
+  footer { background:#ffffff; border-top:1px solid var(--border); padding:72px 64px 40px; }
   .footer-grid { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:60px; max-width:1300px; margin:0 auto 60px; }
-  .footer-brand-name { font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--black); letter-spacing:0.04em; }
-  .footer-brand-sub { font-family:var(--font-mono); font-size:7.5px; color:var(--shadow); letter-spacing:0.3em; text-transform:uppercase; display:block; margin-top:3px; }
-  .footer-brand p { font-size:14px; color:var(--shadow); line-height:1.85; margin-top:14px; max-width:280px; }
-  .footer-col h5 { font-family:var(--font-mono); font-size:9px; color:var(--black); letter-spacing:0.28em; text-transform:uppercase; margin-bottom:18px; font-weight:700; }
+  .footer-brand-name { font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--white); letter-spacing:0.04em; }
+  .footer-brand-sub { font-family:var(--font-mono); font-size:7.5px; color:var(--silver); letter-spacing:0.3em; text-transform:uppercase; display:block; margin-top:3px; }
+  .footer-brand p { font-size:14px; color:var(--smoke); line-height:1.85; margin-top:14px; max-width:280px; }
+  .footer-col h5 { font-family:var(--font-mono); font-size:9px; color:var(--white); letter-spacing:0.28em; text-transform:uppercase; margin-bottom:18px; font-weight:700; }
   .footer-col ul { list-style:none; }
   .footer-col ul li { margin-bottom:10px; }
-  .footer-col ul li a { font-size:14px; color:var(--shadow); text-decoration:none; transition:color 0.2s; }
-  .footer-col ul li a:hover { color:var(--black); }
-  .footer-bottom { border-top:1px solid rgba(0,0,0,0.1); padding-top:28px; display:flex; justify-content:space-between; align-items:center; max-width:1300px; margin:0 auto; }
-  .footer-bottom p { font-size:12px; color:var(--shadow); }
-  .footer-bottom a { font-size:12px; font-family:var(--font-mono); color:var(--black); text-decoration:none; font-weight:700; letter-spacing:0.08em; }
+  .footer-col ul li a { font-size:14px; color:var(--smoke); text-decoration:none; transition:color 0.2s; }
+  .footer-col ul li a:hover { color:var(--white); }
+  .footer-bottom { border-top:1px solid var(--border); padding-top:28px; display:flex; justify-content:space-between; align-items:center; max-width:1300px; margin:0 auto; }
+  .footer-bottom p { font-size:12px; color:var(--smoke); }
+  .footer-bottom a { font-size:12px; font-family:var(--font-mono); color:var(--white); text-decoration:none; font-weight:700; letter-spacing:0.08em; }
 
   /* MOBILE MENU */
   .mobile-menu {
@@ -918,11 +918,11 @@
         <h3>Email</h3>
         <p id="contactEmail"><a href="mailto:tandeminfraservices@gmail.com">tandeminfraservices@gmail.com</a></p>
         <div id="branchAddresses">
-          <h3>Head Office</h3>
+          <h3>Telangana Branch</h3>
           <address id="contactAddress">Flat 302, Sri Chakra Raja Nilayam, Sangeeth Nagar, Kukatpally, Hyderabad - 500072</address>
-          <h3>Branch - Vijayawada</h3>
+          <h3>Andhra Pradesh Branch</h3>
           <address>Flat number 05, Veera Apartment, Dr/No 59A-21/3-2/13B, Vijaynagar Colony, Near Don Bosco School, Vijayawada - 520008</address>
-          <h3>Branch - Nagpur</h3>
+          <h3>Maharashtra Branch</h3>
           <address>Flat number B8, Park View Housing Society, Kingsway Road, Nagpur - 440001, Maharashtra</address>
         </div>
         <h3>Response</h3>
@@ -982,6 +982,7 @@
         <li><a href="#about">About Us</a></li>
         <li><a href="#projects">Our Work</a></li>
         <li><a href="#process">Our Process</a></li>
+        <li><a href="careers.html">Careers</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
     </div>
@@ -989,9 +990,9 @@
       <h5>Contact</h5>
       <ul>
         <li><a href="mailto:tandeminfraservices@gmail.com">tandeminfraservices@gmail.com</a></li>
-        <li><a href="#contact">Hyderabad Head Office</a></li>
-        <li><a href="#contact">Vijayawada Branch</a></li>
-        <li><a href="#contact">Nagpur Branch</a></li>
+        <li><a href="#contact">Telangana Branch</a></li>
+        <li><a href="#contact">Andhra Pradesh Branch</a></li>
+        <li><a href="#contact">Maharashtra Branch</a></li>
       </ul>
     </div>
   </div>
@@ -1399,8 +1400,18 @@
     if(section.body) setText("contactIntro", section.body);
     if(section.meta?.branchesHtml){
       const existing = document.getElementById("branchAddresses");
-      if(existing) existing.innerHTML = section.meta.branchesHtml;
+      if(existing) existing.innerHTML = normalizeBranchLabels(section.meta.branchesHtml);
     }
+  }
+
+  function normalizeBranchLabels(html){
+    return String(html || "")
+      .replace(/Hyderabad Head Office/gi, "Telangana Branch")
+      .replace(/Head Office/gi, "Telangana Branch")
+      .replace(/Branch - Vijayawada/gi, "Andhra Pradesh Branch")
+      .replace(/Vijayawada Branch/gi, "Andhra Pradesh Branch")
+      .replace(/Branch - Nagpur/gi, "Maharashtra Branch")
+      .replace(/Nagpur Branch/gi, "Maharashtra Branch");
   }
 
   const FALLBACK_CONTENT = {
@@ -1535,7 +1546,7 @@
         subtitle: "Get In Touch",
         body: "Email-first enquiries, cleaner contact details and a more professional client-facing experience.",
         meta: {
-          branchesHtml: "<h3>Head Office</h3><address>Flat 302, Sri Chakra Raja Nilayam, Sangeeth Nagar, Kukatpally, Hyderabad - 500072</address><h3>Branch - Vijayawada</h3><address>Flat number 05, Veera Apartment, Dr/No 59A-21/3-2/13B, Vijaynagar Colony, Near Don Bosco School, Vijayawada - 520008</address><h3>Branch - Nagpur</h3><address>Flat number B8, Park View Housing Society, Kingsway Road, Nagpur - 440001, Maharashtra</address>"
+          branchesHtml: "<h3>Telangana Branch</h3><address>Flat 302, Sri Chakra Raja Nilayam, Sangeeth Nagar, Kukatpally, Hyderabad - 500072</address><h3>Andhra Pradesh Branch</h3><address>Flat number 05, Veera Apartment, Dr/No 59A-21/3-2/13B, Vijaynagar Colony, Near Don Bosco School, Vijayawada - 520008</address><h3>Maharashtra Branch</h3><address>Flat number B8, Park View Housing Society, Kingsway Road, Nagpur - 440001, Maharashtra</address>"
         }
       }
     ]
