@@ -8,167 +8,167 @@
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --black:   #ffffff;
-    --ink:     #f5f5f5;
-    --dark:    #ededed;
-    --dim:     #e2e2e2;
-    --shadow:  #b8b8b8;
-    --mist:    #5a5a5a;
-    --smoke:   #444444;
-    --silver:  #2f2f2f;
-    --pearl:   #111111;
-    --white:   #000000;
-    --accent-subtle: rgba(0,0,0,0.04);
-    --border:  rgba(0,0,0,0.12);
-    --border-strong: rgba(0,0,0,0.28);
-    --hero-ov-1: rgba(255,255,255,0.92);
-    --hero-ov-2: rgba(255,255,255,0.72);
-    --hero-ov-3: rgba(255,255,255,0.94);
+    --black:   #f4f7fb;
+    --ink:     #ffffff;
+    --dark:    #e6ecf5;
+    --dim:     #d7e0ec;
+    --shadow:  #000000;
+    --mist:    #000000;
+    --smoke:   #000000;
+    --silver:  #16345c;
+    --pearl:   #0b1d34;
+    --white:   #16345c;
+    --accent:  #ff8a33;
+    --accent-subtle: rgba(255,138,51,0.10);
+    --border:  rgba(22,52,92,0.12);
+    --border-strong: rgba(22,52,92,0.24);
+    --hero-ov-1: rgba(6,16,30,0.72);
+    --hero-ov-2: rgba(6,16,30,0.38);
+    --hero-ov-3: rgba(6,16,30,0.64);
     --font-display: 'Source Sans 3', sans-serif;
     --font-body:    'Source Sans 3', sans-serif;
     --font-mono:    'Source Sans 3', sans-serif;
   }
-  body.theme-dark {
-    --black:   #08090a;
-    --ink:     #111214;
-    --dark:    #191a1c;
-    --dim:     #252628;
-    --shadow:  #333537;
-    --mist:    #72757a;
-    --smoke:   #9fa3a9;
-    --silver:  #c8cace;
-    --pearl:   #eaebec;
-    --white:   #ffffff;
-    --accent-subtle: rgba(255,255,255,0.07);
-    --border:  rgba(255,255,255,0.09);
-    --border-strong: rgba(255,255,255,0.28);
-    --hero-ov-1: rgba(8,9,10,0.97);
-    --hero-ov-2: rgba(8,9,10,0.72);
-    --hero-ov-3: rgba(8,9,10,0.94);
-  }
   *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
   html { scroll-behavior:smooth; }
   body { background:var(--black); color:var(--pearl); font-family:var(--font-body); font-size:16px; line-height:1.6; overflow-x:hidden; transition:background 0.4s ease, color 0.4s ease; animation:pageIn 0.7s ease; }
+  body.intro-active { overflow:hidden; }
   @keyframes pageIn { from { opacity:0; transform:translateY(8px);} to { opacity:1; transform:translateY(0);} }
   ::-webkit-scrollbar { width:3px; }
   ::-webkit-scrollbar-track { background:var(--black); }
   ::-webkit-scrollbar-thumb { background:var(--shadow); }
   img { max-width:100%; height:auto; }
+  .interactive-card { position:relative; overflow:hidden; transition:transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease; transform-style:preserve-3d; will-change:transform; }
+  .interactive-card::before {
+    content:''; position:absolute; inset:-35%;
+    background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.22), transparent 28%);
+    opacity:0; transition:opacity 0.25s ease; pointer-events:none;
+  }
+  .interactive-card:hover::before { opacity:1; }
+  .interactive-card:hover { box-shadow:0 18px 50px rgba(0,0,0,0.14); }
 
+  .intro-overlay {
+    position:fixed; inset:0; z-index:2100; display:grid; place-items:center;
+    background:transparent; transition:opacity 0.55s ease, visibility 0.55s ease;
+  }
+  .intro-overlay.hidden { opacity:0; visibility:hidden; pointer-events:none; }
+  .intro-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:1; }
   /* NAV */
   nav {
     position:fixed; top:0; left:0; right:0; z-index:1000;
-    display:flex; align-items:center; justify-content:space-between;
-    padding:26px 64px; transition:all 0.4s ease; flex-wrap:wrap; row-gap:12px;
+    display:flex; align-items:center; justify-content:center;
+    padding:14px 22px; transition:all 0.4s ease;
+    background:rgba(255,255,255,0.98); backdrop-filter:blur(24px); border-bottom:1px solid var(--border); box-shadow:0 10px 30px rgba(0,0,0,0.08);
   }
-  nav.scrolled { background:rgba(255,255,255,0.96); backdrop-filter:blur(24px); padding:16px 64px; border-bottom:1px solid var(--border); }
-  body.theme-dark nav.scrolled { background:rgba(8,9,10,0.96); }
-  .nav-logo { text-decoration:none; display:flex; flex-direction:column; gap:2px; }
-  .brand-logo { width:28px; height:28px; object-fit:contain; display:none; }
-  .nav-logo-main { font-family:var(--font-display); font-size:21px; font-weight:700; color:var(--white); letter-spacing:0.04em; line-height:1; }
-  .nav-logo-sub  { font-family:var(--font-mono); font-size:7.5px; color:var(--smoke); letter-spacing:0.32em; text-transform:uppercase; }
-  .nav-links { display:flex; align-items:center; gap:28px; list-style:none; flex-wrap:wrap; row-gap:8px; }
-  .nav-links a {
-    font-family:var(--font-body); font-size:12px; font-weight:600;
-    color:var(--smoke); text-decoration:none; letter-spacing:0.1em; text-transform:uppercase;
-    transition:color 0.25s; position:relative;
+  nav.scrolled { background:rgba(255,255,255,0.98); backdrop-filter:blur(24px); padding:12px 22px; border-bottom:1px solid var(--border); box-shadow:0 10px 30px rgba(0,0,0,0.08); }
+  .nav-shell {
+    width:min(1240px,100%);
+    display:grid;
+    grid-template-columns:auto auto 1fr auto;
+    align-items:center;
+    gap:10px;
   }
-  .nav-links a::after { content:''; position:absolute; bottom:-4px; left:0; right:0; height:1px; background:var(--white); transform:scaleX(0); transform-origin:left; transition:transform 0.3s ease; }
-  .nav-links a:hover { color:var(--white); }
-  .nav-links a:hover::after { transform:scaleX(1); }
-  .nav-cta { padding:9px 22px !important; border:1px solid var(--border-strong) !important; border-radius:1px; }
-  .nav-cta:hover { background:var(--white) !important; color:var(--black) !important; }
+  .nav-group {
+    display:flex; align-items:center; gap:6px; list-style:none;
+    flex-wrap:wrap;
+  }
+  .nav-group.right { justify-content:flex-start; }
+  .nav-group.left { justify-content:flex-start; }
+  .nav-logo { text-decoration:none; display:flex; align-items:center; justify-content:center; flex:0 0 auto; }
+  .brand-logo { width:58px; height:58px; object-fit:contain; display:none; border-radius:14px; }
+  .nav-logo-main, .nav-logo-sub { display:none; }
+  .nav-group a {
+    display:inline-flex; align-items:center; justify-content:center;
+    min-height:42px; padding:0 14px; border-radius:999px;
+    font-family:var(--font-body); font-size:13px; font-weight:700;
+    color:#111111; text-decoration:none; letter-spacing:0.1em; text-transform:uppercase;
+    transition:color 0.25s, background 0.25s, border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+    position:relative; border:1px solid transparent; background:transparent; white-space:nowrap;
+  }
+  .nav-group a::after { display:none; }
+  .nav-group a:hover {
+    color:#111111; background:#f4f6fa; border-color:rgba(17,17,17,0.12);
+    transform:translateY(-1px); box-shadow:0 8px 18px rgba(0,0,0,0.06);
+  }
+  .nav-cta-wrap { display:flex; justify-content:flex-end; align-items:center; margin-left:auto; }
+  .nav-cta { display:inline-flex; align-items:center; justify-content:center; min-height:42px; padding:0 20px !important; border:1px solid #111111 !important; border-radius:999px; background:#ffffff; color:#111111 !important; font-size:13px; font-weight:800; letter-spacing:0.12em; line-height:1; }
+  .nav-cta:hover { background:#111111 !important; color:#ffffff !important; }
   .nav-cta::after { display:none !important; }
   .hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px; }
-  .hamburger span { width:22px; height:1px; background:var(--white); transition:all 0.3s; }
-  .theme-toggle {
-    display:flex; align-items:center; gap:10px; cursor:pointer;
-    font-family:var(--font-mono); font-size:9px; letter-spacing:0.2em; text-transform:uppercase; color:var(--smoke);
-  }
-  .theme-switch {
-    width:40px; height:20px; border-radius:20px; border:1px solid var(--border-strong);
-    background:var(--dark); position:relative; transition:all 0.3s ease;
-  }
-  .theme-knob {
-    position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%;
-    background:var(--white); transition:transform 0.3s ease;
-  }
-  body.theme-dark .theme-knob { transform:translateX(20px); }
+  .hamburger span { width:22px; height:2px; background:#111111; transition:all 0.3s; }
 
   /* HERO */
   #hero { position:relative; min-height:100vh; display:flex; align-items:center; overflow:hidden; }
   .hero-slideshow { position:absolute; inset:0; overflow:hidden; }
   .hero-slide {
-    position:absolute; inset:0; opacity:0; transition:opacity 1.2s ease;
+    position:absolute; inset:0; opacity:0; transition:opacity 1.2s ease, transform 7s ease;
     background:
       linear-gradient(125deg, var(--hero-ov-1) 0%, var(--hero-ov-2) 45%, var(--hero-ov-3) 100%),
       var(--hero-image) center/cover no-repeat;
     transform:scale(1.02);
   }
-  .hero-slide.is-active { opacity:1; }
+  .hero-slide.is-active { opacity:1; transform:scale(1); }
   .hero-caption {
     position:absolute; left:64px; bottom:120px; z-index:2; max-width:420px;
-    padding:14px 18px; border:1px solid var(--border); background:rgba(0,0,0,0.35);
+    padding:14px 18px; border:1px solid rgba(255,255,255,0.24); background:rgba(8,18,34,0.64);
     backdrop-filter:blur(10px);
   }
-  body.theme-dark .hero-caption { background:rgba(8,9,10,0.55); }
-  .hero-cap-kicker { font-family:var(--font-mono); font-size:9px; letter-spacing:0.26em; text-transform:uppercase; color:var(--mist); margin-bottom:8px; }
-  .hero-cap-title { font-family:var(--font-display); font-size:18px; color:var(--white); margin-bottom:6px; }
-  .hero-cap-body { font-size:12px; color:var(--smoke); line-height:1.6; }
+  .hero-cap-kicker { font-family:var(--font-mono); font-size:9px; letter-spacing:0.26em; text-transform:uppercase; color:#ffffff; margin-bottom:8px; opacity:0.9; }
+  .hero-cap-title { font-family:var(--font-display); font-size:18px; color:#ffffff; margin-bottom:6px; }
+  .hero-cap-body { font-size:12px; color:rgba(255,255,255,0.92); line-height:1.6; }
   .hero-slide .hero-caption { opacity:0; transform:translateY(8px); transition:all 0.6s ease 0.25s; }
   .hero-slide.is-active .hero-caption { opacity:1; transform:translateY(0); }
   .hero-overlay {
     position:absolute; inset:0; background:radial-gradient(circle at 70% 20%, rgba(0,0,0,0.12), transparent 60%);
     mix-blend-mode:multiply; pointer-events:none;
   }
-  body.theme-dark .hero-overlay { background:radial-gradient(circle at 70% 20%, rgba(255,255,255,0.08), transparent 60%); }
   .hero-line { position:absolute; right:0; top:0; bottom:0; width:1px; background:linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.1) 60%, transparent 100%); }
-  body.theme-dark .hero-line { background:linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.1) 40%, rgba(255,255,255,0.1) 60%, transparent 100%); }
 
   .hero-content { position:relative; z-index:2; padding:0 64px; max-width:960px; margin-top:110px; }
   .hero-label {
     display:inline-flex; align-items:center; gap:14px;
-    font-family:var(--font-mono); font-size:10px; color:var(--smoke); letter-spacing:0.34em; text-transform:uppercase;
+    font-family:var(--font-mono); font-size:10px; color:#ffffff; letter-spacing:0.34em; text-transform:uppercase;
     margin-bottom:36px; opacity:0; animation:fadeUp 0.8s 0.2s ease forwards;
+    text-shadow:0 2px 12px rgba(0,0,0,0.28);
   }
-  .hero-label::before { content:''; width:44px; height:1px; background:var(--smoke); }
+  .hero-label::before { content:''; width:44px; height:1px; background:#ffffff; }
   .hero-h1 {
     font-family:var(--font-display); font-size:clamp(58px,8vw,108px); font-weight:700; line-height:0.94;
-    color:var(--white); letter-spacing:-0.01em; margin-bottom:32px;
+    color:#ffffff; letter-spacing:-0.01em; margin-bottom:32px;
     opacity:0; animation:fadeUp 0.9s 0.4s ease forwards;
+    text-shadow:0 8px 24px rgba(0,0,0,0.34);
   }
-  .hero-h1 em { font-style:italic; font-weight:300; color:var(--silver); }
-  .hero-sub { font-size:17px; font-weight:300; color:var(--smoke); max-width:540px; line-height:1.88; margin-bottom:56px; opacity:0; animation:fadeUp 0.9s 0.6s ease forwards; }
+  .hero-h1 em { font-style:italic; font-weight:300; color:#ffffff; }
+  .hero-sub { font-size:17px; font-weight:400; color:rgba(255,255,255,0.96); max-width:540px; line-height:1.88; margin-bottom:56px; opacity:0; animation:fadeUp 0.9s 0.6s ease forwards; text-shadow:0 4px 18px rgba(0,0,0,0.24); }
   .hero-actions { display:flex; gap:18px; align-items:center; opacity:0; animation:fadeUp 0.9s 0.8s ease forwards; }
 
   .btn-primary {
-    padding:15px 42px; background:var(--white); color:var(--black); border:none;
+    padding:15px 42px; background:var(--accent); color:#ffffff; border:none;
     font-family:var(--font-body); font-size:12px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase;
     cursor:pointer; text-decoration:none; display:inline-block; transition:all 0.3s ease;
     clip-path:polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
   }
-  .btn-primary:hover { background:var(--pearl); transform:translateY(-2px); box-shadow:0 14px 44px rgba(0,0,0,0.18); }
-  body.theme-dark .btn-primary:hover { box-shadow:0 14px 44px rgba(255,255,255,0.18); }
+  .btn-primary:hover { background:#ff9a4d; transform:translateY(-2px); box-shadow:0 14px 44px rgba(255,138,51,0.24); }
   .btn-secondary {
-    padding:15px 42px; background:transparent; color:var(--silver); border:1px solid rgba(0,0,0,0.22);
+    padding:15px 42px; background:rgba(255,255,255,0.14); color:#ffffff; border:1px solid rgba(255,255,255,0.36);
     font-family:var(--font-body); font-size:12px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase;
     cursor:pointer; text-decoration:none; display:inline-block; transition:all 0.3s ease;
+    backdrop-filter:blur(8px);
   }
-  .btn-secondary:hover { border-color:var(--white); color:var(--white); }
-  body.theme-dark .btn-secondary { border:1px solid rgba(255,255,255,0.22); }
+  .btn-secondary:hover { border-color:#ffffff; color:#ffffff; background:rgba(255,255,255,0.22); }
 
-  .hero-stats { position:absolute; right:64px; bottom:90px; display:flex; flex-direction:column; gap:44px; opacity:0; animation:fadeLeft 1s 1.2s ease forwards; }
+  .hero-stats { display:none; }
   .stat-item { text-align:right; border-right:2px solid var(--shadow); padding-right:20px; }
   .stat-num { font-family:var(--font-display); font-size:46px; font-weight:700; color:var(--white); line-height:1; display:block; }
   .stat-label { font-family:var(--font-mono); font-size:9px; color:var(--mist); letter-spacing:0.24em; text-transform:uppercase; margin-top:4px; display:block; }
-  .hero-scroll { position:absolute; bottom:44px; left:64px; display:flex; align-items:center; gap:16px; font-family:var(--font-mono); font-size:9px; color:var(--mist); letter-spacing:0.28em; text-transform:uppercase; opacity:0; animation:fadeUp 0.8s 1.6s ease forwards; }
+  .hero-scroll { position:absolute; bottom:44px; left:64px; display:flex; align-items:center; gap:16px; font-family:var(--font-mono); font-size:9px; color:#ffffff; letter-spacing:0.28em; text-transform:uppercase; opacity:0; animation:fadeUp 0.8s 1.6s ease forwards; }
   .hero-dots { position:absolute; bottom:44px; right:64px; display:flex; gap:10px; z-index:3; }
   .hero-dot {
     width:34px; height:2px; border:none; background:var(--shadow); cursor:pointer; opacity:0.6; transition:all 0.3s ease;
   }
-  .hero-dot.is-active { background:var(--white); opacity:1; }
-  .scroll-line { width:56px; height:1px; background:var(--shadow); position:relative; overflow:hidden; }
-  .scroll-line::after { content:''; position:absolute; inset:0; background:var(--white); animation:lineMove 2.2s ease-in-out infinite; }
+  .hero-dot.is-active { background:#ffffff; opacity:1; }
+  .scroll-line { width:56px; height:1px; background:rgba(255,255,255,0.34); position:relative; overflow:hidden; }
+  .scroll-line::after { content:''; position:absolute; inset:0; background:#ffffff; animation:lineMove 2.2s ease-in-out infinite; }
   @keyframes lineMove { 0%{transform:translateX(-100%)} 50%{transform:translateX(0)} 100%{transform:translateX(100%)} }
   @keyframes fadeUp   { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
   @keyframes fadeLeft { from{opacity:0;transform:translateX(28px)} to{opacity:1;transform:translateX(0)} }
@@ -224,7 +224,7 @@
   .service-card::before { content:''; position:absolute; inset:0; background:var(--white); opacity:0; transition:opacity 0.35s; }
   .service-card:hover { transform:translateY(-4px); }
   .service-card:hover::before { opacity:0.04; }
-  .service-card-num { font-family:var(--font-mono); font-size:10px; color:var(--shadow); letter-spacing:0.22em; margin-bottom:28px; display:block; }
+  .service-card-num { display:none; }
   .service-title { font-family:var(--font-display); font-size:26px; font-weight:700; color:var(--white); margin-bottom:14px; line-height:1.15; }
   .service-text { font-size:14px; color:var(--mist); line-height:1.8; margin-bottom:28px; }
   .service-link { display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:10px; color:var(--silver); letter-spacing:0.18em; text-transform:uppercase; text-decoration:none; transition:gap 0.3s, color 0.3s; }
@@ -235,7 +235,6 @@
   /* WHY */
   #why { background:var(--ink); position:relative; overflow:hidden; }
   #why::before { content:'EXCELLENCE'; position:absolute; right:-60px; top:50%; transform:translateY(-50%) rotate(90deg); font-family:var(--font-display); font-size:130px; font-weight:700; color:rgba(0,0,0,0.035); letter-spacing:0.1em; white-space:nowrap; pointer-events:none; }
-  body.theme-dark #why::before { color:rgba(255,255,255,0.022); }
   .why-layout { display:grid; grid-template-columns:1fr 2fr; gap:56px; align-items:start; max-width:1300px; margin:0 auto; }
   .why-intro p { font-size:15px; color:var(--silver); line-height:1.85; margin-bottom:38px; }
   .why-grid { display:grid; grid-template-columns:1fr 1fr; gap:26px; }
@@ -260,7 +259,6 @@
   .proj-card:nth-child(1) .proj-img, .proj-card:nth-child(4) .proj-img { height:400px; }
   .proj-card:hover .proj-img { transform:scale(1.06); filter:grayscale(50%); }
   .proj-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.1) 60%); display:flex; flex-direction:column; justify-content:flex-end; padding:28px; }
-  body.theme-dark .proj-overlay { background:linear-gradient(to top, rgba(8,9,10,0.96) 0%, rgba(8,9,10,0.1) 60%); }
   .proj-cat { font-family:var(--font-mono); font-size:9px; color:var(--smoke); letter-spacing:0.28em; text-transform:uppercase; margin-bottom:7px; }
   .proj-title { font-family:var(--font-display); font-size:22px; font-weight:700; color:var(--white); margin-bottom:6px; line-height:1.2; }
   .proj-loc { font-size:12px; color:var(--mist); }
@@ -349,25 +347,25 @@
   .back-top.show { opacity:1; transform:translateY(0); }
   .back-top:hover { background:var(--pearl); }
 
-  body:not(.theme-dark) .btn-primary,
-  body:not(.theme-dark) .form-submit,
-  body:not(.theme-dark) .ticker-strip,
-  body:not(.theme-dark) .nav-cta:hover {
+  .btn-primary,
+  .form-submit,
+  .ticker-strip,
+  .nav-cta:hover {
     background:#ffffff;
     color:#000000;
   }
-  body:not(.theme-dark) .btn-primary:hover {
+  .btn-primary:hover {
     background:#f0f0f0;
     box-shadow:0 14px 44px rgba(0,0,0,0.1);
   }
-  body:not(.theme-dark) .back-top { background:#ffffff; color:#000000; border:1px solid var(--border); }
-  body:not(.theme-dark) .back-top:hover { background:#f0f0f0; }
+  .back-top { background:#ffffff; color:#000000; border:1px solid var(--border); }
+  .back-top:hover { background:#f0f0f0; }
 
   /* RESPONSIVE */
-  @media (max-width:1024px) {
+@media (max-width:1024px) {
     section { padding:80px 40px; }
-    nav { padding:20px 40px; }
-    nav.scrolled { padding:14px 40px; }
+    nav { padding:12px 18px; }
+    nav.scrolled { padding:10px 18px; }
     .hero-content { padding:0 40px; }
     .hero-stats { right:40px; }
     .hero-caption { left:40px; bottom:100px; max-width:360px; }
@@ -375,12 +373,25 @@
     .services-grid { grid-template-columns:1fr 1fr; }
     .process-steps { grid-template-columns:repeat(2, 1fr); }
     .footer-grid { grid-template-columns:1fr 1fr; }
+    .nav-shell { grid-template-columns:auto auto 1fr auto; gap:10px; }
+    .nav-group.left, .nav-group.right { gap:8px; }
+    .nav-group a { min-height:38px; padding:0 13px; font-size:12px; letter-spacing:0.08em; }
+    .brand-logo { width:52px; height:52px; }
+    .nav-cta { min-height:40px; padding:0 18px !important; }
+  }
+  @media (max-width:900px) {
+    .nav-group { gap:6px; }
+    .nav-group a { padding:0 11px; font-size:11px; }
   }
   @media (max-width:768px) {
-    .nav-links { display:none; }
+    .nav-group { display:none; }
+    .nav-cta-wrap { display:none; }
     .hamburger { display:flex; }
     section { padding:68px 24px; }
-    nav, nav.scrolled { padding:16px 24px; }
+    nav, nav.scrolled { padding:16px 20px; }
+    .nav-shell { grid-template-columns:1fr auto; }
+    .nav-logo { justify-self:start; align-items:flex-start; text-align:left; }
+    .brand-logo { width:50px; height:50px; }
     .hero-content { padding:0 24px; max-width:100%; }
     .hero-stats, .hero-scroll, .hero-dots, .hero-caption { display:none; }
     .hero-h1 { font-size:48px; }
@@ -404,33 +415,31 @@
   }
 </style>
 </head>
-<body>
+<body class="intro-active">
+
+<div class="intro-overlay" id="introOverlay">
+  <video id="introVideo" class="intro-video" muted playsinline preload="auto"></video>
+</div>
 
 <!-- NAV -->
 <nav id="navbar">
-  <a class="nav-logo" href="#">
-    <div style="display:flex;align-items:center;gap:10px;">
-      <img id="siteBrandLogo" class="brand-logo" alt="Logo">
-      <div>
-        <span class="nav-logo-main" id="siteBrandMain">Tandem Infra Services</span>
-        <span class="nav-logo-sub" id="siteBrandSub">Infrastructure &amp; Construction</span>
-      </div>
+  <div class="nav-shell">
+    <ul class="nav-group left">
+      <li><a class="nav-logo" href="#"><img id="siteBrandLogo" class="brand-logo" alt="Logo"></a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#projects">Projects</a></li>
+    </ul>
+    <ul class="nav-group right">
+      <li><a href="#process">Process</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="careers.html">Careers</a></li>
+    </ul>
+    <div class="nav-cta-wrap">
+      <a href="candidate-auth.html" class="nav-cta" id="authNavLink">Sign In</a>
     </div>
-  </a>
-  <ul class="nav-links">
-    <li><a href="#about">About</a></li>
-    <li><a href="#services">Services</a></li>
-    <li><a href="#projects">Projects</a></li>
-    <li><a href="#process">Process</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="careers.html">Careers</a></li>
-    <li><a href="candidate-auth.html" class="nav-cta" id="authNavLink">Sign In</a></li>
-  </ul>
-  <div class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
-    <span id="themeLabel">Light</span>
-    <div class="theme-switch"><div class="theme-knob"></div></div>
+    <div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
   </div>
-  <div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
 </nav>
 
 <!-- MOBILE MENU -->
@@ -448,83 +457,111 @@
 <!-- HERO -->
 <section id="hero">
   <div class="hero-slideshow" id="heroSlideshow">
-    <div class="hero-slide is-active" style="--hero-image: url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1800&auto=format&fit=crop')">
+    <div class="hero-slide is-active" style="--hero-image: url('https://images.unsplash.com/photo-1768926968986-a88590ce5025?auto=format&fit=crop&fm=jpg&q=80&w=2400')">
       <div class="hero-caption">
         <div class="hero-cap-kicker">Highway and transit upgrades</div>
         <div class="hero-cap-title">Precision Infrastructure</div>
         <div class="hero-cap-body">Complex upgrades delivered with minimal downtime.</div>
       </div>
     </div>
-    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1800&auto=format&fit=crop')">
+    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1719993919949-3d95c3efd721?auto=format&fit=crop&fm=jpg&q=80&w=2400')">
       <div class="hero-caption">
         <div class="hero-cap-kicker">Structural safety and compliance</div>
         <div class="hero-cap-title">Industrial Facilities</div>
         <div class="hero-cap-body">Engineering-led audits for critical facilities.</div>
       </div>
     </div>
-    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1489515217757-5fd1be406fef?w=1800&auto=format&fit=crop')">
+    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1632201189531-7b7469d5c451?auto=format&fit=crop&fm=jpg&q=80&w=2400')">
       <div class="hero-caption">
         <div class="hero-cap-kicker">Project leadership that de-risks delivery</div>
         <div class="hero-cap-title">Commercial Developments</div>
         <div class="hero-cap-body">Timelines, QA, and reporting built-in.</div>
       </div>
     </div>
-    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1800&auto=format&fit=crop')">
+    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1708064235945-227876771bbb?auto=format&fit=crop&fm=jpg&q=80&w=2400')">
       <div class="hero-caption">
         <div class="hero-cap-kicker">Roads, utilities, and drainage networks</div>
         <div class="hero-cap-title">Urban Infrastructure</div>
-        <div class="hero-cap-body">Coordinated planning for resilient cities.</div>
+        <div class="hero-cap-body">Coordinated execution for resilient, fast-growing corridors.</div>
       </div>
     </div>
-    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1800&auto=format&fit=crop')">
+    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1758210878793-a7bf2b089bc6?auto=format&fit=crop&fm=jpg&q=80&w=2400')">
       <div class="hero-caption">
         <div class="hero-cap-kicker">Lower impact, longer life</div>
         <div class="hero-cap-title">Sustainable Construction</div>
         <div class="hero-cap-body">Lifecycle-focused engineering decisions.</div>
       </div>
     </div>
-    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1581092335397-9583eb92d232?w=1800&auto=format&fit=crop')">
+    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&fm=jpg&q=80&w=2400')">
       <div class="hero-caption">
         <div class="hero-cap-kicker">Helmets, hi-vis, real supervision</div>
         <div class="hero-cap-title">Site Teams</div>
         <div class="hero-cap-body">On-ground coordination that keeps work moving.</div>
       </div>
     </div>
-    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1800&auto=format&fit=crop')">
+    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&fm=jpg&q=80&w=2400')">
       <div class="hero-caption">
         <div class="hero-cap-kicker">Quality checks you can prove</div>
         <div class="hero-cap-title">QA/QC Records</div>
         <div class="hero-cap-body">Testing, audits, and handover-ready documentation.</div>
       </div>
     </div>
-    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1800&auto=format&fit=crop')">
+    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&fm=jpg&q=80&w=2400')">
       <div class="hero-caption">
         <div class="hero-cap-kicker">Safety is non-negotiable</div>
         <div class="hero-cap-title">HSSE Controls</div>
         <div class="hero-cap-body">Practical enforcement on active construction sites.</div>
       </div>
     </div>
-    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1581091012184-5cce63f0b9a0?w=1800&auto=format&fit=crop')">
+    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&fm=jpg&q=80&w=2400')">
       <div class="hero-caption">
         <div class="hero-cap-kicker">Fewer clashes, less rework</div>
         <div class="hero-cap-title">Coordination</div>
         <div class="hero-cap-body">Align engineering early to protect schedule and cost.</div>
       </div>
     </div>
-    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1581092334651-ddf26d9b2c0c?w=1800&auto=format&fit=crop')">
+    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1513828583688-c52646db42da?auto=format&fit=crop&fm=jpg&q=80&w=2400')">
       <div class="hero-caption">
         <div class="hero-cap-kicker">From kickoff to handover</div>
         <div class="hero-cap-title">Delivery Assurance</div>
         <div class="hero-cap-body">Milestones, reporting, and closeout support.</div>
       </div>
     </div>
+    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&fm=jpg&q=80&w=2400')">
+      <div class="hero-caption">
+        <div class="hero-cap-kicker">Large-format project environments</div>
+        <div class="hero-cap-title">Commercial Construction</div>
+        <div class="hero-cap-body">Build programmes coordinated for quality, speed, and safety.</div>
+      </div>
+    </div>
+    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1541976590-713941681591?auto=format&fit=crop&fm=jpg&q=80&w=2400')">
+      <div class="hero-caption">
+        <div class="hero-cap-kicker">Active site execution</div>
+        <div class="hero-cap-title">Concrete and Civil Works</div>
+        <div class="hero-cap-body">Execution support for structures, site packages, and finishing stages.</div>
+      </div>
+    </div>
+    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1485083269755-a7b559a4fe5e?auto=format&fit=crop&fm=jpg&q=80&w=2400')">
+      <div class="hero-caption">
+        <div class="hero-cap-kicker">Build teams in motion</div>
+        <div class="hero-cap-title">Execution Management</div>
+        <div class="hero-cap-body">Coordinated manpower, subcontractor flow, and milestone tracking.</div>
+      </div>
+    </div>
+    <div class="hero-slide" style="--hero-image: url('https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&fm=jpg&q=80&w=2400')">
+      <div class="hero-caption">
+        <div class="hero-cap-kicker">Steel, structure, and supervision</div>
+        <div class="hero-cap-title">Site Engineering</div>
+        <div class="hero-cap-body">Hands-on engineering support from planning reviews through handover.</div>
+      </div>
+    </div>
     <div class="hero-overlay"></div>
   </div>
   <div class="hero-line"></div>
   <div class="hero-content">
-    <div class="hero-label" id="heroLabel">Established 2026 - Infrastructure Excellence</div>
-    <h1 class="hero-h1" id="heroTitle">Building<br><em>Strong</em><br>Foundations</h1>
-    <p class="hero-sub" id="heroSub">Tandem Infra Services delivers end-to-end construction and infrastructure solutions - from structural engineering and project management to quality assurance and sustainable building.</p>
+    <div class="hero-label" id="heroLabel">Established 2026 - Construction and Infrastructure Delivery</div>
+    <h1 class="hero-h1" id="heroTitle">Building<br><em>Complex</em><br>Projects Right</h1>
+    <p class="hero-sub" id="heroSub">Tandem Infra Services supports construction delivery with site supervision, project coordination, quality control, infrastructure support, safety-led execution, and clear reporting from mobilisation to handover.</p>
     <div class="hero-actions">
       <a href="#services" class="btn-primary">Our Services</a>
       <a href="#contact" class="btn-secondary">Get in Touch</a>
@@ -561,7 +598,7 @@
 <section id="about">
   <div class="about-grid">
     <div class="about-img-wrap reveal">
-      <img class="about-img" loading="lazy" src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop" alt="Tandem Infra Services">
+      <img class="about-img" loading="lazy" src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&fm=jpg&q=80&w=1400" alt="Construction site with cranes and building activity">
       <div class="about-frame"></div>
       <div class="about-bar"></div>
     </div>
@@ -570,8 +607,8 @@
       <div class="section-label reveal" id="aboutLabel">Who We Are</div>
       <h2 class="section-title reveal reveal-delay-1" id="aboutTitle"><strong>Tandem Infra Services</strong> -<br><em>Infrastructure Built Right</em></h2>
 <div id="aboutBody">
-  <p class="about-text reveal reveal-delay-2">Tandem Infra Services is a focused, new-generation infrastructure and construction company founded in 2026. With a team of 9 professionals, we bring sharp expertise and senior attention to every project we take on.</p>
-  <p class="about-text reveal reveal-delay-2">Our services cover planning, structural engineering, QA/QC, and sustainable construction - delivered with a personal, hands-on client approach that larger firms simply cannot match.</p>
+  <p class="about-text reveal reveal-delay-2">Tandem Infra Services is a focused, new-generation infrastructure and construction company founded in 2026. With a team of 9 professionals, we bring sharp expertise and senior attention to every project.</p>
+  <p class="about-text reveal reveal-delay-2">Our services cover planning, structural engineering, QA/QC, and sustainable construction, delivered with a personal, hands-on client approach.</p>
 </div>
 <div class="about-pillars" id="aboutPillars">
         <div class="pillar reveal reveal-delay-3"><div class="pillar-title">Structural Integrity</div><div class="pillar-text">Every structure built to exceed code and expectations.</div></div>
@@ -670,38 +707,50 @@
 <section id="projects">
   <div class="projects-header" id="projectsHeader">
     <div>
-      <div class="section-label reveal" id="projectsLabel">Portfolio</div>
-      <h2 class="section-title reveal reveal-delay-1" id="projectsTitle"><strong>Our</strong> <em>Work</em></h2>
+      <div class="section-label reveal" id="projectsLabel">Construction Gallery</div>
+      <h2 class="section-title reveal reveal-delay-1" id="projectsTitle"><strong>Project</strong> <em>Visuals</em></h2>
     </div>
     <a href="#contact" class="btn-secondary reveal reveal-delay-2" style="white-space:nowrap;">Discuss a Project</a>
   </div>
   <div class="projects-grid" id="projectsGrid">
     <div class="proj-card reveal">
-      <img loading="lazy" class="proj-img" src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=900&auto=format&fit=crop" alt="Infrastructure">
+      <img loading="lazy" class="proj-img" src="https://images.unsplash.com/photo-1768926968986-a88590ce5025?auto=format&fit=crop&fm=jpg&q=80&w=1400" alt="Workers wearing high visibility vests and safety helmets">
       <div class="proj-overlay"><div class="proj-cat">Infrastructure</div><div class="proj-title">Urban Road Infrastructure - Assessment</div><div class="proj-loc">India</div></div>
     </div>
     <div class="proj-card reveal reveal-delay-1">
-      <img loading="lazy" class="proj-img" src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=600&auto=format&fit=crop" alt="Industrial">
+      <img loading="lazy" class="proj-img" src="https://images.unsplash.com/photo-1719993919949-3d95c3efd721?auto=format&fit=crop&fm=jpg&q=80&w=1400" alt="Urban construction site and development">
       <div class="proj-overlay"><div class="proj-cat">Industrial</div><div class="proj-title">Industrial Facility - Structural Review</div><div class="proj-loc">India</div></div>
     </div>
     <div class="proj-card reveal reveal-delay-2">
-      <img loading="lazy" class="proj-img" src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&auto=format&fit=crop" alt="Commercial">
+      <img loading="lazy" class="proj-img" src="https://images.unsplash.com/photo-1632201189531-7b7469d5c451?auto=format&fit=crop&fm=jpg&q=80&w=1400" alt="Construction workers on a building site">
       <div class="proj-overlay"><div class="proj-cat">Commercial</div><div class="proj-title">Commercial Complex - Project Management</div><div class="proj-loc">India</div></div>
     </div>
     <div class="proj-card reveal reveal-delay-3">
-      <img loading="lazy" class="proj-img" src="https://images.unsplash.com/photo-1496307653780-42ee777d4833?w=900&auto=format&fit=crop" alt="Civil Works">
+      <img loading="lazy" class="proj-img" src="https://images.unsplash.com/photo-1758210878793-a7bf2b089bc6?auto=format&fit=crop&fm=jpg&q=80&w=1400" alt="Workers on a rooftop under construction">
       <div class="proj-overlay"><div class="proj-cat">Civil Works</div><div class="proj-title">Site Development - Supervision</div><div class="proj-loc">India</div></div>
     </div>
     <div class="proj-card reveal">
-      <img loading="lazy" class="proj-img" src="https://images.unsplash.com/photo-1565008447742-97f6f38c985c?w=900&auto=format&fit=crop" alt="Residential">
+      <img loading="lazy" class="proj-img" src="https://images.unsplash.com/photo-1708064235945-227876771bbb?auto=format&fit=crop&fm=jpg&q=80&w=1400" alt="Construction activity in a major city">
       <div class="proj-overlay"><div class="proj-cat">Residential</div><div class="proj-title">Residential Block - QA/QC</div><div class="proj-loc">India</div></div>
     </div>
     <div class="proj-card reveal reveal-delay-1">
-      <img loading="lazy" class="proj-img" src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=900&auto=format&fit=crop" alt="Safety">
+      <img loading="lazy" class="proj-img" src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&fm=jpg&q=80&w=1400" alt="High-rise construction site with cranes">
       <div class="proj-overlay"><div class="proj-cat">Safety</div><div class="proj-title">Safety Audit Program - Implementation</div><div class="proj-loc">India</div></div>
     </div>
+    <div class="proj-card reveal reveal-delay-2">
+      <img loading="lazy" class="proj-img" src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&fm=jpg&q=80&w=1400" alt="Commercial construction environment">
+      <div class="proj-overlay"><div class="proj-cat">Commercial</div><div class="proj-title">Commercial Construction Environment</div><div class="proj-loc">Large-format project delivery and site coordination.</div></div>
+    </div>
+    <div class="proj-card reveal reveal-delay-3">
+      <img loading="lazy" class="proj-img" src="https://images.unsplash.com/photo-1541976590-713941681591?auto=format&fit=crop&fm=jpg&q=80&w=1400" alt="Concrete and civil works site">
+      <div class="proj-overlay"><div class="proj-cat">Civil Works</div><div class="proj-title">Concrete and Civil Works Package</div><div class="proj-loc">Execution support for structure, concrete, and field operations.</div></div>
+    </div>
+    <div class="proj-card reveal">
+      <img loading="lazy" class="proj-img" src="https://images.unsplash.com/photo-1485083269755-a7b559a4fe5e?auto=format&fit=crop&fm=jpg&q=80&w=1400" alt="Construction workers and site management">
+      <div class="proj-overlay"><div class="proj-cat">Execution</div><div class="proj-title">Construction Workforce Coordination</div><div class="proj-loc">Planning, supervision, and day-to-day site delivery management.</div></div>
+    </div>
   </div>
-  <p class="reveal" style="text-align:center;margin-top:38px;font-family:var(--font-mono);font-size:10px;color:var(--mist);letter-spacing:0.24em;text-transform:uppercase;">- Projects in Progress - Portfolio Expanding -</p>
+  <p class="reveal" style="text-align:center;margin-top:38px;font-family:var(--font-mono);font-size:10px;color:var(--mist);letter-spacing:0.24em;text-transform:uppercase;">- Construction Delivery - Site Supervision - Quality Control - Infrastructure Support -</p>
 </section>
 
 <!-- PROCESS -->
@@ -771,18 +820,22 @@
     <div>
       <div class="section-label reveal" id="contactLabel">Get In Touch</div>
       <h2 class="section-title reveal reveal-delay-1" id="contactTitle"><strong>Let's Build</strong><br><em>Together</em></h2>
-      <p class="reveal reveal-delay-2" id="contactIntro" style="color:var(--smoke);font-size:15px;line-height:1.85;margin-bottom:28px;">Ready to discuss your project? Our team responds to every enquiry personally. No automated responses - just real people who care about your build.</p>
+      <p class="reveal reveal-delay-2" id="contactIntro" style="color:var(--smoke);font-size:15px;line-height:1.85;margin-bottom:28px;">Professional construction, infrastructure support, property upkeep coordination, and site delivery services with a cleaner, email-first contact experience.</p>
       <div class="contact-info reveal reveal-delay-3">
-        <h3>Phone</h3>
-        <p id="contactPhone"><a href="tel:9429739999">+91 94297 39999</a></p>
         <h3>Email</h3>
-        <p id="contactEmail"><a href="mailto:info@tandeminfra.com">info@tandeminfra.com</a></p>
-        <h3>Address</h3>
-        <address id="contactAddress">India  <span style="color:var(--mist);font-size:13px;">Full address coming soon</span></address>
-        <h3>Founded</h3>
-        <p>2026 &nbsp;-&nbsp; 9 Professionals</p>
-        <h3>Registration &amp; Licenses</h3>
-        <p style="font-size:13px;color:var(--mist);">In progress</p>
+        <p id="contactEmail"><a href="mailto:tandeminfraservices@gmail.com">tandeminfraservices@gmail.com</a></p>
+        <div id="branchAddresses">
+          <h3>Head Office</h3>
+          <address id="contactAddress">Flat 302, Sri Chakra Raja Nilayam, Sangeeth Nagar, Kukatpally, Hyderabad - 500072</address>
+          <h3>Branch - Vijayawada</h3>
+          <address>Flat number 05, Veera Apartment, Dr/No 59A-21/3-2/13B, Vijaynagar Colony, Near Don Bosco School, Vijayawada - 520008</address>
+          <h3>Branch - Nagpur</h3>
+          <address>Flat number B8, Park View Housing Society, Kingsway Road, Nagpur - 440001, Maharashtra</address>
+        </div>
+        <h3>Response</h3>
+        <p>Share your requirement and our team will respond directly by email.</p>
+        <h3>Focus Areas</h3>
+        <p style="font-size:13px;color:var(--mist);">Construction supervision, infrastructure services, safety-led site support and maintenance coordination.</p>
       </div>
     </div>
     <form class="contact-form reveal reveal-delay-2" onsubmit="handleSubmit(event)">
@@ -791,7 +844,7 @@
         <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" type="text" placeholder="Last name" required></div>
       </div>
       <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" type="email" placeholder="you@company.com" required></div>
-      <div class="form-group"><label class="form-label">Phone Number</label><input class="form-input" type="tel" placeholder="+91 XXXXX XXXXX"></div>
+      <div class="form-group"><label class="form-label">Phone Number</label><input class="form-input" type="tel" placeholder="Optional"></div>
       <div class="form-group">
         <label class="form-label">Service Required</label>
         <select class="form-select">
@@ -817,7 +870,7 @@
     <div class="footer-brand">
       <div class="footer-brand-name" id="footerBrandName">Tandem Infra Services</div>
       <span class="footer-brand-sub" id="footerBrandSub">Infrastructure &amp; Construction</span>
-      <p>Building India's future through precision engineering, transparent project management and an unwavering commitment to quality and safety. Est. 2026.</p>
+      <p>A professional construction homepage built around disciplined execution, strong visuals, email-first enquiries, and a premium first impression.</p>
     </div>
     <div class="footer-col">
       <h5>Services</h5>
@@ -842,10 +895,10 @@
     <div class="footer-col">
       <h5>Contact</h5>
       <ul>
-        <li><a href="tel:9429739999">+91 94297 39999</a></li>
-        <li><a href="mailto:info@tandeminfra.com">info@tandeminfra.com</a></li>
-        <li><a href="#about">Team of 9</a></li>
-        <li><a href="#about">Est. 2026</a></li>
+        <li><a href="mailto:tandeminfraservices@gmail.com">tandeminfraservices@gmail.com</a></li>
+        <li><a href="#contact">Hyderabad Head Office</a></li>
+        <li><a href="#contact">Vijayawada Branch</a></li>
+        <li><a href="#contact">Nagpur Branch</a></li>
       </ul>
     </div>
   </div>
@@ -872,11 +925,44 @@
     }
   });
   function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
+  const introOverlay = document.getElementById("introOverlay");
+  const introVideo = document.getElementById("introVideo");
 
   const obs = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
   }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  const lazyMediaObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const media = e.target;
+      if (media.dataset.src) media.src = media.dataset.src;
+      lazyMediaObs.unobserve(media);
+    });
+  }, { rootMargin: '240px 0px' });
+  document.querySelectorAll('.lazy-media').forEach(el => lazyMediaObs.observe(el));
+
+  function bindInteractiveCards(){
+    document.querySelectorAll('.interactive-card').forEach(card => {
+      if (card.dataset.bound === "1") return;
+      card.dataset.bound = "1";
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        const px = ((e.clientX - rect.left) / rect.width);
+        const py = ((e.clientY - rect.top) / rect.height);
+        card.style.setProperty('--mx', `${px * 100}%`);
+        card.style.setProperty('--my', `${py * 100}%`);
+        const rotateY = (px - 0.5) * 6;
+        const rotateX = (0.5 - py) * 6;
+        card.style.transform = `translateY(-6px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+  }
+  bindInteractiveCards();
 
   const cObs = new IntersectionObserver(entries => {
     entries.forEach(e => {
@@ -908,18 +994,13 @@
     ? "http://localhost:4000"
     : "";
   const THEME_KEY = "tis_theme";
+  const FALLBACK_BRAND_LOGO_URL = "https://cidsqcgqcvzityuwvkel.supabase.co/storage/v1/object/sign/cms/Tandem%20INFRA%20SERVICES.%20logo.jpg.jpeg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82NjcxODRkNy1lZGI2LTRhZDEtYTEwZS1kMmY2NmFhYWM0M2MiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjbXMvVGFuZGVtIElORlJBIFNFUlZJQ0VTLiBsb2dvLmpwZy5qcGVnIiwiaWF0IjoxNzc1NzM3Mzc2LCJleHAiOjE4Mzg4MDkzNzZ9.CYI8oh7JtmB13Ckwg9SX1JtGP85PBSdcoa4twingLnM";
 
-  function applyTheme(theme) {
-    document.body.classList.toggle("theme-dark", theme === "dark");
-    const label = document.getElementById("themeLabel");
-    if (label) label.textContent = theme === "dark" ? "Dark" : "Light";
-    localStorage.setItem(THEME_KEY, theme);
+  function applyTheme() {
+    document.body.classList.remove("theme-dark");
+    localStorage.setItem(THEME_KEY, "light");
   }
-  function toggleTheme() {
-    const next = document.body.classList.contains("theme-dark") ? "light" : "dark";
-    applyTheme(next);
-  }
-  applyTheme(localStorage.getItem(THEME_KEY) || "light");
+  applyTheme();
   function setText(id, value){
     const el = document.getElementById(id);
     if(el && value) el.textContent = value;
@@ -932,23 +1013,29 @@
   }
 
   function applySettings(settings = {}){
-    setText("siteBrandMain", settings.brand_name);
-    setText("siteBrandSub", settings.brand_subtitle);
     setText("footerBrandName", settings.brand_name);
     setText("footerBrandSub", settings.brand_subtitle);
-    const logo = document.getElementById("siteBrandLogo");
-    if(logo){
-      if(settings.brand_logo){
-        logo.src = settings.brand_logo;
+    const logos = [document.getElementById("siteBrandLogo")];
+    logos.forEach(logo => {
+      if(!logo) return;
+      const desiredLogo = settings.brand_logo || FALLBACK_BRAND_LOGO_URL;
+      if(desiredLogo){
+        logo.onerror = () => {
+          if (logo.dataset.fallbackApplied === "1") {
+            logo.removeAttribute("src");
+            logo.style.display = "none";
+            return;
+          }
+          logo.dataset.fallbackApplied = "1";
+          logo.src = FALLBACK_BRAND_LOGO_URL;
+        };
+        logo.dataset.fallbackApplied = desiredLogo === FALLBACK_BRAND_LOGO_URL ? "1" : "0";
+        logo.src = desiredLogo;
         logo.style.display = "block";
       } else {
         logo.style.display = "none";
       }
-    }
-    if(settings.contact_phone){
-      const p = document.getElementById("contactPhone");
-      if(p) p.innerHTML = `<a href="tel:${settings.contact_phone}">${settings.contact_phone}</a>`;
-    }
+    });
     if(settings.contact_email){
       const e = document.getElementById("contactEmail");
       if(e) e.innerHTML = `<a href="mailto:${settings.contact_email}">${settings.contact_email}</a>`;
@@ -956,6 +1043,16 @@
     if(settings.contact_address){
       const a = document.getElementById("contactAddress");
       if(a) a.textContent = settings.contact_address;
+    }
+    if (introVideo) {
+      introVideo.pause();
+      introVideo.removeAttribute("src");
+      if (settings.intro_video_url) {
+        introVideo.src = settings.intro_video_url;
+        introVideo.load();
+        const play = introVideo.play();
+        if (play && typeof play.catch === "function") play.catch(() => {});
+      }
     }
   }
 
@@ -1035,7 +1132,8 @@
     if(!section || !section.items?.length) return;
     const track = document.getElementById("tickerTrack");
     if(!track) return;
-    track.innerHTML = section.items.map(i => `<span class="ticker-item">${i.title || ""}</span>`).join("");
+    const items = [...section.items, ...section.items];
+    track.innerHTML = items.map(i => `<span class="ticker-item">${i.title || ""}</span>`).join("");
   }
 
   function renderAbout(section){
@@ -1046,7 +1144,7 @@
     const wrap = document.getElementById("aboutPillars");
     if(wrap && section.items?.length){
       wrap.innerHTML = section.items.map(i => `
-        <div class="pillar reveal">
+        <div class="pillar reveal interactive-card">
           <div class="pillar-title">${i.title || ""}</div>
           <div class="pillar-text">${i.body || ""}</div>
         </div>`).join("");
@@ -1061,8 +1159,7 @@
     const grid = document.getElementById("servicesGrid");
     if(grid && section.items?.length){
       grid.innerHTML = section.items.map((i, idx) => `
-        <div class="service-card reveal">
-          <span class="service-card-num">${String(idx + 1).padStart(2, "0")}</span>
+        <div class="service-card reveal interactive-card">
           <h3 class="service-title">${i.title || ""}</h3>
           <p class="service-text">${i.body || ""}</p>
           ${i.link_url ? `<a href="${i.link_url}" class="service-link">${i.link_label || "Learn More"}</a>` : ""}
@@ -1081,8 +1178,7 @@
       grid.innerHTML = section.items.map(i => {
         const num = (i.meta && i.meta.num) ? i.meta.num : (i.subtitle || "");
         return `
-          <div class="why-item reveal">
-            <span class="why-num">${num}</span>
+          <div class="why-item reveal interactive-card">
             <h4>${i.title || ""}</h4>
             <p>${i.body || ""}</p>
           </div>`;
@@ -1097,8 +1193,8 @@
     const grid = document.getElementById("projectsGrid");
     if(grid && section.items?.length){
       grid.innerHTML = section.items.map(i => `
-        <div class="proj-card reveal">
-          ${i.image_url ? `<img loading="lazy" class="proj-img" src="${i.image_url}" alt="Project">` : ""}
+        <div class="proj-card reveal interactive-card">
+          ${i.image_url ? `<img class="proj-img lazy-media" data-src="${i.image_url}" alt="Project">` : ""}
           <div class="proj-overlay">
             <div class="proj-cat">${i.subtitle || ""}</div>
             <div class="proj-title">${i.title || ""}</div>
@@ -1116,8 +1212,7 @@
     const grid = document.getElementById("processSteps");
     if(grid && section.items?.length){
       grid.innerHTML = section.items.map((i, idx) => `
-        <div class="process-step reveal">
-          <div class="step-num">${String(idx + 1).padStart(2, "0")}</div>
+        <div class="process-step reveal interactive-card">
           <div class="step-title">${i.title || ""}</div>
           <p class="step-text">${i.body || ""}</p>
         </div>`).join("");
@@ -1158,99 +1253,102 @@
     if(section.title) setHtml("contactTitle", section.title);
     renderSectionLabel("contactLabel", section);
     if(section.body) setText("contactIntro", section.body);
+    if(section.meta?.branchesHtml){
+      const existing = document.getElementById("branchAddresses");
+      if(existing) existing.innerHTML = section.meta.branchesHtml;
+    }
   }
 
   const FALLBACK_CONTENT = {
     settings: {
       brand_name: "Tandem Infra Services",
       brand_subtitle: "Infrastructure & Construction",
-      contact_phone: "+91 94297 39999",
+      brand_logo: FALLBACK_BRAND_LOGO_URL,
       contact_email: "tandeminfraservices@gmail.com",
-      contact_address: "India - Full address coming soon"
+      contact_address: "Flat 302, Sri Chakra Raja Nilayam, Sangeeth Nagar, Kukatpally, Hyderabad - 500072",
+      intro_video_url: "https://cidsqcgqcvzityuwvkel.supabase.co/storage/v1/object/public/media/Tandem.mp4"
     },
     sections: [
       {
         key: "hero",
-        title: "Building<br><em>Strong</em><br>Foundations",
-        subtitle: "Established 2026 - Infrastructure Excellence",
-        body: "Tandem Infra Services delivers end-to-end construction and infrastructure solutions - from structural engineering and project management to quality assurance and sustainable building.",
+        title: "Professional<br><em>Construction</em><br>Presence",
+        subtitle: "Infrastructure services with a premium first impression",
+        body: "Tandem Infra Services presents a cleaner, more corporate homepage focused on construction delivery, infrastructure support, safety-led execution and professional client communication.",
         items: [
-          { image_url: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1800&auto=format&fit=crop", subtitle: "Roads and highways", title: "Infrastructure Delivery", body: "Engineering-led supervision and quality controls." },
-          { image_url: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1800&auto=format&fit=crop", subtitle: "Industrial sites", title: "Structural Review", body: "Inspections, compliance checks, and reporting." },
-          { image_url: "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?w=1800&auto=format&fit=crop", subtitle: "Commercial builds", title: "Project Leadership", body: "Timelines, QA, and clear reporting." },
-          { image_url: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1800&auto=format&fit=crop", subtitle: "Urban infrastructure", title: "Planning & Delivery", body: "Coordinated execution for resilient cities." },
-          { image_url: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1800&auto=format&fit=crop", subtitle: "Lower impact builds", title: "Sustainability", body: "Lifecycle-focused engineering decisions." },
-          { image_url: "https://images.unsplash.com/photo-1581092335397-9583eb92d232?w=1800&auto=format&fit=crop", subtitle: "Helmets and hi-vis", title: "Site Teams", body: "On-ground coordination that keeps work moving." },
-          { image_url: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1800&auto=format&fit=crop", subtitle: "QA/QC", title: "Testing & Records", body: "Audits and handover-ready documentation." },
-          { image_url: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1800&auto=format&fit=crop", subtitle: "Safety first", title: "HSSE Controls", body: "Practical enforcement on live sites." },
-          { image_url: "https://images.unsplash.com/photo-1581091012184-5cce63f0b9a0?w=1800&auto=format&fit=crop", subtitle: "Coordination", title: "Engineering Alignment", body: "Prevent rework with early coordination." },
-          { image_url: "https://images.unsplash.com/photo-1581092334651-ddf26d9b2c0c?w=1800&auto=format&fit=crop", subtitle: "Delivery assurance", title: "Milestones", body: "Transparent progress and measurable outcomes." }
+          { image_url: "https://images.unsplash.com/photo-1768926968986-a88590ce5025?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Workers with PPE", title: "Construction Coordination", body: "Planning, execution and client-ready reporting." },
+          { image_url: "https://images.unsplash.com/photo-1719993919949-3d95c3efd721?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Urban construction site", title: "Safety-First Teams", body: "Workers in helmets and jackets with visible supervision." },
+          { image_url: "https://images.unsplash.com/photo-1632201189531-7b7469d5c451?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Workers on a building site", title: "Compliance Visibility", body: "Processes that support safer and sharper execution." },
+          { image_url: "https://images.unsplash.com/photo-1708064235945-227876771bbb?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Large-city construction activity", title: "Checks and Documentation", body: "Cleaner handovers with better records and reviews." },
+          { image_url: "https://images.unsplash.com/photo-1758210878793-a7bf2b089bc6?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Rooftop construction", title: "Delivery Assurance", body: "Focused execution from site start to completion." },
+          { image_url: "https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Residential construction", title: "Field Communication", body: "Better alignment across teams, vendors and stakeholders." },
+          { image_url: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Tower crane activity", title: "Operational Readiness", body: "Support services for built assets and project environments." },
+          { image_url: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "High-rise construction", title: "Professional Presentation", body: "A polished image for real clients and partners." }
         ]
       },
       {
         key: "ticker",
         items: [
-          { title: "Project Management" },
-          { title: "Structural Engineering" },
-          { title: "BIM Solutions" },
+          { title: "Construction Management" },
+          { title: "Infrastructure Services" },
           { title: "Quality Assurance" },
-          { title: "Infrastructure Planning" },
-          { title: "Sustainable Construction" }
+          { title: "Safety Compliance" },
+          { title: "Facility Support" },
+          { title: "Project Delivery" }
         ]
       },
       {
         key: "about",
-        title: "<strong>Tandem Infra Services</strong> -<br><em>Infrastructure Built Right</em>",
+        title: "<strong>Tandem Infra Services</strong> -<br><em>Professional Construction Presence</em>",
         subtitle: "Who We Are",
-        body: "<p class=\"about-text\">Tandem Infra Services is a focused, new-generation infrastructure and construction company founded in 2026. With a team of 9 professionals, we bring sharp expertise and senior attention to every project we take on.</p><p class=\"about-text\">Our services cover planning, structural engineering, QA/QC, and sustainable construction - delivered with a personal, hands-on client approach that larger firms simply cannot match.</p>",
+        body: "<p class=\"about-text\">This homepage is now positioned around a stronger construction and infrastructure identity with premium visuals, clearer service language, and a more professional client-facing tone.</p><p class=\"about-text\">Inspired by infrastructure service, property support and facilities management presentation styles, it now communicates site readiness, maintenance coordination, safety culture and responsive delivery more clearly.</p>",
         items: [
-          { title: "Structural Integrity", body: "Every structure built to exceed code and expectations." },
-          { title: "Safety First", body: "Non-negotiable protocols across every phase of work." },
-          { title: "Sustainability", body: "Green building at the core of every decision we make." },
-          { title: "Smart Infrastructure", body: "IoT-ready systems for tomorrow's built environment." }
+          { title: "Construction Operations", body: "Structured site coordination and better execution visibility." },
+          { title: "Infrastructure Upkeep", body: "Support services that help built assets stay operational." },
+          { title: "Safety Discipline", body: "Helmet-and-jacket visuals that reinforce professionalism." },
+          { title: "Client Responsiveness", body: "Clear communication and more direct enquiry handling." }
         ]
       },
       {
         key: "services",
-        title: "<strong>Our</strong> <em>Services</em>",
+        title: "<strong>Core</strong> <em>Services</em>",
         subtitle: "What We Do",
-        body: "Core services tailored for fast-moving projects: planning, engineering, QA/QC, and sustainable construction - all coordinated by a senior-led team.",
+        body: "Practical service lines aligned with construction support, infrastructure services, safety-led site work and maintenance-facing coordination.",
         items: [
-          { title: "Project Management", body: "Full-lifecycle delivery from feasibility through handover - schedules, budgets, stakeholder coordination and expert supervision at every stage.", link_url: "#contact", link_label: "Enquire Now ->" },
-          { title: "Structural Engineering & Inspection", body: "Structural analysis, load testing, third-party inspections and IS code compliance for commercial, industrial and residential projects.", link_url: "#contact", link_label: "Enquire Now ->" },
-          { title: "Quality Assurance & Control", body: "Rigorous QA/QC protocols, material testing, construction audits and ISO-aligned documentation for defect-free project delivery.", link_url: "#contact", link_label: "Enquire Now ->" },
-          { title: "Sustainable Construction", body: "Green building solutions for lower lifecycle costs - passive design, efficient systems and smarter materials.", link_url: "#contact", link_label: "Enquire Now ->" },
-          { title: "Site Supervision", body: "Daily site coordination, progress reporting, and hands-on supervision to keep quality, safety, and schedule aligned.", link_url: "#contact", link_label: "Enquire Now ->" },
-          { title: "Construction Audits", body: "Third-party audits, snag lists, and compliance verification so handover is clean and defensible.", link_url: "#contact", link_label: "Enquire Now ->" },
-          { title: "Retrofitting & Rehabilitation", body: "Condition assessment, strengthening recommendations, and life-extension plans for aging assets.", link_url: "#contact", link_label: "Enquire Now ->" },
-          { title: "MEP Coordination", body: "MEP coordination with engineering oversight to reduce clashes, rework, and delays during execution.", link_url: "#contact", link_label: "Enquire Now ->" }
+          { title: "Construction Supervision", body: "Daily site coordination, package tracking and disciplined execution support across active works.", link_url: "#contact", link_label: "Discuss Service" },
+          { title: "Infrastructure Services", body: "Operational support, maintenance coordination and service integration for built assets and projects.", link_url: "#contact", link_label: "Discuss Service" },
+          { title: "Quality Assurance", body: "Checks, snag reviews, documentation and handover readiness for cleaner outcomes.", link_url: "#contact", link_label: "Discuss Service" },
+          { title: "Safety-Led Site Support", body: "PPE culture, on-ground supervision and compliance-focused routines that reinforce professionalism.", link_url: "#contact", link_label: "Discuss Service" },
+          { title: "Property Support Coordination", body: "Maintenance-facing planning and responsive coordination for managed spaces and facilities.", link_url: "#contact", link_label: "Discuss Service" },
+          { title: "Client Communication", body: "Transparent updates, dependable responses and a cleaner stakeholder experience throughout delivery.", link_url: "#contact", link_label: "Discuss Service" }
         ]
       },
       {
         key: "why",
-        title: "<strong>Small Team,</strong><br><em>Serious Results</em>",
+        title: "<strong>More Corporate,</strong><br><em>More Credible</em>",
         subtitle: "Why Tandem Infra",
-        body: "We are a focused, expert-driven team. Every project gets personal senior attention - no hand-offs to junior staff, no compromises on quality or safety.",
+        body: "The homepage now feels more professional through stronger visuals, cleaner content blocks, interactive hovers and better lazy loading.",
         items: [
-          { title: "Expert Professionals", body: "A compact, highly specialised team delivering focused expertise on every single project we take on.", meta: { num: "9" } },
-          { title: "Senior-Led Projects", body: "Every engagement personally led by experienced professionals - guaranteed senior attention from day one.", meta: { num: "100%" } },
-          { title: "Core Service Lines", body: "Comprehensive infrastructure capabilities under one roof, eliminating coordination gaps between multiple consultants.", meta: { num: "6+" } },
-          { title: "Compromise on Safety", body: "Safety is non-negotiable. Rigorous HSSE protocols are followed across every project, every single day.", meta: { num: "0" } },
-          { title: "Built for Today", body: "Founded in 2026 - we bring fresh perspectives, modern tools and current best practices to every challenge.", meta: { num: "2026" } },
-          { title: "Site Support Available", body: "On-call project support available around the clock during critical construction and delivery phases.", meta: { num: "24/7" } }
+          { title: "Premium First Impression", body: "Sharper typography, stronger imagery and clearer structure improve trust from the first screen." },
+          { title: "Interactive Hover Design", body: "Cards respond to mouse movement with subtle lighting for a more modern feel." },
+          { title: "Better Lazy Loading", body: "Project imagery and content blocks load more gracefully for a smoother homepage experience." },
+          { title: "Email-First Enquiries", body: "Phone is removed from the public contact block and replaced with a cleaner email path." },
+          { title: "Video Intro Ready", body: "The homepage now supports a Supabase-hosted MP4 intro before the website appears." },
+          { title: "Construction-Focused Gallery", body: "Workers, helmets, jackets and site activity now anchor the visual story." }
         ]
       },
       {
         key: "projects",
-        title: "<strong>Our</strong> <em>Work</em>",
+        title: "<strong>Construction</strong> <em>Gallery</em>",
         subtitle: "Portfolio",
         items: [
-          { title: "Urban Road Infrastructure - Assessment", subtitle: "Infrastructure", body: "India", image_url: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=900&auto=format&fit=crop" },
-          { title: "Industrial Facility - Structural Review", subtitle: "Industrial", body: "India", image_url: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=600&auto=format&fit=crop" },
-          { title: "Commercial Complex - Project Management", subtitle: "Commercial", body: "India", image_url: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&auto=format&fit=crop" },
-          { title: "Site Development - Supervision", subtitle: "Civil Works", body: "India", image_url: "https://images.unsplash.com/photo-1496307653780-42ee777d4833?w=900&auto=format&fit=crop" },
-          { title: "Residential Block - QA/QC", subtitle: "Residential", body: "India", image_url: "https://images.unsplash.com/photo-1565008447742-97f6f38c985c?w=900&auto=format&fit=crop" },
-          { title: "Safety Audit Program - Implementation", subtitle: "Safety", body: "India", image_url: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=900&auto=format&fit=crop" }
+          { title: "Workers in high visibility vests and helmets", subtitle: "Construction Site", body: "Professional field presence and client-ready delivery.", image_url: "https://images.unsplash.com/photo-1768926968986-a88590ce5025?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
+          { title: "Urban construction activity", subtitle: "Safety First", body: "Real site visuals with clear construction context.", image_url: "https://images.unsplash.com/photo-1719993919949-3d95c3efd721?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
+          { title: "Workers on active structure", subtitle: "Quality Control", body: "Checks that support better outcomes and presentation.", image_url: "https://images.unsplash.com/photo-1632201189531-7b7469d5c451?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
+          { title: "Large city construction zone", subtitle: "Site Support", body: "Infrastructure activity in a recognisable urban setting.", image_url: "https://images.unsplash.com/photo-1708064235945-227876771bbb?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
+          { title: "Rooftop construction work", subtitle: "Project Delivery", body: "Progress checks that keep the work moving cleanly.", image_url: "https://images.unsplash.com/photo-1758210878793-a7bf2b089bc6?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
+          { title: "Residential tower construction", subtitle: "Construction", body: "A different construction setting for a less repetitive gallery.", image_url: "https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
+          { title: "Crane and high-rise build", subtitle: "Operations", body: "Alignment across site teams and stakeholders.", image_url: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
+          { title: "High-rise construction progress", subtitle: "Infrastructure", body: "More variety across the homepage construction imagery.", image_url: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&fm=jpg&q=80&w=1400" }
         ]
       },
       {
@@ -1291,7 +1389,10 @@
         key: "contact",
         title: "<strong>Let's Build</strong><br><em>Together</em>",
         subtitle: "Get In Touch",
-        body: "Ready to discuss your project? Our team responds to every enquiry personally. No automated responses - just real people who care about your build."
+        body: "Email-first enquiries, cleaner contact details and a more professional client-facing experience.",
+        meta: {
+          branchesHtml: "<h3>Head Office</h3><address>Flat 302, Sri Chakra Raja Nilayam, Sangeeth Nagar, Kukatpally, Hyderabad - 500072</address><h3>Branch - Vijayawada</h3><address>Flat number 05, Veera Apartment, Dr/No 59A-21/3-2/13B, Vijaynagar Colony, Near Don Bosco School, Vijayawada - 520008</address><h3>Branch - Nagpur</h3><address>Flat number B8, Park View Housing Society, Kingsway Road, Nagpur - 440001, Maharashtra</address>"
+        }
       }
     ]
   };
@@ -1310,6 +1411,9 @@
     renderTestimonials(map.testimonials);
     renderClients(map.clients);
     renderContact(map.contact);
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+    document.querySelectorAll('.lazy-media').forEach(el => lazyMediaObs.observe(el));
+    bindInteractiveCards();
   }
 
   function isUsableContent(data){
@@ -1333,11 +1437,14 @@
     if(!baseSection) return incomingSection;
     if(!incomingSection) return baseSection;
     const merged = { ...baseSection };
-    if(!merged.title && incomingSection.title) merged.title = incomingSection.title;
-    if(!merged.subtitle && incomingSection.subtitle) merged.subtitle = incomingSection.subtitle;
-    if(!merged.body && incomingSection.body) merged.body = incomingSection.body;
+    if(incomingSection.title) merged.title = incomingSection.title;
+    if(incomingSection.subtitle) merged.subtitle = incomingSection.subtitle;
+    if(incomingSection.body) merged.body = incomingSection.body;
+    if(incomingSection.meta) merged.meta = { ...(baseSection.meta || {}), ...(incomingSection.meta || {}) };
     if(incomingSection.items && incomingSection.items.length){
-      merged.items = [...(merged.items || []), ...incomingSection.items];
+      merged.items = incomingSection.items;
+    } else if(baseSection.items && baseSection.items.length) {
+      merged.items = baseSection.items;
     }
     return merged;
   }
@@ -1381,8 +1488,26 @@
       console.warn("Content API request failed.");
     }
   }
+  function closeIntro(){
+    if(!introOverlay) return;
+    introOverlay.classList.add("hidden");
+    document.body.classList.remove("intro-active");
+  }
+  function initIntro(){
+    if(introVideo){
+      introVideo.addEventListener("ended", closeIntro);
+      introVideo.addEventListener("error", () => setTimeout(closeIntro, 1800));
+      introVideo.addEventListener("loadedmetadata", () => {
+        if (!Number.isFinite(introVideo.duration) || introVideo.duration <= 0) return;
+        setTimeout(closeIntro, Math.min(introVideo.duration * 1000 + 300, 15000));
+      }, { once:true });
+    }
+    setTimeout(() => {
+      if (introVideo && !introVideo.getAttribute("src")) closeIntro();
+    }, 2200);
+  }
+  initIntro();
   loadContent();
-  startHeroSlideshow();
 
   async function handleSubmit(e) {
     e.preventDefault();
