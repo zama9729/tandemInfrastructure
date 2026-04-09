@@ -601,6 +601,7 @@ function applyTheme(){
 }
 function toggleTheme(){}
 applyTheme();
+applySettings({ brand_logo: FALLBACK_BRAND_LOGO_URL });
 function setText(id, value){
   const el = document.getElementById(id);
   if(el && value) el.textContent = value;
