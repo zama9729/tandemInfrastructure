@@ -470,7 +470,7 @@ body.theme-dark .theme-knob{transform:translateX(20px);}
 </div>
 
 <script>
-const API_BASE = location.origin === "null" ? "http://localhost:4000" : "";
+const API_BASE = ["localhost", "127.0.0.1"].includes(location.hostname) || location.origin === "null" ? "http://localhost:4000" : "";
 const ADMIN_TOKEN_KEY = "tis_admin_token";
 const THEME_KEY = "tis_theme";
 let jobsCache = [];

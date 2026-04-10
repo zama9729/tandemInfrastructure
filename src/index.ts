@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import path from "path";
+import { fileURLToPath } from "url";
 import bcrypt from "bcryptjs";
 import { supabase } from "./supabase.js";
 import { requireAdmin, requireAuth, requireSuperAdmin, signAdminToken, signToken, type AuthedRequest } from "./auth.js";
@@ -749,8 +750,14 @@ app.post("/api/admin/upload", requireSuperAdmin, async (req, res) => {
   return res.json({ path, url: publicUrl.publicUrl });
 });
 
-const port = Number(process.env.PORT || 4000);
-app.listen(port, () => {
-  // eslint-disable-next-line no-console
-  console.log(`API server running on http://localhost:${port}`);
-});
+export default app;
+
+const isDirectRun = Boolean(process.argv[1]) && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isDirectRun) {
+  const port = Number(process.env.PORT || 4000);
+  app.listen(port, () => {
+    // eslint-disable-next-line no-console
+    console.log(`API server running on http://localhost:${port}`);
+  });
+}
