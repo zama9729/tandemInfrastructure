@@ -162,7 +162,7 @@ values
   ('brand_subtitle','Infrastructure & Construction'),
   ('contact_phone','+91 94297 39999'),
   ('contact_email','info@tandeminfra.com'),
-  ('contact_address','India')
+  ('contact_address','Flat 302, Sri Chakra Raja Nilayam, Sangeeth Nagar, Kukatpally, Hyderabad, Telangana PIN - 500072')
 on conflict (key) do nothing;
 
 -- Home page starter content
@@ -237,7 +237,13 @@ update cms_sections set
 where key = 'contact' and page_id in (select id from cms_pages where slug = 'home');
 
 update cms_settings set value = 'tandeminfraservices@gmail.com' where key = 'contact_email';
-update cms_settings set value = 'India - Full address coming soon' where key = 'contact_address';
+update cms_settings set value = 'Flat 302, Sri Chakra Raja Nilayam, Sangeeth Nagar, Kukatpally, Hyderabad, Telangana PIN - 500072' where key = 'contact_address';
+update cms_sections
+set settings = coalesce(settings, '{}'::jsonb) || jsonb_build_object(
+  'branchesHtml',
+  '<h3>Telangana Branch</h3><address>Flat 302, Sri Chakra Raja Nilayam, Sangeeth Nagar, Kukatpally, Hyderabad, Telangana PIN - 500072</address><h3>Andhra Pradesh Branch</h3><address>Flat number 05, Veera Apartment, Dr/No 59A-21/3-2/13B, Vijaynagar Colony, Near Don Bosco School, Vijayawada, Andhra Pradesh PIN - 520008</address><h3>Maharashtra Branch</h3><address>Flat number B8, Park View Housing Society, Kingsway Road, Nagpur, Maharastra PIN - 440001</address>'
+)
+where key = 'contact' and page_id in (select id from cms_pages where slug = 'home');
 
 delete from cms_items
 where section_id in (

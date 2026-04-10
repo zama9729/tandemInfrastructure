@@ -919,11 +919,11 @@
         <p id="contactEmail"><a href="mailto:tandeminfraservices@gmail.com">tandeminfraservices@gmail.com</a></p>
         <div id="branchAddresses">
           <h3>Telangana Branch</h3>
-          <address id="contactAddress">Flat 302, Sri Chakra Raja Nilayam, Sangeeth Nagar, Kukatpally, Hyderabad - 500072</address>
+          <address id="contactAddress">Flat 302, Sri Chakra Raja Nilayam, Sangeeth Nagar, Kukatpally, Hyderabad, Telangana PIN - 500072</address>
           <h3>Andhra Pradesh Branch</h3>
-          <address>Flat number 05, Veera Apartment, Dr/No 59A-21/3-2/13B, Vijaynagar Colony, Near Don Bosco School, Vijayawada - 520008</address>
+          <address>Flat number 05, Veera Apartment, Dr/No 59A-21/3-2/13B, Vijaynagar Colony, Near Don Bosco School, Vijayawada, Andhra Pradesh PIN - 520008</address>
           <h3>Maharashtra Branch</h3>
-          <address>Flat number B8, Park View Housing Society, Kingsway Road, Nagpur - 440001, Maharashtra</address>
+          <address>Flat number B8, Park View Housing Society, Kingsway Road, Nagpur, Maharastra PIN - 440001</address>
         </div>
         <h3>Response</h3>
         <p>Share your requirement and our team will respond directly by email.</p>
@@ -1398,9 +1398,10 @@
     if(section.title) setHtml("contactTitle", section.title);
     renderSectionLabel("contactLabel", section);
     if(section.body) setText("contactIntro", section.body);
-    if(section.meta?.branchesHtml){
+    const branchesHtml = section.settings?.branchesHtml || section.meta?.branchesHtml;
+    if(branchesHtml){
       const existing = document.getElementById("branchAddresses");
-      if(existing) existing.innerHTML = normalizeBranchLabels(section.meta.branchesHtml);
+      if(existing) existing.innerHTML = normalizeBranchLabels(branchesHtml);
     }
   }
 
@@ -1420,7 +1421,7 @@
       brand_subtitle: "Infrastructure & Construction",
       brand_logo: FALLBACK_BRAND_LOGO_URL,
       contact_email: "tandeminfraservices@gmail.com",
-      contact_address: "Flat 302, Sri Chakra Raja Nilayam, Sangeeth Nagar, Kukatpally, Hyderabad - 500072",
+      contact_address: "Flat 302, Sri Chakra Raja Nilayam, Sangeeth Nagar, Kukatpally, Hyderabad, Telangana PIN - 500072",
       intro_video_url: "https://cidsqcgqcvzityuwvkel.supabase.co/storage/v1/object/public/media/Tandem.mp4"
     },
     sections: [
@@ -1545,8 +1546,8 @@
         title: "<strong>Let's Build</strong><br><em>Together</em>",
         subtitle: "Get In Touch",
         body: "Email-first enquiries, cleaner contact details and a more professional client-facing experience.",
-        meta: {
-          branchesHtml: "<h3>Telangana Branch</h3><address>Flat 302, Sri Chakra Raja Nilayam, Sangeeth Nagar, Kukatpally, Hyderabad - 500072</address><h3>Andhra Pradesh Branch</h3><address>Flat number 05, Veera Apartment, Dr/No 59A-21/3-2/13B, Vijaynagar Colony, Near Don Bosco School, Vijayawada - 520008</address><h3>Maharashtra Branch</h3><address>Flat number B8, Park View Housing Society, Kingsway Road, Nagpur - 440001, Maharashtra</address>"
+        settings: {
+          branchesHtml: "<h3>Telangana Branch</h3><address>Flat 302, Sri Chakra Raja Nilayam, Sangeeth Nagar, Kukatpally, Hyderabad, Telangana PIN - 500072</address><h3>Andhra Pradesh Branch</h3><address>Flat number 05, Veera Apartment, Dr/No 59A-21/3-2/13B, Vijaynagar Colony, Near Don Bosco School, Vijayawada, Andhra Pradesh PIN - 520008</address><h3>Maharashtra Branch</h3><address>Flat number B8, Park View Housing Society, Kingsway Road, Nagpur, Maharastra PIN - 440001</address>"
         }
       }
     ]
@@ -1596,6 +1597,7 @@
     if(incomingSection.title) merged.title = incomingSection.title;
     if(incomingSection.subtitle) merged.subtitle = incomingSection.subtitle;
     if(incomingSection.body) merged.body = incomingSection.body;
+    if(incomingSection.settings) merged.settings = { ...(baseSection.settings || {}), ...(incomingSection.settings || {}) };
     if(incomingSection.meta) merged.meta = { ...(baseSection.meta || {}), ...(incomingSection.meta || {}) };
     if(incomingSection.items && incomingSection.items.length){
       merged.items = incomingSection.items;

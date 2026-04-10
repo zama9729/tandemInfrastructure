@@ -1280,7 +1280,10 @@ async function applyHomeTemplate(){
     await ensureSection(page.id, "contact", {
       title: "<strong>Let's Build</strong><br><em>Together</em>",
       subtitle: "Get In Touch",
-      body: "Ready to discuss your project? Our team responds to every enquiry personally."
+      body: "Ready to discuss your project? Our team responds to every enquiry personally.",
+      settings: {
+        branchesHtml: "<h3>Telangana Branch</h3><address>Flat 302, Sri Chakra Raja Nilayam, Sangeeth Nagar, Kukatpally, Hyderabad, Telangana PIN - 500072</address><h3>Andhra Pradesh Branch</h3><address>Flat number 05, Veera Apartment, Dr/No 59A-21/3-2/13B, Vijaynagar Colony, Near Don Bosco School, Vijayawada, Andhra Pradesh PIN - 520008</address><h3>Maharashtra Branch</h3><address>Flat number B8, Park View Housing Society, Kingsway Road, Nagpur, Maharastra PIN - 440001</address>"
+      }
     });
     alert("Home template applied.");
   }catch(e){
