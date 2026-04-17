@@ -9,12 +9,7 @@ import { getJwtConfigError, requireAdmin, requireAuth, requireSuperAdmin, signAd
 import type { Candidate } from "./types.js";
 
 const app = express();
-const corsOptions = {
-  origin: true,
-  credentials: true
-} as const;
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 app.use("/api", (_req, res, next) => {
   const configError = getJwtConfigError() || getSupabaseConfigError();
