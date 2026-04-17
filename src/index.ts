@@ -35,6 +35,33 @@ function sanitizeCandidate(row: any): Candidate {
   };
 }
 
+function getCandidatePasswordHash(row: any): string | null {
+  return typeof row?.password_hash === "string" && row.password_hash.trim() ? row.password_hash : null;
+}
+
+function isBcryptHash(value: string | null): boolean {
+  return Boolean(value && /^\$2[aby]\$\d{2}\$/.test(value));
+}
+
+function getAuthProfile(user: { user_metadata?: Record<string, unknown> | null }) {
+  const meta = user.user_metadata as Record<string, unknown> | null;
+  const fullName = String(meta?.full_name || meta?.name || "").trim();
+  const [fn, ...ln] = fullName ? fullName.split(" ") : [];
+  const firstName = String(meta?.first_name || fn || "Candidate").trim();
+  const lastName = String(meta?.last_name || ln.join(" ") || "User").trim();
+
+  return {
+    firstName,
+    lastName,
+    name: `${firstName} ${lastName}`.trim(),
+    phone: meta?.phone ? String(meta.phone) : null,
+    dob: meta?.dob ? String(meta.dob) : null,
+    city: meta?.city ? String(meta.city) : null,
+    qualification: meta?.qualification ? String(meta.qualification) : null,
+    department: meta?.department ? String(meta.department) : null
+  };
+}
+
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true });
 });
@@ -123,79 +150,110 @@ app.post("/api/admin/login", async (req, res) => {
 });
 
 app.post("/api/auth/signin", async (req, res) => {
-  const { email, password } = req.body || {};
-  if (!email || !password) {
-    return res.status(400).json({ error: "Missing email or password." });
-  }
+  try {
+    const { email, password } = req.body || {};
+    if (!email || !password) {
+      return res.status(400).json({ error: "Missing email or password." });
+    }
 
-  const emailLower = String(email).trim().toLowerCase();
+    const rawPassword = String(password);
+    const emailLower = String(email).trim().toLowerCase();
 
-  const { data, error } = await supabase
-    .from("candidates")
-    .select("*")
-    .eq("email", emailLower)
-    .maybeSingle();
+    const { data, error } = await supabase
+      .from("candidates")
+      .select("*")
+      .eq("email", emailLower)
+      .maybeSingle();
 
-  if (error) {
-    return res.status(500).json({ error: error.message });
-  }
-  if (!data) {
-    // Optional sync: if user exists in Supabase Auth, create candidate record.
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    const storedHash = getCandidatePasswordHash(data);
+    let localPasswordValid = false;
+
+    if (data && isBcryptHash(storedHash)) {
+      try {
+        localPasswordValid = await bcrypt.compare(rawPassword, storedHash as string);
+      } catch (compareError) {
+        // eslint-disable-next-line no-console
+        console.error("Candidate password hash comparison failed:", compareError);
+      }
+    }
+
+    if (data && localPasswordValid) {
+      const token = signToken(data.id);
+      return res.json({ token, user: sanitizeCandidate(data) });
+    }
+
     const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({
       email: emailLower,
-      password: String(password)
+      password: rawPassword
     });
     if (authErr || !authData?.user) {
       return res.status(401).json({ error: "Invalid credentials." });
     }
-    const meta = authData.user.user_metadata as Record<string, unknown> | null;
-    const fullName = String(meta?.full_name || meta?.name || "").trim();
-    const [fn, ...ln] = fullName ? fullName.split(" ") : [];
-    const firstName = String(meta?.first_name || fn || "Candidate").trim();
-    const lastName = String(meta?.last_name || ln.join(" ") || "User").trim();
-    const passwordHash = await bcrypt.hash(String(password), 10);
-    const { data: created, error: createErr } = await supabase
-      .from("candidates")
-      .insert({
-        first_name: firstName,
-        last_name: lastName,
-        name: `${firstName} ${lastName}`.trim(),
-        email: emailLower,
-        phone: meta?.phone ? String(meta.phone) : null,
-        dob: meta?.dob ? String(meta.dob) : null,
-        city: meta?.city ? String(meta.city) : null,
-        qualification: meta?.qualification ? String(meta.qualification) : null,
-        department: meta?.department ? String(meta.department) : null,
-        password_hash: passwordHash
-      })
-      .select()
-      .single();
-    if (createErr || !created) {
-      // If a candidate row already exists (race/duplicate), fetch and continue.
-      if (createErr?.code === "23505") {
-        const { data: existingCandidate } = await supabase
-          .from("candidates")
-          .select("*")
-          .eq("email", emailLower)
-          .maybeSingle();
-        if (existingCandidate) {
-          const token = signToken(existingCandidate.id);
-          return res.json({ token, user: sanitizeCandidate(existingCandidate) });
+
+    const passwordHash = await bcrypt.hash(rawPassword, 10);
+    if (!data) {
+      const profile = getAuthProfile(authData.user);
+      const { data: created, error: createErr } = await supabase
+        .from("candidates")
+        .insert({
+          first_name: profile.firstName,
+          last_name: profile.lastName,
+          name: profile.name,
+          email: emailLower,
+          phone: profile.phone,
+          dob: profile.dob,
+          city: profile.city,
+          qualification: profile.qualification,
+          department: profile.department,
+          password_hash: passwordHash
+        })
+        .select()
+        .single();
+      if (createErr || !created) {
+        // If a candidate row already exists (race/duplicate), fetch and continue.
+        if (createErr?.code === "23505") {
+          const { data: existingCandidate, error: existingCandidateErr } = await supabase
+            .from("candidates")
+            .select("*")
+            .eq("email", emailLower)
+            .maybeSingle();
+          if (existingCandidateErr) {
+            return res.status(500).json({ error: existingCandidateErr.message });
+          }
+          if (existingCandidate) {
+            const token = signToken(existingCandidate.id);
+            return res.json({ token, user: sanitizeCandidate(existingCandidate) });
+          }
         }
+        return res.status(500).json({ error: createErr?.message || "Sync failed." });
       }
-      return res.status(500).json({ error: createErr?.message || "Sync failed." });
+      const token = signToken(created.id);
+      return res.json({ token, user: sanitizeCandidate(created) });
     }
-    const token = signToken(created.id);
-    return res.json({ token, user: sanitizeCandidate(created) });
-  }
 
-  const valid = await bcrypt.compare(String(password), data.password_hash);
-  if (!valid) {
-    return res.status(401).json({ error: "Invalid credentials." });
-  }
+    if (!localPasswordValid) {
+      const { error: updateErr } = await supabase
+        .from("candidates")
+        .update({ password_hash: passwordHash })
+        .eq("id", data.id);
 
-  const token = signToken(data.id);
-  return res.json({ token, user: sanitizeCandidate(data) });
+      if (updateErr) {
+        // eslint-disable-next-line no-console
+        console.error("Failed to refresh candidate password hash:", updateErr);
+      }
+    }
+
+    const token = signToken(data.id);
+    return res.json({ token, user: sanitizeCandidate(data) });
+  } catch (routeError: any) {
+    // eslint-disable-next-line no-console
+    console.error("Candidate sign-in failed unexpectedly:", routeError);
+    return res.status(500).json({ error: "Sign-in failed." });
+  }
 });
 
 app.get("/api/me", requireAuth, async (req: AuthedRequest, res) => {
