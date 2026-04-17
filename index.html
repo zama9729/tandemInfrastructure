@@ -260,6 +260,16 @@
   .service-text { font-size:14px; color:var(--mist); line-height:1.8; margin-bottom:28px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
   .service-link { display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:10px; color:var(--silver); letter-spacing:0.18em; text-transform:uppercase; text-decoration:none; transition:gap 0.3s, color 0.3s; }
   .service-link:hover { gap:14px; color:var(--white); }
+  .service-card-link { outline:none; }
+  .service-card-link:focus-visible { box-shadow:inset 0 0 0 2px rgba(110,166,255,0.58); }
+  .service-card-feature { background:linear-gradient(180deg,#0d1624 0%,#112034 100%); border-color:rgba(138,177,235,0.14); }
+  .service-card-feature::before { background:radial-gradient(circle at 82% 22%, rgba(61,143,255,0.28), transparent 22%), radial-gradient(circle at 18% 78%, rgba(65,201,178,0.16), transparent 24%), linear-gradient(180deg,rgba(255,255,255,0.14) 0%,rgba(255,255,255,0.02) 100%); }
+  .service-chip { display:inline-flex; align-items:center; gap:8px; margin-bottom:16px; padding:7px 12px; border-radius:999px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); font-family:var(--font-mono); font-size:10px; font-weight:700; color:#b6cff5; letter-spacing:0.14em; text-transform:uppercase; }
+  .service-chip::before { content:''; width:8px; height:8px; border-radius:50%; background:#41c9b2; box-shadow:0 0 0 6px rgba(65,201,178,0.12); }
+  .service-card-feature .service-title { max-width:300px; }
+  .service-card-feature .service-text { color:#b8c6da; -webkit-line-clamp:3; }
+  .service-card-feature .service-link { color:#9dbdff; }
+  .service-card-feature:hover .service-link { color:#ffffff; }
   .service-accent { position:absolute; bottom:0; left:0; width:0; height:2px; background:var(--white); transition:width 0.4s; }
   .service-card:hover .service-accent { width:100%; }
 
@@ -486,7 +496,6 @@
     <ul class="nav-group right">
       <li><a href="#process">Process</a></li>
       <li><a href="#contact">Contact</a></li>
-      <li><a href="attendance.html">Attendance</a></li>
       <li><a href="careers.html">Careers</a></li>
     </ul>
     <div class="nav-cta-wrap">
@@ -504,7 +513,6 @@
   <a href="#projects" onclick="toggleMenu()">Projects</a>
   <a href="#process" onclick="toggleMenu()">Process</a>
   <a href="#contact" onclick="toggleMenu()">Contact</a>
-  <a href="attendance.html">Attendance</a>
   <a href="careers.html">Careers</a>
   <a href="candidate-auth.html" id="mobileAuthLink">Sign In</a>
 </div>
@@ -773,11 +781,12 @@
       <p class="service-text">MEP coordination with engineering oversight to reduce clashes, rework, and delays during execution.</p>
       <a href="#contact" class="service-link">Enquire Now -></a><div class="service-accent"></div>
     </div>
-    <div class="service-card reveal reveal-delay-4">
+    <div class="service-card reveal reveal-delay-4 service-card-feature" role="link" tabindex="0" aria-label="Open face recognition attendance solution">
       <span class="service-card-num">09</span>
-      <h3 class="service-title">Biometric Attendance Monitoring</h3>
-      <p class="service-text">Fingerprint and face recognition time capture with live workforce dashboards, shift controls, and payroll-ready attendance visibility.</p>
-      <a href="attendance.html" class="service-link">View Solution -&gt;</a><div class="service-accent"></div>
+      <span class="service-chip">Face Recognition</span>
+      <h3 class="service-title">Face Recognition Attendance</h3>
+      <p class="service-text">Touchless face and fingerprint time capture with live dashboards, shift status tracking, and payroll-ready attendance exports.</p>
+      <a href="attendance.html" class="service-link">Open Solution -&gt;</a><div class="service-accent"></div>
     </div>
   </div>
 </section>
@@ -1091,6 +1100,34 @@
   }
   bindInteractiveCards();
 
+  function setupServiceCardLinks(scope = document){
+    scope.querySelectorAll('.service-card').forEach(card => {
+      const link = card.querySelector('.service-link[href]');
+      if(!link || card.dataset.cardLinkBound === "1") return;
+      card.dataset.cardLinkBound = "1";
+      card.classList.add('service-card-link');
+      if(!card.hasAttribute('tabindex')) card.tabIndex = 0;
+      if(!card.hasAttribute('role')) card.setAttribute('role', 'link');
+      const goToCardLink = () => {
+        if(link.target === '_blank'){
+          window.open(link.href, '_blank', 'noopener');
+          return;
+        }
+        window.location.href = link.href;
+      };
+      card.addEventListener('click', event => {
+        if(event.target.closest('a, button, input, textarea, select, label')) return;
+        goToCardLink();
+      });
+      card.addEventListener('keydown', event => {
+        if(event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        goToCardLink();
+      });
+    });
+  }
+  setupServiceCardLinks();
+
   const cObs = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (!e.isIntersecting) return;
@@ -1120,14 +1157,71 @@
   const API_BASE = ["localhost", "127.0.0.1"].includes(location.hostname) || location.origin === "null"
     ? "http://localhost:4000"
     : "";
+  const API_FALLBACKS = API_BASE ? [API_BASE] : [
+    "",
+    "https://tandeminfraservices.com",
+    "https://www.tandeminfraservices.com",
+    "https://tandem-infrastructure.vercel.app"
+  ];
   const THEME_KEY = "tis_theme";
+  const INTRO_SEEN_KEY = "tis_intro_seen_v1";
   const FALLBACK_BRAND_LOGO_URL = "https://cidsqcgqcvzityuwvkel.supabase.co/storage/v1/object/sign/cms/Tandem%20INFRA%20SERVICES.%20logo.jpg.jpeg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82NjcxODRkNy1lZGI2LTRhZDEtYTEwZS1kMmY2NmFhYWM0M2MiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjbXMvVGFuZGVtIElORlJBIFNFUlZJQ0VTLiBsb2dvLmpwZy5qcGVnIiwiaWF0IjoxNzc1NzM3Mzc2LCJleHAiOjE4Mzg4MDkzNzZ9.CYI8oh7JtmB13Ckwg9SX1JtGP85PBSdcoa4twingLnM";
+
+  function getApiOrigins(){
+    const seen = new Set();
+    return API_FALLBACKS.filter(base => {
+      const origin = base || location.origin;
+      if (seen.has(origin)) return false;
+      seen.add(origin);
+      return true;
+    });
+  }
+
+  async function fetchApi(path, options = {}){
+    const origins = getApiOrigins();
+    let lastError = null;
+    for(let idx = 0; idx < origins.length; idx += 1){
+      const base = origins[idx];
+      try{
+        const res = await fetch(`${base}${path}`, options);
+        if ((res.status === 404 || res.status >= 500) && idx < origins.length - 1) {
+          lastError = new Error(`Request failed (${res.status})`);
+          continue;
+        }
+        return res;
+      }catch(error){
+        lastError = error;
+      }
+    }
+    throw lastError || new Error("Unable to reach the server.");
+  }
+
+  async function readApiPayload(res){
+    const contentType = res.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      return res.json().catch(() => ({}));
+    }
+    const text = await res.text().catch(() => "");
+    return text ? { error: text } : {};
+  }
 
   function applyTheme() {
     document.body.classList.remove("theme-dark");
     localStorage.setItem(THEME_KEY, "light");
   }
   applyTheme();
+  function hasSeenIntro(){
+    try {
+      return localStorage.getItem(INTRO_SEEN_KEY) === "1";
+    } catch {
+      return false;
+    }
+  }
+  function markIntroSeen(){
+    try {
+      localStorage.setItem(INTRO_SEEN_KEY, "1");
+    } catch {}
+  }
   function setText(id, value){
     const el = document.getElementById(id);
     if(el && value) el.textContent = value;
@@ -1183,7 +1277,7 @@
     if (introVideo) {
       introVideo.pause();
       introVideo.removeAttribute("src");
-      if (settings.intro_video_url) {
+      if (settings.intro_video_url && !hasSeenIntro()) {
         introVideo.src = settings.intro_video_url;
         introVideo.load();
         const play = introVideo.play();
@@ -1294,13 +1388,23 @@
     if(section.body) setText("servicesIntro", shortText(section.body, 10));
     const grid = document.getElementById("servicesGrid");
     if(grid && section.items?.length){
-      grid.innerHTML = section.items.map((i, idx) => `
-        <div class="service-card reveal interactive-card">
-          <h3 class="service-title">${i.title || ""}</h3>
-          <p class="service-text">${shortText(i.body, 12)}</p>
-          ${i.link_url ? `<a href="${i.link_url}" class="service-link">${i.link_label || "Learn More"}</a>` : ""}
+      grid.innerHTML = section.items.map((i, idx) => {
+        const linkUrl = i.link_url || "";
+        const isAttendanceService = /attendance\.html/i.test(linkUrl);
+        const title = isAttendanceService ? "Face Recognition Attendance" : (i.title || "");
+        const body = isAttendanceService
+          ? "Touchless face and fingerprint time capture with live dashboards, shift status tracking, and payroll-ready attendance exports."
+          : shortText(i.body, 12);
+        const linkLabel = isAttendanceService ? "Open Solution ->" : (i.link_label || "Learn More");
+        return `
+        <div class="service-card reveal interactive-card${isAttendanceService ? " service-card-feature" : ""}">
+          ${isAttendanceService ? `<span class="service-chip">Face Recognition</span>` : ""}
+          <h3 class="service-title">${title}</h3>
+          <p class="service-text">${body}</p>
+          ${linkUrl ? `<a href="${linkUrl}" class="service-link">${linkLabel}</a>` : ""}
           <div class="service-accent"></div>
-        </div>`).join("");
+        </div>`;
+      }).join("");
     }
   }
 
@@ -1315,6 +1419,7 @@
         const num = (i.meta && i.meta.num) ? i.meta.num : (i.subtitle || "");
         return `
           <div class="why-item reveal interactive-card">
+            ${num ? `<span class="why-num">${num}</span>` : ""}
             <h4>${i.title || ""}</h4>
             <p>${i.body || ""}</p>
           </div>`;
@@ -1340,13 +1445,19 @@
     }
   }
   function renderVisuals(sections = {}){
+    const seenImages = new Set();
     const sourceItems = [
       ...(sections.hero?.items || []),
       ...(sections.projects?.items || [])
-    ].filter(item => item.image_url);
+    ].filter(item => {
+      if (!item.image_url) return false;
+      if (seenImages.has(item.image_url)) return false;
+      seenImages.add(item.image_url);
+      return true;
+    });
     const visualsGrid = document.getElementById("visualsGrid");
     if(!visualsGrid || !sourceItems.length) return;
-    const curated = sourceItems.slice(0, 7);
+    const curated = sourceItems.slice(0, 10);
     visualsGrid.innerHTML = curated.map((item, idx) => `
       <article class="visual-card${idx === 0 ? " tall" : ""} reveal ${idx ? `reveal-delay-${Math.min(idx, 6)}` : ""}">
         <img loading="lazy" src="${item.image_url}" alt="${item.title || "Construction site"}">
@@ -1436,125 +1547,140 @@
     sections: [
       {
         key: "hero",
-        title: "India.<br><em>Build</em><br>Forward.",
-        subtitle: "Helmets. Steel. Site Motion.",
-        body: "High-visibility teams, active sites, strong execution.",
+        title: "Tandem.<br><em>Infrastructure</em><br>Delivers.",
+        subtitle: "Building Excellence - Delivering Precision",
+        body: "Precision-led infrastructure execution with quality, safety, and client coordination built into every stage.",
         items: [
-          { image_url: "https://images.unsplash.com/photo-1768926968986-a88590ce5025?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Hi-Vis Crew", title: "Build In Motion", body: "Fast, visible, disciplined." },
-          { image_url: "https://images.unsplash.com/photo-1719993919949-3d95c3efd721?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Urban Site", title: "Steel And Scale", body: "City work. Sharp control." },
-          { image_url: "https://images.unsplash.com/photo-1632201189531-7b7469d5c451?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Helmet Crew", title: "Field Focus", body: "PPE on. Work live." },
-          { image_url: "https://images.unsplash.com/photo-1708064235945-227876771bbb?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Live Build", title: "Concrete Rhythm", body: "Large sites. Clean flow." },
-          { image_url: "https://images.unsplash.com/photo-1758210878793-a7bf2b089bc6?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Roof Deck", title: "High Work", body: "Move up. Stay safe." },
-          { image_url: "https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Tower Build", title: "Site Pressure", body: "Grip. Pace. Delivery." },
-          { image_url: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Crane Frame", title: "Heavy Visuals", body: "Machines. Men. Momentum." },
-          { image_url: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Rising Core", title: "Skyline Work", body: "Frame by frame." }
+          { image_url: "https://images.unsplash.com/photo-1768926968986-a88590ce5025?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Skilled Workforce", title: "Execution In Motion", body: "Engineers, supervisors, and technical teams aligned on site." },
+          { image_url: "https://images.unsplash.com/photo-1719993919949-3d95c3efd721?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Urban Infrastructure", title: "Scale With Control", body: "Multi-location delivery with disciplined coordination." },
+          { image_url: "https://images.unsplash.com/photo-1632201189531-7b7469d5c451?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Safety First", title: "Field Discipline", body: "PPE, supervision, and quality checks stay visible." },
+          { image_url: "https://images.unsplash.com/photo-1708064235945-227876771bbb?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Infrastructure Works", title: "Civil Delivery", body: "Bridges, buildings, roads, and site packages in progress." },
+          { image_url: "https://images.unsplash.com/photo-1758210878793-a7bf2b089bc6?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "On-Site Supervision", title: "Quality Under Watch", body: "Execution backed by active QA/QC attention." },
+          { image_url: "https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Commercial Projects", title: "Structured Progress", body: "Clear tracking, reporting, and client coordination." },
+          { image_url: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Bridge & Viaduct", title: "Precision Packages", body: "High-accuracy structural work with safety in view." },
+          { image_url: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Regional Presence", title: "Built Across India", body: "North, Central, and South India execution footprint." },
+          { image_url: "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Coordination", title: "Fewer Reworks", body: "Early alignment protects schedule, cost, and site flow." },
+          { image_url: "https://images.unsplash.com/photo-1513828583688-c52646db42da?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Closeout Support", title: "Delivery Assurance", body: "Milestones, reporting, and handover stay visible through closeout." },
+          { image_url: "https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Site Engineering", title: "Steel And Supervision", body: "Hands-on engineering support across active site packages." },
+          { image_url: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&fm=jpg&q=80&w=2400", subtitle: "Commercial Build", title: "Large Site Programmes", body: "Large-format environments managed for pace, safety, and quality." }
         ]
       },
       {
         key: "ticker",
         items: [
-          { title: "Construction Management" },
-          { title: "Infrastructure Services" },
-          { title: "Quality Assurance" },
-          { title: "Safety Compliance" },
-          { title: "Facility Support" },
-          { title: "Project Delivery" }
+          { title: "Civil & Structural Construction" },
+          { title: "Railway & Highway Infrastructure" },
+          { title: "Bridge & Viaduct Construction" },
+          { title: "QA/QC & Safety Compliance" },
+          { title: "Project Management & Consultancy" },
+          { title: "Residential & Commercial Projects" }
         ]
       },
       {
         key: "about",
-        title: "<strong>Tandem Infra Services</strong> -<br><em>Built For The Site</em>",
+        title: "<strong>Tandem Infrastructure</strong> -<br><em>Building Excellence, Delivering Precision</em>",
         subtitle: "Who We Are",
-        body: "<p class=\"about-text\">Hi-vis crews. Strong supervision. Clean execution.</p><p class=\"about-text\">Construction visuals first. Words second.</p>",
+        body: "<p class=\"about-text\">Tandem Infrastructure delivers high-quality infrastructure solutions with a focus on precision, safety, and timely execution. We turn complex engineering challenges into disciplined project delivery.</p><p class=\"about-text\">Our teams support civil, structural, bridge, viaduct, railway, highway, residential, and commercial works with end-to-end execution, project management, and client-ready coordination.</p>",
         items: [
-          { title: "Construction Operations", body: "Structured site coordination and better execution visibility." },
-          { title: "Infrastructure Upkeep", body: "Support services that help built assets stay operational." },
-          { title: "Safety Discipline", body: "Helmet-and-jacket visuals that reinforce professionalism." },
-          { title: "Client Responsiveness", body: "Clear communication and more direct enquiry handling." }
+          { title: "Execution Precision", body: "Disciplined project delivery with schedule, cost, and site control in view." },
+          { title: "QA/QC & Safety", body: "Quality documentation, safety compliance, and site checks built into execution." },
+          { title: "Client Coordination", body: "Responsive reporting and stakeholder communication from mobilization to handover." },
+          { title: "Multi-Region Delivery", body: "Operational support across North, Central, and South India with local branch presence." }
         ]
       },
       {
         key: "services",
-        title: "<strong>Core</strong> <em>Moves</em>",
+        title: "<strong>Core</strong> <em>Services</em>",
         subtitle: "What We Do",
-        body: "Site-led support. Fast decisions. Visible delivery.",
+        body: "End-to-end infrastructure support for clients who need quality, safety, and execution discipline.",
         items: [
-          { title: "Construction Supervision", body: "Daily site control and live execution support.", link_url: "#contact", link_label: "Discuss Service" },
-          { title: "Infrastructure Services", body: "Operational support for active project environments.", link_url: "#contact", link_label: "Discuss Service" },
-          { title: "Quality Assurance", body: "Checks, snag reviews, handover readiness.", link_url: "#contact", link_label: "Discuss Service" },
-          { title: "Safety-Led Site Support", body: "PPE culture and disciplined site routines.", link_url: "#contact", link_label: "Discuss Service" },
-          { title: "Property Support Coordination", body: "Responsive planning for managed spaces.", link_url: "#contact", link_label: "Discuss Service" },
-          { title: "Client Communication", body: "Sharp updates across teams and stakeholders.", link_url: "#contact", link_label: "Discuss Service" }
+          { title: "End-to-End Project Execution", body: "Execution planning, resource coordination, progress tracking, and delivery oversight across active infrastructure sites.", link_url: "#contact", link_label: "Discuss Service" },
+          { title: "Civil & Structural Construction", body: "Building works, structural packages, and execution support backed by technical supervision and site coordination.", link_url: "#contact", link_label: "Discuss Service" },
+          { title: "Railway & Highway Infrastructure", body: "Field execution support for transport corridors, roadway packages, and related infrastructure development works.", link_url: "#contact", link_label: "Discuss Service" },
+          { title: "Bridge & Viaduct Construction", body: "Structural construction support for elevated works, bridge components, and high-precision civil packages.", link_url: "#contact", link_label: "Discuss Service" },
+          { title: "Residential & Commercial Projects", body: "Delivery support for building projects with coordination across structure, quality, safety, and handover readiness.", link_url: "#contact", link_label: "Discuss Service" },
+          { title: "Project Management & Consultancy", body: "Planning, monitoring, client communication, and execution guidance that keep projects aligned with milestones.", link_url: "#contact", link_label: "Discuss Service" },
+          { title: "QA/QC Management", body: "Material checks, inspection records, audit support, and quality systems that stand up to client review.", link_url: "#contact", link_label: "Discuss Service" },
+          { title: "Safety Compliance", body: "Site safety systems, toolbox discipline, and compliance practices that protect people, schedule, and reputation.", link_url: "#contact", link_label: "Discuss Service" }
         ]
       },
       {
         key: "why",
-        title: "<strong>More Corporate,</strong><br><em>More Credible</em>",
-        subtitle: "Why Tandem Infra",
-        body: "The homepage now feels more professional through stronger visuals, cleaner content blocks, interactive hovers and better lazy loading.",
+        title: "<strong>Built For</strong><br><em>Serious Delivery</em>",
+        subtitle: "Why Clients Choose Us",
+        body: "Clients rely on Tandem Infrastructure for disciplined execution, quality assurance, safety compliance, and structured coordination from mobilization to handover.",
         items: [
-          { title: "Premium First Impression", body: "Sharper typography, stronger imagery and clearer structure improve trust from the first screen." },
-          { title: "Interactive Hover Design", body: "Cards respond to mouse movement with subtle lighting for a more modern feel." },
-          { title: "Better Lazy Loading", body: "Project imagery and content blocks load more gracefully for a smoother homepage experience." },
-          { title: "Email-First Enquiries", body: "Phone is removed from the public contact block and replaced with a cleaner email path." },
-          { title: "Video Intro Ready", body: "The homepage now supports a Supabase-hosted MP4 intro before the website appears." },
-          { title: "Construction-Focused Gallery", body: "Workers, helmets, jackets and site activity now anchor the visual story." }
+          { title: "Work Regions", body: "Active execution capability across North India, Central India, and South India.", meta: { num: "3" } },
+          { title: "Core Services", body: "Integrated support across civil, structural, transport, quality, safety, and project coordination scopes.", meta: { num: "6+" } },
+          { title: "Documented Quality", body: "Inspection discipline, records, and reporting that support client audits and site control.", meta: { num: "QA/QC" } },
+          { title: "Compromise on Safety", body: "Safety compliance remains non-negotiable across manpower deployment, supervision, and execution.", meta: { num: "0" } },
+          { title: "Single-Point Coordination", body: "Clear communication across engineers, supervisors, consultants, and client teams.", meta: { num: "PMC" } },
+          { title: "Skilled Deployment", body: "Engineers, supervisors, and technical teams aligned to active work fronts and milestones.", meta: { num: "On-Site" } },
+          { title: "Recognition Received", body: "Project teams are appreciated for maintaining quality, safety, and timely execution standards.", meta: { num: "Client" } },
+          { title: "Collaboration Ready", body: "We actively work with architects, consultants, suppliers, recruiters, and delivery partners.", meta: { num: "Open" } }
         ]
       },
       {
         key: "projects",
-        title: "<strong>Construction</strong> <em>Gallery</em>",
-        subtitle: "Portfolio",
+        title: "<strong>Execution</strong> <em>Footprint</em>",
+        subtitle: "Ongoing & Key Projects",
         items: [
-          { title: "Workers in high visibility vests and helmets", subtitle: "Construction Site", body: "Professional field presence and client-ready delivery.", image_url: "https://images.unsplash.com/photo-1768926968986-a88590ce5025?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
-          { title: "Urban construction activity", subtitle: "Safety First", body: "Real site visuals with clear construction context.", image_url: "https://images.unsplash.com/photo-1719993919949-3d95c3efd721?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
-          { title: "Workers on active structure", subtitle: "Quality Control", body: "Checks that support better outcomes and presentation.", image_url: "https://images.unsplash.com/photo-1632201189531-7b7469d5c451?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
-          { title: "Large city construction zone", subtitle: "Site Support", body: "Infrastructure activity in a recognisable urban setting.", image_url: "https://images.unsplash.com/photo-1708064235945-227876771bbb?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
-          { title: "Rooftop construction work", subtitle: "Project Delivery", body: "Progress checks that keep the work moving cleanly.", image_url: "https://images.unsplash.com/photo-1758210878793-a7bf2b089bc6?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
-          { title: "Residential tower construction", subtitle: "Construction", body: "A different construction setting for a less repetitive gallery.", image_url: "https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
-          { title: "Crane and high-rise build", subtitle: "Operations", body: "Alignment across site teams and stakeholders.", image_url: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
-          { title: "High-rise construction progress", subtitle: "Infrastructure", body: "More variety across the homepage construction imagery.", image_url: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&fm=jpg&q=80&w=1400" }
+          { title: "Bridge and Viaduct Construction Support", subtitle: "Bridge & Viaduct", body: "North India", image_url: "https://images.unsplash.com/photo-1768926968986-a88590ce5025?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
+          { title: "Railway Infrastructure Execution Package", subtitle: "Railway", body: "Central India", image_url: "https://images.unsplash.com/photo-1719993919949-3d95c3efd721?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
+          { title: "Highway and Road Development Works", subtitle: "Highway", body: "South India", image_url: "https://images.unsplash.com/photo-1632201189531-7b7469d5c451?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
+          { title: "Residential Building Execution", subtitle: "Residential", body: "Hyderabad", image_url: "https://images.unsplash.com/photo-1708064235945-227876771bbb?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
+          { title: "Commercial Project Coordination", subtitle: "Commercial", body: "Nagpur", image_url: "https://images.unsplash.com/photo-1758210878793-a7bf2b089bc6?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
+          { title: "Quality and Safety Compliance Program", subtitle: "QA/QC", body: "Vijayawada", image_url: "https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
+          { title: "Client Coordination and Reporting", subtitle: "Execution", body: "Multi-crore projects with timely progress communication.", image_url: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&fm=jpg&q=80&w=1400" },
+          { title: "Skilled Manpower Deployment", subtitle: "Delivery", body: "Engineers, supervisors, and technical experts aligned for seamless execution.", image_url: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&fm=jpg&q=80&w=1400" }
         ]
       },
       {
         key: "process",
         title: "<strong>Our</strong> <em>Process</em>",
-        subtitle: "How We Work",
-        body: "A transparent, four-step methodology ensuring measurable quality at every milestone - from first site visit to final handover and support.",
+        subtitle: "How We Deliver",
+        body: "A structured delivery model built around planning, execution, QA/QC, safety, and client communication from mobilization to handover.",
         items: [
-          { title: "Discovery & Feasibility", body: "Site analysis, geotechnical review, regulatory study and detailed feasibility to scope the project correctly from the start." },
-          { title: "Design & Engineering", body: "Architectural and structural design, BIM modelling, MEP coordination and value engineering for optimised performance." },
-          { title: "Construction & Supervision", body: "Expert on-site management with daily QC checks, safety audits and real-time progress reporting to all stakeholders." },
-          { title: "Handover & Support", body: "Complete documentation, commissioning tests, client training and post-handover technical support included in every engagement." }
+          { title: "Planning & Mobilization", body: "Scope review, manpower planning, site readiness, and delivery sequencing aligned before execution begins." },
+          { title: "Execution & Supervision", body: "On-ground engineers and supervisors drive progress, coordination, and daily control across work fronts." },
+          { title: "QA/QC Checks", body: "Material reviews, inspection records, and quality verification keep delivery aligned with client expectations." },
+          { title: "Safety Compliance", body: "Safety routines, site discipline, and compliance reviews are maintained throughout execution." },
+          { title: "Client Coordination", body: "Progress updates, issue tracking, and stakeholder communication remain structured and responsive." },
+          { title: "Handover & Closeout", body: "Documentation, certifications, and completion support are delivered cleanly at project closure." }
         ]
       },
       {
         key: "testimonials",
-        title: "<strong>Client</strong> <em>Voices</em>",
-        subtitle: "What Clients Say",
+        title: "<strong>Why Teams</strong> <em>Stay With Us</em>",
+        subtitle: "Recognition & Trust",
         items: [
-          { title: "Rakesh Verma", subtitle: "Director, Verma Builders", body: "A team that genuinely cares about the outcome. Their structural review was meticulous and delivered faster than any firm we had worked with before.", image_url: "https://i.pravatar.cc/100?img=11" },
-          { title: "Priya Desai", subtitle: "Operations Head, Greenfield Realty", body: "Exceptional project management. Small team, huge capability - they handled our site with the same professionalism as firms three times their size.", image_url: "https://i.pravatar.cc/100?img=33" },
-          { title: "Arjun Shah", subtitle: "CEO, Shah Group", body: "Their QA documentation and audit trails gave our investors the confidence they needed. Highly recommend Tandem Infra for any serious construction project.", image_url: "https://i.pravatar.cc/100?img=55" },
-          { title: "Meena Krishnan", subtitle: "Head of Projects, HealthCare Infra", body: "BIM coordination saved us weeks of rework and significantly reduced material waste on our hospital project. Modern tools, professional delivery.", image_url: "https://i.pravatar.cc/100?img=22" }
+          { title: "Client Appreciation", subtitle: "Quality & Safety", body: "Projects are executed with measurable attention to quality, safety, and timely completion across active work fronts." },
+          { title: "Delivery Confidence", subtitle: "Execution & Reporting", body: "Structured coordination across engineers, supervisors, and stakeholders keeps delivery moving with fewer surprises." },
+          { title: "Project Transparency", subtitle: "QA/QC & Coordination", body: "Documentation, progress visibility, and compliance support make the team dependable for client-facing project environments." },
+          { title: "Collaboration Ready", subtitle: "Partners & Consultants", body: "Tandem Infrastructure remains open to collaboration with architects, suppliers, consultants, and talent partners." }
         ]
       },
       {
         key: "clients",
-        subtitle: "Serving Clients Across India",
+        subtitle: "Operating Across India",
         items: [
-          { title: "CLIENTS" },
-          { title: "-" },
-          { title: "IN PROGRESS" },
-          { title: "-" },
-          { title: "EST. 2026" }
+          { title: "NORTH INDIA" },
+          { title: "CENTRAL INDIA" },
+          { title: "SOUTH INDIA" },
+          { title: "HYDERABAD" },
+          { title: "NAGPUR" },
+          { title: "VIJAYAWADA" },
+          { title: "ARCHITECTS" },
+          { title: "SUPPLIERS" },
+          { title: "CONSULTANTS" },
+          { title: "RECRUITERS" }
         ]
       },
       {
         key: "contact",
         title: "<strong>Let's Build</strong><br><em>Together</em>",
         subtitle: "Get In Touch",
-        body: "Email-first enquiries, cleaner contact details and a more professional client-facing experience.",
+        body: "For project discussions, hiring conversations, vendor introductions, or partnership enquiries, connect directly with the Tandem Infrastructure team.",
         settings: {
           branchesHtml: "<h3>Telangana Branch</h3><address>Flat 302, Sri Chakra Raja Nilayam, Sangeeth Nagar, Kukatpally, Hyderabad, Telangana PIN - 500072</address><h3>Andhra Pradesh Branch</h3><address>Flat number 05, Veera Apartment, Dr/No 59A-21/3-2/13B, Vijaynagar Colony, Near Don Bosco School, Vijayawada, Andhra Pradesh PIN - 520008</address><h3>Maharashtra Branch</h3><address>Flat number B8, Park View Housing Society, Kingsway Road, Nagpur, Maharastra PIN - 440001</address>"
         }
@@ -1580,6 +1706,7 @@
     document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
     document.querySelectorAll('.lazy-media').forEach(el => lazyMediaObs.observe(el));
     bindInteractiveCards();
+    setupServiceCardLinks();
   }
 
   function isUsableContent(data){
@@ -1603,13 +1730,25 @@
     if(!baseSection) return incomingSection;
     if(!incomingSection) return baseSection;
     const merged = { ...baseSection };
+    const sectionKey = String(incomingSection.key || baseSection.key || "");
     if(incomingSection.title) merged.title = incomingSection.title;
     if(incomingSection.subtitle) merged.subtitle = incomingSection.subtitle;
     if(incomingSection.body) merged.body = incomingSection.body;
     if(incomingSection.settings) merged.settings = { ...(baseSection.settings || {}), ...(incomingSection.settings || {}) };
     if(incomingSection.meta) merged.meta = { ...(baseSection.meta || {}), ...(incomingSection.meta || {}) };
     if(incomingSection.items && incomingSection.items.length){
-      merged.items = incomingSection.items;
+      if ((sectionKey === "hero" || sectionKey === "projects") && baseSection.items?.length) {
+        const seen = new Set();
+        const maxItems = sectionKey === "hero" ? 12 : 10;
+        merged.items = [...incomingSection.items, ...baseSection.items].filter((item) => {
+          const key = item.image_url || `${item.title || ""}|${item.subtitle || ""}|${item.body || ""}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        }).slice(0, maxItems);
+      } else {
+        merged.items = incomingSection.items;
+      }
     } else if(baseSection.items && baseSection.items.length) {
       merged.items = baseSection.items;
     }
@@ -1639,12 +1778,12 @@
     // Always paint fallback first so the page is never empty.
     applyContentPayload(FALLBACK_CONTENT);
     try{
-      const res = await fetch(`${API_BASE}/api/content/home`);
+      const res = await fetchApi("/api/content/home");
       if(!res.ok) {
         console.warn("Content API error:", res.status);
         return;
       }
-      const data = await res.json();
+      const data = await readApiPayload(res);
       if(!isUsableContent(data)){
         console.warn("Content API returned empty sections.");
         return;
@@ -1655,12 +1794,21 @@
       console.warn("Content API request failed.");
     }
   }
-  function closeIntro(){
+  function closeIntro(markSeen = true){
     if(!introOverlay) return;
+    if(markSeen) markIntroSeen();
     introOverlay.classList.add("hidden");
     document.body.classList.remove("intro-active");
+    if (introVideo) {
+      introVideo.pause();
+      introVideo.removeAttribute("src");
+    }
   }
   function initIntro(){
+    if(hasSeenIntro()){
+      closeIntro(false);
+      return;
+    }
     if(introVideo){
       introVideo.addEventListener("ended", closeIntro);
       introVideo.addEventListener("error", () => setTimeout(closeIntro, 1800));
@@ -1694,7 +1842,7 @@
     }
     if (btn) btn.textContent = "Sending...";
     try {
-      const res = await fetch(`${API_BASE}/api/contact`, {
+      const res = await fetchApi("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)

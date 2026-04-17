@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Biometric Attendance Monitoring - Tandem Infra Services</title>
+<title>Face Recognition Attendance Solution - Tandem Infra Services</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -32,6 +32,11 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
 body{background:var(--black);color:var(--pearl);font-family:var(--font);font-size:16px;line-height:1.6;overflow-x:hidden;animation:pageIn 0.7s ease;}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:0.26;
+  background-image:linear-gradient(rgba(22,52,92,0.05) 1px, transparent 1px),linear-gradient(90deg, rgba(22,52,92,0.05) 1px, transparent 1px);
+  background-size:72px 72px;mask-image:radial-gradient(circle at center, rgba(0,0,0,0.9) 0%, transparent 84%);
+}
 body.menu-open{overflow:hidden;}
 @keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes floatCard{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
@@ -88,6 +93,11 @@ nav.scrolled{padding:12px 22px;box-shadow:0 10px 30px rgba(0,0,0,0.08);}
     radial-gradient(circle at 68% 78%, rgba(64,144,255,0.18), transparent 24%),
     linear-gradient(135deg,#fbfdff 0%,#eef5fd 50%,#f7fbff 100%);
 }
+.attendance-hero::after{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:0.34;
+  background:linear-gradient(rgba(22,52,92,0.06) 1px, transparent 1px),linear-gradient(90deg, rgba(22,52,92,0.06) 1px, transparent 1px);
+  background-size:92px 92px;
+}
 .hero-shell{
   position:relative;z-index:2;max-width:1240px;margin:0 auto;display:grid;
   grid-template-columns:minmax(0,1.08fr) minmax(320px,0.92fr);gap:36px;align-items:end;
@@ -112,17 +122,18 @@ nav.scrolled{padding:12px 22px;box-shadow:0 10px 30px rgba(0,0,0,0.08);}
 .btn-secondary{background:rgba(255,255,255,0.7);color:var(--white);border:1px solid var(--border-strong);}
 .btn-secondary:hover{background:#ffffff;transform:translateY(-2px);}
 .hero-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
-.hero-stat{padding:18px 20px;background:rgba(255,255,255,0.82);border:1px solid rgba(22,52,92,0.1);backdrop-filter:blur(10px);}
+.hero-stat{padding:18px 20px;background:rgba(255,255,255,0.82);border:1px solid rgba(22,52,92,0.1);backdrop-filter:blur(10px);border-radius:22px;box-shadow:0 18px 42px rgba(17,36,61,0.06);}
 .hero-stat strong{display:block;font-family:var(--font-display);font-size:30px;color:var(--white);line-height:1;margin-bottom:7px;}
 .hero-stat span{display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--mist);}
 .hero-card{
   align-self:stretch;padding:28px;background:rgba(11,29,52,0.94);color:#ffffff;border:1px solid rgba(255,255,255,0.1);
-  box-shadow:0 30px 70px rgba(11,29,52,0.28);animation:floatCard 5s ease-in-out infinite;
+  box-shadow:0 30px 70px rgba(11,29,52,0.28);animation:floatCard 5s ease-in-out infinite;border-radius:28px;position:relative;
 }
+.hero-card::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,#41c9b2 0%,#3d8fff 52%,#ff8a33 100%);}
 .hero-card-label{font-family:var(--font-mono);font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:10px;}
 .hero-card-title{font-family:var(--font-display);font-size:32px;line-height:1.05;margin-bottom:24px;}
 .hero-feed{display:grid;gap:14px;}
-.feed-item{padding:16px 18px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);}
+.feed-item{padding:16px 18px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);border-radius:18px;}
 .feed-item-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;}
 .feed-item time{font-family:var(--font-mono);font-size:10px;letter-spacing:0.16em;color:rgba(255,255,255,0.68);}
 .feed-badge{
@@ -132,6 +143,9 @@ nav.scrolled{padding:12px 22px;box-shadow:0 10px 30px rgba(0,0,0,0.08);}
 .feed-badge.warn{background:rgba(255,138,51,0.18);color:#ffd4b4;}
 .feed-item strong{display:block;font-size:18px;font-weight:700;margin-bottom:4px;}
 .feed-item p{font-size:14px;color:rgba(255,255,255,0.78);line-height:1.7;}
+.vector-scene,.story-panel,.story-panel-point,.showcase-copy,.phone-panel,.vector-board,.info-card,.pictorial-card,.cta-banner{border-radius:24px;}
+.phone-scan,.phone-shift,.phone-event,.mode-fact,.board-metric{border-radius:18px;}
+.story-panel,.showcase-copy,.phone-panel,.vector-board,.info-card,.pictorial-card{box-shadow:0 24px 56px rgba(17,36,61,0.06);}
 
 .page-section{padding:88px 64px;}
 .section-shell{max-width:1240px;margin:0 auto;}
@@ -493,9 +507,8 @@ footer{background:#ffffff;border-top:1px solid var(--border);padding:72px 64px 4
   <a class="nav-logo" href="index.html"><img id="navBrandLogo" class="brand-logo" alt="Logo"></a>
   <ul class="nav-links">
     <li><a href="index.html#about">About</a></li>
-    <li><a href="index.html#services">Services</a></li>
+    <li><a href="index.html#services" class="active">Services</a></li>
     <li><a href="index.html#projects">Projects</a></li>
-    <li><a href="attendance.html" class="active">Attendance</a></li>
     <li><a href="careers.html">Careers</a></li>
     <li><a href="index.html#contact">Contact</a></li>
     <li><a href="candidate-auth.html" class="nav-cta" id="authNavLink">Sign In</a></li>
@@ -508,7 +521,6 @@ footer{background:#ffffff;border-top:1px solid var(--border);padding:72px 64px 4
   <a href="index.html#about" onclick="toggleMenu(false)">About</a>
   <a href="index.html#services" onclick="toggleMenu(false)">Services</a>
   <a href="index.html#projects" onclick="toggleMenu(false)">Projects</a>
-  <a href="attendance.html">Attendance</a>
   <a href="careers.html">Careers</a>
   <a href="index.html#contact" onclick="toggleMenu(false)">Contact</a>
   <a href="candidate-auth.html" id="mobileAuthLink">Sign In</a>
@@ -517,46 +529,46 @@ footer{background:#ffffff;border-top:1px solid var(--border);padding:72px 64px 4
 <section class="attendance-hero">
   <div class="hero-shell">
     <div class="hero-copy">
-      <div class="hero-label reveal">Workforce Time Capture</div>
-      <h1 class="hero-title reveal reveal-delay-1"><strong>Fingerprint &amp; Face Recognition</strong><br><em>Attendance In One Visual Flow</em></h1>
-      <p class="hero-sub reveal reveal-delay-2">Quick scan. Live view. Clean records.</p>
+      <div class="hero-label reveal">Biometric Attendance Platform</div>
+      <h1 class="hero-title reveal reveal-delay-1"><strong>Face Recognition &amp; Fingerprint</strong><br><em>Attendance Monitoring</em></h1>
+      <p class="hero-sub reveal reveal-delay-2">Touchless capture, live shift visibility, and payroll-ready attendance records for sites, plants, and offices.</p>
       <div class="hero-actions reveal reveal-delay-3">
-        <a class="btn-primary" href="index.html#contact">Talk To Our Team</a>
-        <a class="btn-secondary" href="#story">See The Story</a>
+        <a class="btn-primary" href="index.html#contact">Request A Demo</a>
+        <a class="btn-secondary" href="#story">Explore Workflow</a>
       </div>
       <div class="hero-stats reveal reveal-delay-4">
-        <div class="hero-stat"><strong>2</strong><span>Scan Modes</span></div>
-        <div class="hero-stat"><strong>Live</strong><span>Board View</span></div>
-        <div class="hero-stat"><strong>Day</strong><span>Close Ready</span></div>
+        <div class="hero-stat"><strong>Face + Finger</strong><span>Capture Options</span></div>
+        <div class="hero-stat"><strong>Live</strong><span>Supervisor Dashboard</span></div>
+        <div class="hero-stat"><strong>Payroll</strong><span>Export Ready</span></div>
       </div>
     </div>
     <aside class="hero-card reveal reveal-delay-5">
-      <div class="hero-card-label">Live Shift Board</div>
-      <div class="hero-card-title">One board. One glance.</div>
+      <div class="hero-card-label">Operational Snapshot</div>
+      <div class="hero-card-title">From entry to payroll.</div>
       <div class="hero-feed">
         <div class="feed-item">
           <div class="feed-item-top">
             <time>06:58</time>
             <span class="feed-badge ok">Verified</span>
           </div>
-          <strong>Scan in</strong>
-          <p>Face or fingerprint.</p>
+          <strong>Biometric capture</strong>
+          <p>Face or fingerprint matched at entry.</p>
         </div>
         <div class="feed-item">
           <div class="feed-item-top">
             <time>07:03</time>
-            <span class="feed-badge ok">Face Match</span>
+            <span class="feed-badge ok">Board Live</span>
           </div>
-          <strong>See status</strong>
-          <p>Late, present, missing.</p>
+          <strong>Supervisor view</strong>
+          <p>Present, late, and pending counts update.</p>
         </div>
         <div class="feed-item">
           <div class="feed-item-top">
             <time>18:11</time>
-            <span class="feed-badge warn">Export</span>
+            <span class="feed-badge warn">Export Ready</span>
           </div>
-          <strong>Close day</strong>
-          <p>Ready for payroll.</p>
+          <strong>Daily close</strong>
+          <p>Attendance file is ready for HR.</p>
         </div>
       </div>
     </aside>
@@ -565,9 +577,9 @@ footer{background:#ffffff;border-top:1px solid var(--border);padding:72px 64px 4
 
 <section class="page-section" id="story">
   <div class="section-shell">
-    <div class="section-label reveal">Visual Flow</div>
-    <h2 class="section-title reveal reveal-delay-1"><strong>Four Moves</strong><br><em>Tell The Story</em></h2>
-    <p class="section-intro reveal reveal-delay-2">Less paperwork. More signal. Tap a step to inspect it.</p>
+    <div class="section-label reveal">Solution Flow</div>
+    <h2 class="section-title reveal reveal-delay-1"><strong>From Capture</strong><br><em>To Attendance Record</em></h2>
+    <p class="section-intro reveal reveal-delay-2">Select a stage to see how the system moves from enrollment to export.</p>
     <div class="vector-flow">
       <button type="button" class="vector-scene story-step reveal is-active" data-step="register" aria-pressed="true">
         <div class="vector-art">
@@ -645,11 +657,11 @@ footer{background:#ffffff;border-top:1px solid var(--border);padding:72px 64px 4
       <div class="story-panel-head">
         <div>
           <span class="story-panel-kicker" id="storyStepLabel">Step 01</span>
-          <h3 id="storyStepTitle">Register the workforce once</h3>
+          <h3 id="storyStepTitle">Enroll the workforce once</h3>
         </div>
         <span class="story-panel-badge" id="storyStepBadge">Setup</span>
       </div>
-      <p id="storyStepBody">Each employee is enrolled with face or fingerprint so every future check-in is linked to the right person.</p>
+      <p id="storyStepBody">Each employee is registered once with face or fingerprint so every future check-in maps to the correct profile and shift.</p>
       <div class="story-panel-points">
         <div class="story-panel-point">
           <span>Action</span>
@@ -673,16 +685,16 @@ footer{background:#ffffff;border-top:1px solid var(--border);padding:72px 64px 4
     <div class="showcase-layout">
       <div class="showcase-copy reveal">
         <div>
-          <div class="section-label">Mobile + Board</div>
-          <h2 class="section-title"><strong>Scan On Phone.</strong><br><em>Watch On Screen.</em></h2>
-          <p class="section-intro">Fast scan. Live result.</p>
+          <div class="section-label">Capture + Dashboard</div>
+          <h2 class="section-title"><strong>Field Capture.</strong><br><em>Central Monitoring.</em></h2>
+          <p class="section-intro">Biometric events in the field update one live dashboard for HR and supervisors.</p>
         </div>
         <div>
           <div class="mode-switch" aria-label="Select biometric mode">
             <button type="button" class="mode-toggle is-active" data-mode="face" aria-pressed="true">Face Mode</button>
             <button type="button" class="mode-toggle" data-mode="fingerprint" aria-pressed="false">Fingerprint</button>
           </div>
-          <p class="mode-caption" id="modeCaption">Touchless scan for gate entry, office access, and faster walk-through verification.</p>
+          <p class="mode-caption" id="modeCaption">Touchless scan suits gate entry, office access, and higher-throughput attendance points.</p>
           <div class="mode-facts">
             <div class="mode-fact">
               <span>Best for</span>
@@ -690,7 +702,7 @@ footer{background:#ffffff;border-top:1px solid var(--border);padding:72px 64px 4
             </div>
             <div class="mode-fact">
               <span>Benefit</span>
-              <strong id="modeFactBenefit">Fast touchless capture</strong>
+              <strong id="modeFactBenefit">Fast touchless verification</strong>
             </div>
             <div class="mode-fact">
               <span>Records</span>
@@ -713,9 +725,9 @@ footer{background:#ffffff;border-top:1px solid var(--border);padding:72px 64px 4
               <div class="phone-header">
                 <div>
                   <span id="mobileHeaderLabel">Scan View</span>
-                  <strong id="mobileHeaderTitle">Mobile Match</strong>
+                  <strong id="mobileHeaderTitle">Face Check-In</strong>
                 </div>
-                <div class="phone-badge" id="mobileBadge">Live Face</div>
+                <div class="phone-badge" id="mobileBadge">Face Mode</div>
               </div>
               <div class="phone-scan">
                 <img src="https://media1.tenor.com/m/B8ra2i-OK9QAAAAd/face-recognition.gif" alt="Mobile face recognition animation" loading="lazy">
@@ -732,15 +744,15 @@ footer{background:#ffffff;border-top:1px solid var(--border);padding:72px 64px 4
                 <div class="phone-event">
                   <div class="phone-event-mark"></div>
                   <div>
-                    <strong id="mobileEvent1Title">Matched</strong>
-                    <p id="mobileEvent1Text">Shift started.</p>
+                    <strong id="mobileEvent1Title">Verified</strong>
+                    <p id="mobileEvent1Text">Face match confirmed at Gate A.</p>
                   </div>
                 </div>
                 <div class="phone-event">
                   <div class="phone-event-mark" style="background:#41c9b2;"></div>
                   <div>
-                    <strong id="mobileEvent2Title">Synced</strong>
-                    <p id="mobileEvent2Text">Board updated.</p>
+                    <strong id="mobileEvent2Title">Updated</strong>
+                    <p id="mobileEvent2Text">Dashboard refreshed in seconds.</p>
                   </div>
                 </div>
               </div>
@@ -750,12 +762,12 @@ footer{background:#ffffff;border-top:1px solid var(--border);padding:72px 64px 4
         <div class="vector-board reveal reveal-delay-2">
           <div class="board-head">
             <div>
-              <span id="boardLabel">Live Board</span>
-              <h3 id="boardTitle">Face Dashboard</h3>
+              <span id="boardLabel">Attendance Board</span>
+              <h3 id="boardTitle">Attendance Dashboard</h3>
             </div>
             <span class="status-chip" id="boardBadge">Touchless</span>
           </div>
-          <p class="board-note" id="boardNote">Face events sync to one supervisor board within seconds.</p>
+          <p class="board-note" id="boardNote">Face events sync into one live dashboard for supervisors and HR.</p>
           <div class="board-scene">
             <svg viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <rect x="28" y="28" width="364" height="204" rx="28" fill="#16345c"/>
@@ -782,24 +794,24 @@ footer{background:#ffffff;border-top:1px solid var(--border);padding:72px 64px 4
 
 <section class="page-section">
   <div class="section-shell">
-    <div class="section-label reveal">Quick Facts</div>
-    <h2 class="section-title reveal reveal-delay-1"><strong>Small Info.</strong><br><em>Clear Use Case.</em></h2>
-    <p class="section-intro reveal reveal-delay-2">Short answers for teams replacing manual attendance.</p>
+    <div class="section-label reveal">Operational Details</div>
+    <h2 class="section-title reveal reveal-delay-1"><strong>Deployment Ready.</strong><br><em>Clear Use Cases.</em></h2>
+    <p class="section-intro reveal reveal-delay-2">Key information for teams replacing manual registers and fragmented attendance reports.</p>
     <div class="grid-cards">
       <article class="info-card reveal">
         <div class="card-kicker">Where</div>
         <h3>Sites, plants, offices</h3>
-        <p>The same system can be used at workforce gates, factories, branch offices, and contractor entry points.</p>
+        <p>The same system can run at workforce gates, plants, branch offices, and contractor access points.</p>
       </article>
       <article class="info-card reveal reveal-delay-1">
         <div class="card-kicker">What It Records</div>
-        <h3>Identity, time, shift</h3>
-        <p>Each event keeps the biometric mode, time captured, and daily attendance status in one attendance stream.</p>
+        <h3>Identity, time, shift status</h3>
+        <p>Each event records biometric mode, time captured, and daily attendance status in one audit-ready stream.</p>
       </article>
       <article class="info-card reveal reveal-delay-2">
         <div class="card-kicker">What Teams Get</div>
-        <h3>Live view and export</h3>
-        <p>Supervisors see live presence on screen, while HR gets cleaner late lists and payroll-ready attendance files.</p>
+        <h3>Live dashboard and export</h3>
+        <p>Supervisors see live presence on screen, while HR gets cleaner exception lists and payroll-ready files.</p>
       </article>
     </div>
   </div>
@@ -807,9 +819,9 @@ footer{background:#ffffff;border-top:1px solid var(--border);padding:72px 64px 4
 
 <section class="page-section">
   <div class="section-shell">
-    <div class="section-label reveal">What Changes</div>
-    <h2 class="section-title reveal reveal-delay-1"><strong>More Visual.</strong><br><em>Less Manual.</em></h2>
-    <p class="section-intro reveal reveal-delay-2">Short labels. Clear icons. Instant meaning.</p>
+    <div class="section-label reveal">Business Impact</div>
+    <h2 class="section-title reveal reveal-delay-1"><strong>Operational Gains.</strong><br><em>Less Manual Follow-Up.</em></h2>
+    <p class="section-intro reveal reveal-delay-2">The system replaces manual follow-up with verified events, live counts, and cleaner exports.</p>
     <div class="pictorial-grid">
       <article class="pictorial-card reveal">
         <div class="pictorial-icon">
@@ -820,8 +832,8 @@ footer{background:#ffffff;border-top:1px solid var(--border);padding:72px 64px 4
             <rect x="20" y="40" width="22" height="4" rx="2" fill="#ffffff"/>
           </svg>
         </div>
-        <h3>No Register</h3>
-        <p>Manual sheets drop out.</p>
+        <h3>No Manual Register</h3>
+        <p>Paper attendance sheets are removed from the daily process.</p>
       </article>
       <article class="pictorial-card reveal reveal-delay-1">
         <div class="pictorial-icon">
@@ -834,8 +846,8 @@ footer{background:#ffffff;border-top:1px solid var(--border);padding:72px 64px 4
             <rect x="51" y="9" width="4" height="10" rx="2" fill="#ff8a33"/>
           </svg>
         </div>
-        <h3>Real Match</h3>
-        <p>Proxy punching drops.</p>
+        <h3>Verified Identity</h3>
+        <p>Face and fingerprint checks reduce proxy attendance.</p>
       </article>
       <article class="pictorial-card reveal reveal-delay-2">
         <div class="pictorial-icon">
@@ -846,8 +858,8 @@ footer{background:#ffffff;border-top:1px solid var(--border);padding:72px 64px 4
             <rect x="42" y="26" width="8" height="14" rx="4" fill="#ff8a33"/>
           </svg>
         </div>
-        <h3>Live Count</h3>
-        <p>Status stays visible.</p>
+        <h3>Live Headcount</h3>
+        <p>Shift status remains visible to supervisors and HR.</p>
       </article>
       <article class="pictorial-card reveal reveal-delay-3">
         <div class="pictorial-icon">
@@ -858,17 +870,17 @@ footer{background:#ffffff;border-top:1px solid var(--border);padding:72px 64px 4
             <path d="M35 40L39 44L46 36" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h3>Clean Export</h3>
-        <p>Payroll gets a ready file.</p>
+        <h3>Export Ready</h3>
+        <p>Payroll receives a clean attendance file faster.</p>
       </article>
     </div>
     <div class="cta-banner reveal reveal-delay-6">
       <div>
-        <strong>Want this for your team?</strong>
-        <p>We can adapt the same visual flow.</p>
+        <strong>Deploy this across your workforce.</strong>
+        <p>We can configure the same attendance flow for sites, plants, offices, and contractor entry points.</p>
       </div>
       <div class="cta-actions">
-        <a class="btn-primary" href="index.html#contact">Request A Demo Conversation</a>
+        <a class="btn-primary" href="index.html#contact">Request A Demo</a>
         <a class="btn-secondary" id="footerEmailCta" href="mailto:tandeminfraservices@gmail.com">Email Us Directly</a>
       </div>
     </div>
@@ -880,7 +892,7 @@ footer{background:#ffffff;border-top:1px solid var(--border);padding:72px 64px 4
     <div class="footer-brand">
       <div class="footer-brand-name" id="footerBrandName">Tandem Infra Services</div>
       <span class="footer-brand-sub" id="footerBrandSub">Infrastructure &amp; Construction</span>
-      <p>A visual page for biometric attendance monitoring.</p>
+      <p>Face recognition and fingerprint attendance monitoring for cleaner workforce visibility and HR reporting.</p>
     </div>
     <div class="footer-col">
       <h5>Explore</h5>
@@ -920,9 +932,53 @@ footer{background:#ffffff;border-top:1px solid var(--border);padding:72px 64px 4
 document.body.classList.add("js");
 
 const API_BASE = ["localhost", "127.0.0.1"].includes(location.hostname) || location.origin === "null" ? "http://localhost:4000" : "";
+const API_FALLBACKS = API_BASE ? [API_BASE] : [
+  "",
+  "https://tandeminfraservices.com",
+  "https://www.tandeminfraservices.com",
+  "https://tandem-infrastructure.vercel.app"
+];
 const TOKEN_KEY = "tis_token";
 const USER_KEY = "tis_user";
 const FALLBACK_BRAND_LOGO_URL = "https://cidsqcgqcvzityuwvkel.supabase.co/storage/v1/object/sign/cms/Tandem%20INFRA%20SERVICES.%20logo.jpg.jpeg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82NjcxODRkNy1lZGI2LTRhZDEtYTEwZS1kMmY2NmFhYWM0M2MiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjbXMvVGFuZGVtIElORlJBIFNFUlZJQ0VTLiBsb2dvLmpwZy5qcGVnIiwiaWF0IjoxNzc1NzM3Mzc2LCJleHAiOjE4Mzg4MDkzNzZ9.CYI8oh7JtmB13Ckwg9SX1JtGP85PBSdcoa4twingLnM";
+
+function getApiOrigins(){
+  const seen = new Set();
+  return API_FALLBACKS.filter(base => {
+    const origin = base || location.origin;
+    if(seen.has(origin)) return false;
+    seen.add(origin);
+    return true;
+  });
+}
+
+async function fetchApi(path, options = {}){
+  const origins = getApiOrigins();
+  let lastError = null;
+  for(let idx = 0; idx < origins.length; idx += 1){
+    const base = origins[idx];
+    try{
+      const res = await fetch(`${base}${path}`, options);
+      if((res.status === 404 || res.status >= 500) && idx < origins.length - 1){
+        lastError = new Error(`Request failed (${res.status})`);
+        continue;
+      }
+      return res;
+    }catch(error){
+      lastError = error;
+    }
+  }
+  throw lastError || new Error("Unable to reach the server.");
+}
+
+async function readApiPayload(res){
+  const contentType = res.headers.get("content-type") || "";
+  if(contentType.includes("application/json")){
+    return res.json().catch(() => ({}));
+  }
+  const text = await res.text().catch(() => "");
+  return text ? { error: text } : {};
+}
 
 function setText(id, value){
   const el = document.getElementById(id);
@@ -968,9 +1024,9 @@ function applySettings(settings = {}){
 
 async function loadSettings(){
   try{
-    const res = await fetch(`${API_BASE}/api/content/home`);
+    const res = await fetchApi("/api/content/home");
     if(!res.ok) return;
-    const data = await res.json();
+    const data = await readApiPayload(res);
     applySettings(data.settings || {});
   }catch{}
 }
@@ -989,8 +1045,8 @@ async function api(path, options = {}){
   if(options.body && !headers["Content-Type"]) headers["Content-Type"] = "application/json";
   const token = getToken();
   if(token) headers.Authorization = `Bearer ${token}`;
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
-  const data = await res.json().catch(() => ({}));
+  const res = await fetchApi(path, { ...options, headers });
+  const data = await readApiPayload(res);
   if(!res.ok) throw new Error(data.error || "Request failed");
   return data;
 }
@@ -1004,75 +1060,75 @@ function updateNav(){
 const STORY_STEPS = {
   register: {
     label: "Step 01",
-    title: "Register the workforce once",
+    title: "Enroll employees once",
     badge: "Setup",
-    body: "Each employee is enrolled with face or fingerprint so every future check-in is linked to the right person.",
-    points: ["Capture staff profile", "Store biometric template", "Ready for daily attendance"]
+    body: "Each employee is enrolled once with face or fingerprint so every future check-in maps to the correct profile, shift, and location.",
+    points: ["Capture employee profile", "Store biometric template", "Activate attendance access"]
   },
   verify: {
     label: "Step 02",
-    title: "Verify in seconds at entry",
+    title: "Verify identity at entry",
     badge: "Check-In",
-    body: "At shift start the worker scans once, the system matches identity, and the attendance status moves instantly to present or late.",
-    points: ["One touch or one look", "Stops proxy punching", "Marks time against the shift"]
+    body: "At shift start the worker scans once, identity is matched within seconds, and attendance is marked against the correct shift.",
+    points: ["One look or one touch", "Reduces proxy attendance", "Marks time against shift rules"]
   },
   monitor: {
     label: "Step 03",
-    title: "Monitor live attendance on screen",
+    title: "Monitor attendance live",
     badge: "Live View",
-    body: "Supervisors can see expected, present, late, and pending counts without waiting for manual sheets from each location.",
-    points: ["View all sites together", "Spot shortages early", "Track late and missing staff"]
+    body: "Supervisors and HR see expected, present, late, and pending counts across locations without waiting for manual consolidation.",
+    points: ["View sites in one dashboard", "Spot shortages early", "Track late and missing staff"]
   },
   close: {
     label: "Step 04",
-    title: "Close the day with clean records",
+    title: "Close the day with approved records",
     badge: "Payroll",
-    body: "Once the shift ends, attendance data is ready for review, correction handling, overtime checks, and export to payroll teams.",
-    points: ["Review exceptions", "Approve corrections", "Export day-ready records"]
+    body: "Once the shift ends, attendance data is ready for exception review, correction handling, overtime checks, and payroll export.",
+    points: ["Review exceptions", "Approve corrections", "Export payroll-ready file"]
   }
 };
 
 const BIOMETRIC_MODES = {
   face: {
-    caption: "Touchless scan for gate entry, office access, and faster walk-through verification.",
-    facts: ["Gate entry and office access", "Fast touchless capture", "Time, match, shift status"],
+    caption: "Touchless scan suits gate entry, office access, and higher-throughput attendance points.",
+    facts: ["Gate entry and office access", "Fast touchless verification", "Time, match, shift status"],
     mobileHeaderLabel: "Scan View",
-    mobileHeaderTitle: "Mobile Match",
-    mobileBadge: "Live Face",
+    mobileHeaderTitle: "Face Check-In",
+    mobileBadge: "Face Mode",
     mobileScanLabel: "Face scan active",
     mobileScanMeta: "Camera AI",
     mobileShiftTitle: "219 Present",
     mobileShiftMeta: "17 late, 4 pending",
-    mobileEvent1Title: "Matched",
-    mobileEvent1Text: "Face verified at Gate A.",
-    mobileEvent2Title: "Synced",
-    mobileEvent2Text: "Board updated in seconds.",
-    boardLabel: "Live Board",
-    boardTitle: "Face Dashboard",
+    mobileEvent1Title: "Verified",
+    mobileEvent1Text: "Face match confirmed at Gate A.",
+    mobileEvent2Title: "Updated",
+    mobileEvent2Text: "Dashboard refreshed in seconds.",
+    boardLabel: "Attendance Board",
+    boardTitle: "Attendance Dashboard",
     boardBadge: "Touchless",
-    boardNote: "Face events sync to one supervisor board within seconds.",
+    boardNote: "Face events sync into one live dashboard for supervisors and HR.",
     boardExpected: "248",
     boardPresent: "219",
     boardLate: "17"
   },
   fingerprint: {
-    caption: "Fingerprint mode suits controlled desks, indoor access points, and places where users scan one by one.",
-    facts: ["Indoor counters and desk points", "Reliable close-contact match", "Time, print match, shift status"],
-    mobileHeaderLabel: "Fingerprint",
-    mobileHeaderTitle: "Touch Match",
-    mobileBadge: "Live Print",
+    caption: "Fingerprint mode suits indoor counters, admin desks, and controlled access points that require close-contact verification.",
+    facts: ["Indoor counters and desk points", "Reliable close-contact verification", "Time, match, shift status"],
+    mobileHeaderLabel: "Fingerprint Mode",
+    mobileHeaderTitle: "Fingerprint Check-In",
+    mobileBadge: "Fingerprint",
     mobileScanLabel: "Fingerprint ready",
     mobileScanMeta: "Sensor pad",
     mobileShiftTitle: "212 Present",
     mobileShiftMeta: "11 late, 3 pending",
-    mobileEvent1Title: "Touched",
-    mobileEvent1Text: "Fingerprint verified at admin desk.",
-    mobileEvent2Title: "Stored",
-    mobileEvent2Text: "Attendance log added to the board.",
-    boardLabel: "Live Board",
-    boardTitle: "Fingerprint Dashboard",
+    mobileEvent1Title: "Verified",
+    mobileEvent1Text: "Fingerprint match confirmed at admin desk.",
+    mobileEvent2Title: "Updated",
+    mobileEvent2Text: "Dashboard updated with the attendance event.",
+    boardLabel: "Attendance Board",
+    boardTitle: "Attendance Dashboard",
     boardBadge: "Sensor",
-    boardNote: "Fingerprint logs stay aligned with shift timing and desk-based capture points.",
+    boardNote: "Fingerprint events stay aligned with shift timing at controlled capture points.",
     boardExpected: "248",
     boardPresent: "212",
     boardLate: "11"

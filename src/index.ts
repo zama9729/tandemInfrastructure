@@ -4,18 +4,69 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import bcrypt from "bcryptjs";
-import { supabase } from "./supabase.js";
-import { requireAdmin, requireAuth, requireSuperAdmin, signAdminToken, signToken, type AuthedRequest } from "./auth.js";
+import { createSupabaseAuthClient, getSupabaseConfigError, supabase } from "./supabase.js";
+import { getJwtConfigError, requireAdmin, requireAuth, requireSuperAdmin, signAdminToken, signToken, type AuthedRequest } from "./auth.js";
 import type { Candidate } from "./types.js";
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
+app.use("/api", (_req, res, next) => {
+  const configError = getJwtConfigError() || getSupabaseConfigError();
+  if (configError) {
+    return res.status(500).json({ error: configError });
+  }
+  return next();
+});
 
 const staticRoot = path.resolve(process.cwd());
 app.use(express.static(staticRoot));
 
 const allowedAdminRoles = new Set(["admin", "superadmin", "hr"]);
+const signedMediaBuckets = new Set(["cms"]);
+
+function buildMediaProxyUrl(bucket: string, objectPath: string) {
+  return `/api/media?bucket=${encodeURIComponent(bucket)}&path=${encodeURIComponent(objectPath)}`;
+}
+
+function extractStorageObjectPath(value: unknown, bucket = "cms"): string | null {
+  const raw = String(value ?? "").trim();
+  if (!raw) return null;
+  const publicPrefix = `/storage/v1/object/public/${bucket}/`;
+  const signPrefix = `/storage/v1/object/sign/${bucket}/`;
+
+  if (raw.startsWith(publicPrefix)) {
+    return decodeURIComponent(raw.slice(publicPrefix.length));
+  }
+  if (raw.startsWith(signPrefix)) {
+    return decodeURIComponent(raw.slice(signPrefix.length));
+  }
+  if (/^https?:\/\//i.test(raw)) {
+    try {
+      const parsed = new URL(raw);
+      if (parsed.pathname.startsWith(publicPrefix)) {
+        return decodeURIComponent(parsed.pathname.slice(publicPrefix.length));
+      }
+      if (parsed.pathname.startsWith(signPrefix)) {
+        return decodeURIComponent(parsed.pathname.slice(signPrefix.length));
+      }
+    } catch {
+      return null;
+    }
+    return null;
+  }
+  if (!raw.startsWith("/") && !raw.startsWith("data:")) {
+    return raw.replace(/^\/+/, "");
+  }
+  return null;
+}
+
+function resolveCmsAssetUrl(value: unknown) {
+  const raw = String(value ?? "").trim();
+  if (!raw) return raw;
+  const objectPath = extractStorageObjectPath(raw, "cms");
+  return objectPath ? buildMediaProxyUrl("cms", objectPath) : raw;
+}
 
 function sanitizeCandidate(row: any): Candidate {
   return {
@@ -62,8 +113,33 @@ function getAuthProfile(user: { user_metadata?: Record<string, unknown> | null }
   };
 }
 
+async function signInWithSupabasePassword(email: string, password: string) {
+  const authClient = createSupabaseAuthClient();
+  return authClient.auth.signInWithPassword({
+    email,
+    password
+  });
+}
+
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true });
+});
+
+app.get("/api/media", async (req, res) => {
+  const bucket = String(req.query.bucket || "").trim();
+  const objectPath = String(req.query.path || "").trim().replace(/^\/+/, "");
+
+  if (!signedMediaBuckets.has(bucket) || !objectPath) {
+    return res.status(400).json({ error: "Invalid media request." });
+  }
+
+  const { data, error } = await supabase.storage.from(bucket).createSignedUrl(objectPath, 60 * 60);
+  if (error || !data?.signedUrl) {
+    return res.status(404).json({ error: error?.message || "Media not found." });
+  }
+
+  res.set("Cache-Control", "public, max-age=300");
+  return res.redirect(data.signedUrl);
 });
 
 app.post("/api/auth/signup", async (req, res) => {
@@ -127,26 +203,29 @@ app.post("/api/auth/signup", async (req, res) => {
 });
 
 app.post("/api/admin/login", async (req, res) => {
-  const { email, password } = req.body || {};
-  if (!email || !password) {
-    return res.status(400).json({ error: "Missing email or password." });
+  try {
+    const { email, password } = req.body || {};
+    if (!email || !password) {
+      return res.status(400).json({ error: "Missing email or password." });
+    }
+    const { data, error } = await signInWithSupabasePassword(String(email).trim().toLowerCase(), String(password));
+    if (error || !data?.user) {
+      return res.status(401).json({ error: "Invalid credentials." });
+    }
+    const role =
+      (data.user.app_metadata as { role?: string } | undefined)?.role ||
+      (data.user.user_metadata as { role?: string } | undefined)?.role ||
+      "";
+    if (!allowedAdminRoles.has(String(role))) {
+      return res.status(403).json({ error: "Admin access not granted." });
+    }
+    const token = signAdminToken(String(role));
+    return res.json({ token, role });
+  } catch (routeError: any) {
+    // eslint-disable-next-line no-console
+    console.error("Admin login failed unexpectedly:", routeError);
+    return res.status(500).json({ error: "Login failed." });
   }
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: String(email).trim(),
-    password: String(password)
-  });
-  if (error || !data?.user) {
-    return res.status(401).json({ error: "Invalid credentials." });
-  }
-  const role =
-    (data.user.app_metadata as { role?: string } | undefined)?.role ||
-    (data.user.user_metadata as { role?: string } | undefined)?.role ||
-    "";
-  if (!allowedAdminRoles.has(String(role))) {
-    return res.status(403).json({ error: "Admin access not granted." });
-  }
-  const token = signAdminToken(String(role));
-  return res.json({ token, role });
 });
 
 app.post("/api/auth/signin", async (req, res) => {
@@ -186,15 +265,14 @@ app.post("/api/auth/signin", async (req, res) => {
       return res.json({ token, user: sanitizeCandidate(data) });
     }
 
-    const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({
-      email: emailLower,
-      password: rawPassword
-    });
+    const { data: authData, error: authErr } = await signInWithSupabasePassword(emailLower, rawPassword);
+
     if (authErr || !authData?.user) {
       return res.status(401).json({ error: "Invalid credentials." });
     }
 
     const passwordHash = await bcrypt.hash(rawPassword, 10);
+
     if (!data) {
       const profile = getAuthProfile(authData.user);
       const { data: created, error: createErr } = await supabase
@@ -213,6 +291,7 @@ app.post("/api/auth/signin", async (req, res) => {
         })
         .select()
         .single();
+
       if (createErr || !created) {
         // If a candidate row already exists (race/duplicate), fetch and continue.
         if (createErr?.code === "23505") {
@@ -221,6 +300,7 @@ app.post("/api/auth/signin", async (req, res) => {
             .select("*")
             .eq("email", emailLower)
             .maybeSingle();
+
           if (existingCandidateErr) {
             return res.status(500).json({ error: existingCandidateErr.message });
           }
@@ -231,6 +311,7 @@ app.post("/api/auth/signin", async (req, res) => {
         }
         return res.status(500).json({ error: createErr?.message || "Sync failed." });
       }
+
       const token = signToken(created.id);
       return res.json({ token, user: sanitizeCandidate(created) });
     }
@@ -569,7 +650,12 @@ app.get("/api/content/:slug", async (req, res) => {
     }
     sections = (sectionRows || []).map((s) => ({
       ...s,
-      items: items.filter((i) => i.section_id === s.id)
+      items: items
+        .filter((i) => i.section_id === s.id)
+        .map((i) => ({
+          ...i,
+          image_url: resolveCmsAssetUrl(i.image_url)
+        }))
     }));
   }
 
@@ -581,7 +667,9 @@ app.get("/api/content/:slug", async (req, res) => {
   }
   const settings: Record<string, string> = {};
   (settingsRows || []).forEach((r: any) => {
-    settings[String(r.key)] = String(r.value ?? "");
+    const key = String(r.key);
+    const value = String(r.value ?? "");
+    settings[key] = key === "brand_logo" ? resolveCmsAssetUrl(value) : value;
   });
 
   return res.json({ page, sections, settings });
@@ -762,7 +850,12 @@ app.delete("/api/admin/items/:id", requireSuperAdmin, async (req, res) => {
 app.get("/api/admin/settings", requireAdmin, async (_req, res) => {
   const { data, error } = await supabase.from("cms_settings").select("*").order("key", { ascending: true });
   if (error) return res.status(500).json({ error: error.message });
-  return res.json({ settings: data || [] });
+  return res.json({
+    settings: (data || []).map((row) => ({
+      ...row,
+      value: row.key === "brand_logo" ? resolveCmsAssetUrl(row.value) : row.value
+    }))
+  });
 });
 
 app.post("/api/admin/settings", requireAdmin, async (req, res) => {
@@ -804,8 +897,7 @@ app.post("/api/admin/upload", requireSuperAdmin, async (req, res) => {
   if (error) {
     return res.status(500).json({ error: error.message });
   }
-  const { data: publicUrl } = supabase.storage.from("cms").getPublicUrl(path);
-  return res.json({ path, url: publicUrl.publicUrl });
+  return res.json({ path, url: buildMediaProxyUrl("cms", path) });
 });
 
 export default app;
@@ -814,8 +906,23 @@ const isDirectRun = Boolean(process.argv[1]) && path.resolve(process.argv[1]) ==
 
 if (isDirectRun) {
   const port = Number(process.env.PORT || 4000);
-  app.listen(port, () => {
+  const server = app.listen(port, () => {
     // eslint-disable-next-line no-console
     console.log(`API server running on http://localhost:${port}`);
+  });
+
+  server.on("error", (error: NodeJS.ErrnoException) => {
+    if (error.code === "EADDRINUSE") {
+      const nextPort = port + 1;
+      // eslint-disable-next-line no-console
+      console.error(
+        `Port ${port} is already in use. Stop the existing process or run PowerShell: $env:PORT=${nextPort}; npm run dev`
+      );
+      process.exit(1);
+    }
+
+    // eslint-disable-next-line no-console
+    console.error("Failed to start API server:", error);
+    process.exit(1);
   });
 }

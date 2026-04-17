@@ -407,10 +407,54 @@ body:not(.theme-dark) .submit-btn:hover{background:#f0f0f0;}
 
 <script>
 const API_BASE = ["localhost", "127.0.0.1"].includes(location.hostname) || location.origin === "null" ? "http://localhost:4000" : "";
+const API_FALLBACKS = API_BASE ? [API_BASE] : [
+  "",
+  "https://tandeminfraservices.com",
+  "https://www.tandeminfraservices.com",
+  "https://tandem-infrastructure.vercel.app"
+];
 const TOKEN_KEY = "tis_token";
 const USER_KEY = "tis_user";
 const THEME_KEY = "tis_theme";
 const FALLBACK_BRAND_LOGO_URL = "https://cidsqcgqcvzityuwvkel.supabase.co/storage/v1/object/sign/cms/Tandem%20INFRA%20SERVICES.%20logo.jpg.jpeg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82NjcxODRkNy1lZGI2LTRhZDEtYTEwZS1kMmY2NmFhYWM0M2MiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjbXMvVGFuZGVtIElORlJBIFNFUlZJQ0VTLiBsb2dvLmpwZy5qcGVnIiwiaWF0IjoxNzc1NzM3Mzc2LCJleHAiOjE4Mzg4MDkzNzZ9.CYI8oh7JtmB13Ckwg9SX1JtGP85PBSdcoa4twingLnM";
+
+function getApiOrigins(){
+  const seen = new Set();
+  return API_FALLBACKS.filter(base => {
+    const origin = base || location.origin;
+    if(seen.has(origin)) return false;
+    seen.add(origin);
+    return true;
+  });
+}
+
+async function fetchApi(path, options = {}){
+  const origins = getApiOrigins();
+  let lastError = null;
+  for(let idx = 0; idx < origins.length; idx += 1){
+    const base = origins[idx];
+    try{
+      const res = await fetch(`${base}${path}`, options);
+      if((res.status === 404 || res.status >= 500) && idx < origins.length - 1){
+        lastError = new Error(`Request failed (${res.status})`);
+        continue;
+      }
+      return res;
+    }catch(error){
+      lastError = error;
+    }
+  }
+  throw lastError || new Error("Unable to reach the server.");
+}
+
+async function readApiPayload(res){
+  const contentType = res.headers.get("content-type") || "";
+  if(contentType.includes("application/json")){
+    return res.json().catch(() => ({}));
+  }
+  const text = await res.text().catch(() => "");
+  return text ? { error: text } : {};
+}
 
 function applyTheme(){
   document.body.classList.remove("theme-dark");
@@ -433,6 +477,16 @@ function applySettings(settings = {}){
     if(!logo) return;
     const desiredLogo = settings.brand_logo || FALLBACK_BRAND_LOGO_URL;
     if(desiredLogo){
+      logo.onerror = () => {
+        if (logo.dataset.fallbackApplied === "1") {
+          logo.removeAttribute("src");
+          logo.style.display = "none";
+          return;
+        }
+        logo.dataset.fallbackApplied = "1";
+        logo.src = FALLBACK_BRAND_LOGO_URL;
+      };
+      logo.dataset.fallbackApplied = desiredLogo === FALLBACK_BRAND_LOGO_URL ? "1" : "0";
       logo.src = desiredLogo;
       logo.style.display = "block";
     } else {
@@ -468,9 +522,9 @@ document.querySelectorAll("#mobileMenu a").forEach(link => {
 updateNav();
 async function loadSettings(){
   try{
-    const res = await fetch(`${API_BASE}/api/content/candidate-auth`);
+    const res = await fetchApi("/api/content/candidate-auth");
     if(!res.ok) return;
-    const data = await res.json();
+    const data = await readApiPayload(res);
     applySettings(data.settings || {});
   }catch{}
 }
@@ -488,8 +542,13 @@ function clearSession(){
 async function api(path, options = {}){
   const headers = options.headers || {};
   if(options.body && !headers["Content-Type"]) headers["Content-Type"] = "application/json";
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
-  const data = await res.json().catch(() => ({}));
+  let res;
+  try{
+    res = await fetchApi(path, { ...options, headers });
+  }catch{
+    throw new Error("Unable to reach the server. Check the production API deployment and environment variables.");
+  }
+  const data = await readApiPayload(res);
   if(!res.ok) throw new Error(data.error || "Request failed");
   return data;
 }

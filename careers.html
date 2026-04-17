@@ -274,20 +274,18 @@ body:not(.theme-dark) .apply-btn:hover{
     <li><a href="index.html#projects">Projects</a></li>
     <li><a href="index.html#process">Process</a></li>
     <li><a href="index.html#contact">Contact</a></li>
-    <li><a href="attendance.html">Attendance</a></li>
     <li><a href="careers.html" class="active">Careers</a></li>
     <li><a href="candidate-auth.html" class="nav-cta" id="authNavLink">Sign In</a></li>
   </ul>
   <div class="hamburger" onclick="toggleMenu()" role="button" tabindex="0" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></div>
 </nav>
 <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
-  <button class="menu-close" onclick="toggleMenu()">✕</button>
+  <button class="menu-close" onclick="toggleMenu()">x</button>
   <a href="index.html#about" onclick="toggleMenu(false)">About</a>
   <a href="index.html#services" onclick="toggleMenu(false)">Services</a>
   <a href="index.html#projects" onclick="toggleMenu(false)">Projects</a>
   <a href="index.html#process" onclick="toggleMenu(false)">Process</a>
   <a href="index.html#contact" onclick="toggleMenu(false)">Contact</a>
-  <a href="attendance.html">Attendance</a>
   <a href="careers.html">Careers</a>
   <a href="candidate-auth.html" id="mobileAuthLink">Sign In</a>
 </div>
@@ -295,14 +293,14 @@ body:not(.theme-dark) .apply-btn:hover{
 <!-- HERO -->
 <div class="careers-hero">
   <div class="hero-inner">
-    <div class="hero-label" id="careersHeroLabel">Join Our Team</div>
-    <h1 class="hero-title" id="careersHeroTitle"><strong>Build Your</strong><br><em>Career</em> With Us</h1>
-    <p class="hero-sub" id="careersHeroSub">Tandem Infra Services is actively hiring talented professionals across all departments. Be part of a growing team where your skills make a real difference on the ground.</p>
+    <div class="hero-label" id="careersHeroLabel">Career Opportunities</div>
+    <h1 class="hero-title" id="careersHeroTitle"><strong>Join The Team</strong><br><em>Building India's Infrastructure</em></h1>
+    <p class="hero-sub" id="careersHeroSub">We are hiring site execution engineers, project managers, QA/QC engineers, billing and planning engineers, safety officers, and driven site professionals for projects across multiple regions in India.</p>
     <div class="hero-meta">
       <div class="hero-meta-item"><span class="hero-meta-num" id="totalJobs">7</span><span class="hero-meta-label">Open Positions</span></div>
       <div class="hero-meta-item"><span class="hero-meta-num" id="totalApplicants">0</span><span class="hero-meta-label">Applications Received</span></div>
-      <div class="hero-meta-item"><span class="hero-meta-num">9</span><span class="hero-meta-label">Team Members</span></div>
-      <div class="hero-meta-item"><span class="hero-meta-num">2026</span><span class="hero-meta-label">Founded</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-num">3</span><span class="hero-meta-label">Work Regions</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-num">6+</span><span class="hero-meta-label">Hiring Tracks</span></div>
     </div>
   </div>
 </div>
@@ -511,27 +509,27 @@ body:not(.theme-dark) .apply-btn:hover{
   <div class="fresher-banner reveal" style="margin-top:72px;">
     <div class="fresher-inner">
       <div class="fresher-text">
-        <div class="section-label" id="fresherLabel">Fresh Start</div>
-        <h2 id="fresherTitle"><strong>No Experience?</strong><br><em>No Problem.</em></h2>
-        <p id="fresherBody">All our roles are open to freshers. We believe in building talent from the ground up. If you have the right attitude, the right education and the drive to learn — we want to hear from you.</p>
+        <div class="section-label" id="fresherLabel">Why Join Us</div>
+        <h2 id="fresherTitle"><strong>Grow With</strong><br><em>Tandem Infrastructure</em></h2>
+        <p id="fresherBody">Work on large-scale infrastructure projects, build experience alongside active site teams, and grow in a professional environment that values execution, quality, and career development.</p>
         <button onclick="document.getElementById('jobsGrid').scrollIntoView({behavior:'smooth'})" style="padding:13px 32px;background:var(--white);color:var(--black);border:none;font-family:var(--font);font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;">View All Openings</button>
       </div>
       <div class="fresher-steps" id="fresherSteps">
         <div class="fresher-step">
           <div class="step-circle">1</div>
-          <div class="step-info"><h4>Create Your Account</h4><p>Sign up as a candidate — takes less than 2 minutes. Your profile is saved for all future applications.</p></div>
+          <div class="step-info"><h4>Work On Active Projects</h4><p>Get exposure to infrastructure execution across bridge, building, transport, and site support environments.</p></div>
         </div>
         <div class="fresher-step">
           <div class="step-circle">2</div>
-          <div class="step-info"><h4>Upload Your CV &amp; Documents</h4><p>Store your CV, educational certificates and identification securely in your candidate profile.</p></div>
+          <div class="step-info"><h4>Learn From Delivery Teams</h4><p>Build experience with engineers, supervisors, QA/QC staff, planners, and project leads on real site conditions.</p></div>
         </div>
         <div class="fresher-step">
           <div class="step-circle">3</div>
-          <div class="step-info"><h4>Apply for Your Role</h4><p>Choose the department that matches your skills and submit your application in one click.</p></div>
+          <div class="step-info"><h4>Build A Strong Career Path</h4><p>Grow through structured responsibilities, visible project exposure, and a professional work environment.</p></div>
         </div>
         <div class="fresher-step">
           <div class="step-circle">4</div>
-          <div class="step-info"><h4>We'll Be in Touch</h4><p>Our team reviews every application personally. We contact shortlisted candidates within 7 working days.</p></div>
+          <div class="step-info"><h4>Apply And Connect</h4><p>Share your profile for open roles in execution, project management, QA/QC, planning, and site safety.</p></div>
         </div>
       </div>
     </div>
@@ -593,10 +591,54 @@ body:not(.theme-dark) .apply-btn:hover{
 
 <script>
 const API_BASE = ["localhost", "127.0.0.1"].includes(location.hostname) || location.origin === "null" ? "http://localhost:4000" : "";
+const API_FALLBACKS = API_BASE ? [API_BASE] : [
+  "",
+  "https://tandeminfraservices.com",
+  "https://www.tandeminfraservices.com",
+  "https://tandem-infrastructure.vercel.app"
+];
 const TOKEN_KEY = "tis_token";
 const USER_KEY = "tis_user";
 const THEME_KEY = "tis_theme";
 const FALLBACK_BRAND_LOGO_URL = "https://cidsqcgqcvzityuwvkel.supabase.co/storage/v1/object/sign/cms/Tandem%20INFRA%20SERVICES.%20logo.jpg.jpeg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82NjcxODRkNy1lZGI2LTRhZDEtYTEwZS1kMmY2NmFhYWM0M2MiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjbXMvVGFuZGVtIElORlJBIFNFUlZJQ0VTLiBsb2dvLmpwZy5qcGVnIiwiaWF0IjoxNzc1NzM3Mzc2LCJleHAiOjE4Mzg4MDkzNzZ9.CYI8oh7JtmB13Ckwg9SX1JtGP85PBSdcoa4twingLnM";
+
+function getApiOrigins(){
+  const seen = new Set();
+  return API_FALLBACKS.filter(base => {
+    const origin = base || location.origin;
+    if(seen.has(origin)) return false;
+    seen.add(origin);
+    return true;
+  });
+}
+
+async function fetchApi(path, options = {}){
+  const origins = getApiOrigins();
+  let lastError = null;
+  for(let idx = 0; idx < origins.length; idx += 1){
+    const base = origins[idx];
+    try{
+      const res = await fetch(`${base}${path}`, options);
+      if((res.status === 404 || res.status >= 500) && idx < origins.length - 1){
+        lastError = new Error(`Request failed (${res.status})`);
+        continue;
+      }
+      return res;
+    }catch(error){
+      lastError = error;
+    }
+  }
+  throw lastError || new Error("Unable to reach the server.");
+}
+
+async function readApiPayload(res){
+  const contentType = res.headers.get("content-type") || "";
+  if(contentType.includes("application/json")){
+    return res.json().catch(() => ({}));
+  }
+  const text = await res.text().catch(() => "");
+  return text ? { error: text } : {};
+}
 
 function applyTheme(){
   document.body.classList.remove("theme-dark");
@@ -622,6 +664,16 @@ function applySettings(settings = {}){
   if(logo){
     const desiredLogo = settings.brand_logo || FALLBACK_BRAND_LOGO_URL;
     if(desiredLogo){
+      logo.onerror = () => {
+        if (logo.dataset.fallbackApplied === "1") {
+          logo.removeAttribute("src");
+          logo.style.display = "none";
+          return;
+        }
+        logo.dataset.fallbackApplied = "1";
+        logo.src = FALLBACK_BRAND_LOGO_URL;
+      };
+      logo.dataset.fallbackApplied = desiredLogo === FALLBACK_BRAND_LOGO_URL ? "1" : "0";
       logo.src = desiredLogo;
       logo.style.display = "block";
     } else {
@@ -655,9 +707,9 @@ function renderFresher(section){
 }
 async function loadContent(){
   try{
-    const res = await fetch(`${API_BASE}/api/content/careers`);
+    const res = await fetchApi("/api/content/careers");
     if(!res.ok) return;
-    const data = await res.json();
+    const data = await readApiPayload(res);
     applySettings(data.settings || {});
     const map = {};
     (data.sections || []).forEach(s => { map[s.key] = s; });
@@ -700,8 +752,8 @@ async function api(path, options = {}){
   if(options.body && !headers["Content-Type"]) headers["Content-Type"] = "application/json";
   const token = getToken();
   if(token) headers.Authorization = `Bearer ${token}`;
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
-  const data = await res.json().catch(() => ({}));
+  const res = await fetchApi(path, { ...options, headers });
+  const data = await readApiPayload(res);
   if(!res.ok) throw new Error(data.error || "Request failed");
   return data;
 }
