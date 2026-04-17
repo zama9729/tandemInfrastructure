@@ -9,7 +9,12 @@ import { getJwtConfigError, requireAdmin, requireAuth, requireSuperAdmin, signAd
 import type { Candidate } from "./types.js";
 
 const app = express();
-app.use(cors());
+const corsOptions = {
+  origin: true,
+  credentials: true
+} as const;
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(express.json({ limit: "10mb" }));
 app.use("/api", (_req, res, next) => {
   const configError = getJwtConfigError() || getSupabaseConfigError();
@@ -121,6 +126,61 @@ async function signInWithSupabasePassword(email: string, password: string) {
   });
 }
 
+function getErrorMessage(error: any, fallback = "Request failed.") {
+  const message = String(error?.message || error?.error_description || error?.details || fallback).trim();
+  return message || fallback;
+}
+
+function isDuplicateAccountError(error: any) {
+  const message = getErrorMessage(error, "").toLowerCase();
+  const code = String(error?.code || "").toLowerCase();
+  const status = Number(error?.status || 0);
+  return (
+    code === "23505" ||
+    status === 409 ||
+    message.includes("already registered") ||
+    message.includes("already exists") ||
+    message.includes("already been registered") ||
+    message.includes("duplicate")
+  );
+}
+
+function buildCandidatePayload(input: {
+  id?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  name?: string | null;
+  email: string;
+  phone?: string | null;
+  dob?: string | null;
+  city?: string | null;
+  qualification?: string | null;
+  department?: string | null;
+  passwordHash: string;
+}) {
+  const firstName = String(input.firstName || "Candidate").trim() || "Candidate";
+  const lastName = String(input.lastName || "User").trim() || "User";
+  const name = String(input.name || `${firstName} ${lastName}`).trim() || `${firstName} ${lastName}`;
+
+  return {
+    ...(input.id ? { id: input.id } : {}),
+    first_name: firstName,
+    last_name: lastName,
+    name,
+    email: input.email,
+    phone: input.phone || null,
+    dob: input.dob || null,
+    city: input.city || null,
+    qualification: input.qualification || null,
+    department: input.department || null,
+    password_hash: input.passwordHash
+  };
+}
+
+async function createCandidateRecord(input: Parameters<typeof buildCandidatePayload>[0]) {
+  return supabase.from("candidates").insert(buildCandidatePayload(input)).select().single();
+}
+
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true });
 });
@@ -143,63 +203,117 @@ app.get("/api/media", async (req, res) => {
 });
 
 app.post("/api/auth/signup", async (req, res) => {
-  const {
-    firstName,
-    lastName,
-    email,
-    phone,
-    dob,
-    city,
-    qualification,
-    department,
-    password
-  } = req.body || {};
+  let createdAuthUserId: string | null = null;
 
-  if (!firstName || !lastName || !email || !phone || !password) {
-    return res.status(400).json({ error: "Missing required fields." });
-  }
-
-  const emailLower = String(email).trim().toLowerCase();
-
-  const { data: existing, error: existingErr } = await supabase
-    .from("candidates")
-    .select("id")
-    .eq("email", emailLower)
-    .maybeSingle();
-
-  if (existingErr) {
-    return res.status(500).json({ error: existingErr.message });
-  }
-  if (existing) {
-    return res.status(409).json({ error: "Account already exists." });
-  }
-
-  const passwordHash = await bcrypt.hash(String(password), 10);
-  const name = `${firstName} ${lastName}`.trim();
-
-  const { data, error } = await supabase
-    .from("candidates")
-    .insert({
-      first_name: firstName,
-      last_name: lastName,
-      name,
-      email: emailLower,
+  try {
+    const {
+      firstName,
+      lastName,
+      email,
       phone,
+      dob,
+      city,
+      qualification,
+      department,
+      password
+    } = req.body || {};
+
+    if (!firstName || !lastName || !email || !phone || !password) {
+      return res.status(400).json({ error: "Missing required fields." });
+    }
+
+    const emailLower = String(email).trim().toLowerCase();
+    const rawPassword = String(password);
+    const fullName = `${String(firstName).trim()} ${String(lastName).trim()}`.trim();
+
+    const { data: existing, error: existingErr } = await supabase
+      .from("candidates")
+      .select("*")
+      .eq("email", emailLower)
+      .maybeSingle();
+
+    if (existingErr) {
+      return res.status(500).json({ error: getErrorMessage(existingErr, "Signup failed.") });
+    }
+    if (existing) {
+      return res.status(409).json({ error: "Account already exists. Please sign in." });
+    }
+
+    const { data: authCreated, error: authCreateErr } = await supabase.auth.admin.createUser({
+      email: emailLower,
+      password: rawPassword,
+      email_confirm: true,
+      user_metadata: {
+        full_name: fullName,
+        first_name: String(firstName).trim(),
+        last_name: String(lastName).trim(),
+        phone: String(phone).trim(),
+        dob: dob || null,
+        city: city || null,
+        qualification: qualification || null,
+        department: department || null
+      }
+    });
+
+    if (authCreateErr || !authCreated?.user) {
+      if (isDuplicateAccountError(authCreateErr)) {
+        return res.status(409).json({ error: "Account already exists. Please sign in." });
+      }
+      return res.status(500).json({ error: getErrorMessage(authCreateErr, "Signup failed.") });
+    }
+
+    createdAuthUserId = authCreated.user.id;
+    const passwordHash = await bcrypt.hash(rawPassword, 10);
+    const { data, error } = await createCandidateRecord({
+      id: authCreated.user.id,
+      firstName: String(firstName).trim(),
+      lastName: String(lastName).trim(),
+      name: fullName,
+      email: emailLower,
+      phone: String(phone).trim(),
       dob: dob || null,
       city: city || null,
       qualification: qualification || null,
       department: department || null,
-      password_hash: passwordHash
-    })
-    .select()
-    .single();
+      passwordHash
+    });
 
-  if (error || !data) {
-    return res.status(500).json({ error: error?.message || "Signup failed." });
+    if (error || !data) {
+      if (isDuplicateAccountError(error)) {
+        return res.status(409).json({ error: "Account already exists. Please sign in." });
+      }
+      try {
+        const { error: rollbackErr } = await supabase.auth.admin.deleteUser(authCreated.user.id);
+        if (rollbackErr) {
+          // eslint-disable-next-line no-console
+          console.error("Failed to roll back Supabase Auth user after signup error:", rollbackErr);
+        }
+      } catch (rollbackError) {
+        // eslint-disable-next-line no-console
+        console.error("Failed to roll back Supabase Auth user after signup error:", rollbackError);
+      }
+      return res.status(500).json({ error: getErrorMessage(error, "Signup failed.") });
+    }
+
+    const token = signToken(data.id);
+    return res.json({ token, user: sanitizeCandidate(data) });
+  } catch (routeError: any) {
+    if (createdAuthUserId) {
+      try {
+        const { error: rollbackErr } = await supabase.auth.admin.deleteUser(createdAuthUserId);
+        if (rollbackErr) {
+          // eslint-disable-next-line no-console
+          console.error("Failed to roll back Supabase Auth user after unexpected signup error:", rollbackErr);
+        }
+      } catch (rollbackError) {
+        // eslint-disable-next-line no-console
+        console.error("Failed to roll back Supabase Auth user after unexpected signup error:", rollbackError);
+      }
+    }
+    // eslint-disable-next-line no-console
+    console.error("Candidate signup failed unexpectedly:", routeError);
+    return res.status(500).json({ error: getErrorMessage(routeError, "Signup failed.") });
   }
-
-  const token = signToken(data.id);
-  return res.json({ token, user: sanitizeCandidate(data) });
 });
 
 app.post("/api/admin/login", async (req, res) => {
@@ -275,26 +389,23 @@ app.post("/api/auth/signin", async (req, res) => {
 
     if (!data) {
       const profile = getAuthProfile(authData.user);
-      const { data: created, error: createErr } = await supabase
-        .from("candidates")
-        .insert({
-          first_name: profile.firstName,
-          last_name: profile.lastName,
-          name: profile.name,
-          email: emailLower,
-          phone: profile.phone,
-          dob: profile.dob,
-          city: profile.city,
-          qualification: profile.qualification,
-          department: profile.department,
-          password_hash: passwordHash
-        })
-        .select()
-        .single();
+      const { data: created, error: createErr } = await createCandidateRecord({
+        id: authData.user.id,
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        name: profile.name,
+        email: emailLower,
+        phone: profile.phone,
+        dob: profile.dob,
+        city: profile.city,
+        qualification: profile.qualification,
+        department: profile.department,
+        passwordHash
+      });
 
       if (createErr || !created) {
         // If a candidate row already exists (race/duplicate), fetch and continue.
-        if (createErr?.code === "23505") {
+        if (isDuplicateAccountError(createErr)) {
           const { data: existingCandidate, error: existingCandidateErr } = await supabase
             .from("candidates")
             .select("*")
@@ -614,65 +725,89 @@ app.get("/api/content/:slug", async (req, res) => {
     return res.status(400).json({ error: "Missing slug." });
   }
 
-  const { data: page, error: pageErr } = await supabase
-    .from("cms_pages")
-    .select("*")
-    .eq("slug", slug)
-    .maybeSingle();
-  if (pageErr) {
-    return res.status(500).json({ error: pageErr.message });
-  }
+  const payload: { page: any; sections: any[]; settings: Record<string, string> } = {
+    page: null,
+    sections: [],
+    settings: {}
+  };
 
-  let sections: any[] = [];
-  if (page?.id) {
-    const { data: sectionRows, error: sectionErr } = await supabase
-      .from("cms_sections")
+  try {
+    const { data: page, error: pageErr } = await supabase
+      .from("cms_pages")
       .select("*")
-      .eq("page_id", page.id)
-      .eq("is_active", true)
-      .order("sort_order", { ascending: true });
-    if (sectionErr) {
-      return res.status(500).json({ error: sectionErr.message });
+      .eq("slug", slug)
+      .maybeSingle();
+    if (pageErr) {
+      // eslint-disable-next-line no-console
+      console.error(`CMS page lookup failed for slug "${slug}":`, pageErr);
+      return res.json(payload);
     }
-    const sectionIds = (sectionRows || []).map((s) => s.id);
-    let items: any[] = [];
-    if (sectionIds.length) {
-      const { data: itemRows, error: itemErr } = await supabase
-        .from("cms_items")
+
+    payload.page = page || null;
+
+    if (page?.id) {
+      const { data: sectionRows, error: sectionErr } = await supabase
+        .from("cms_sections")
         .select("*")
-        .in("section_id", sectionIds)
+        .eq("page_id", page.id)
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
-      if (itemErr) {
-        return res.status(500).json({ error: itemErr.message });
+      if (sectionErr) {
+        // eslint-disable-next-line no-console
+        console.error(`CMS section lookup failed for slug "${slug}":`, sectionErr);
+        return res.json(payload);
       }
-      items = itemRows || [];
+
+      const sectionIds = (sectionRows || []).map((s) => s.id);
+      let items: any[] = [];
+
+      if (sectionIds.length) {
+        const { data: itemRows, error: itemErr } = await supabase
+          .from("cms_items")
+          .select("*")
+          .in("section_id", sectionIds)
+          .eq("is_active", true)
+          .order("sort_order", { ascending: true });
+        if (itemErr) {
+          // eslint-disable-next-line no-console
+          console.error(`CMS item lookup failed for slug "${slug}":`, itemErr);
+          return res.json(payload);
+        }
+        items = itemRows || [];
+      }
+
+      payload.sections = (sectionRows || []).map((s) => ({
+        ...s,
+        items: items
+          .filter((i) => i.section_id === s.id)
+          .map((i) => ({
+            ...i,
+            image_url: resolveCmsAssetUrl(i.image_url)
+          }))
+      }));
     }
-    sections = (sectionRows || []).map((s) => ({
-      ...s,
-      items: items
-        .filter((i) => i.section_id === s.id)
-        .map((i) => ({
-          ...i,
-          image_url: resolveCmsAssetUrl(i.image_url)
-        }))
-    }));
-  }
 
-  const { data: settingsRows, error: settingsErr } = await supabase
-    .from("cms_settings")
-    .select("*");
-  if (settingsErr) {
-    return res.status(500).json({ error: settingsErr.message });
-  }
-  const settings: Record<string, string> = {};
-  (settingsRows || []).forEach((r: any) => {
-    const key = String(r.key);
-    const value = String(r.value ?? "");
-    settings[key] = key === "brand_logo" ? resolveCmsAssetUrl(value) : value;
-  });
+    const { data: settingsRows, error: settingsErr } = await supabase
+      .from("cms_settings")
+      .select("*");
+    if (settingsErr) {
+      // eslint-disable-next-line no-console
+      console.error(`CMS settings lookup failed for slug "${slug}":`, settingsErr);
+      return res.json(payload);
+    }
 
-  return res.json({ page, sections, settings });
+    (settingsRows || []).forEach((r: any) => {
+      const key = String(r.key);
+      const value = String(r.value ?? "");
+      payload.settings[key] = key === "brand_logo" ? resolveCmsAssetUrl(value) : value;
+    });
+
+    return res.json(payload);
+  } catch (routeError: any) {
+    // eslint-disable-next-line no-console
+    console.error(`CMS content route failed for slug "${slug}":`, routeError);
+    return res.json(payload);
+  }
 });
 
 app.get("/api/admin/pages", requireAdmin, async (_req, res) => {

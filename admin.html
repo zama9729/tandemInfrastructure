@@ -471,12 +471,12 @@ body.theme-dark .theme-knob{transform:translateX(20px);}
 
 <script>
 const API_BASE = ["localhost", "127.0.0.1"].includes(location.hostname) || location.origin === "null" ? "http://localhost:4000" : "";
-const API_FALLBACKS = API_BASE ? [API_BASE] : [
-  "",
-  "https://tandeminfraservices.com",
-  "https://www.tandeminfraservices.com",
-  "https://tandem-infrastructure.vercel.app"
-];
+const IS_VERCEL_HOST = /\.vercel\.app$/i.test(location.hostname);
+const API_FALLBACKS = API_BASE
+  ? [API_BASE]
+  : IS_VERCEL_HOST
+    ? ["", "https://tandeminfraservices.com"]
+    : [""];
 const ADMIN_TOKEN_KEY = "tis_admin_token";
 const THEME_KEY = "tis_theme";
 let jobsCache = [];
@@ -1320,7 +1320,8 @@ async function applyHomeTemplate(){
       { title: "Residential & Commercial Projects", body: "Delivery support for building projects with coordination across structure, quality, safety, and handover readiness." },
       { title: "Project Management & Consultancy", body: "Planning, monitoring, client communication, and execution guidance that keep projects aligned with milestones." },
       { title: "QA/QC Management", body: "Material checks, inspection records, audit support, and quality systems that stand up to client review." },
-      { title: "Safety Compliance", body: "Site safety systems, toolbox discipline, and compliance practices that protect people, schedule, and reputation." }
+      { title: "Safety Compliance", body: "Site safety systems, toolbox discipline, and compliance practices that protect people, schedule, and reputation." },
+      { title: "Face Recognition Attendance", body: "Touchless face and fingerprint time capture with live dashboards, shift status tracking, and payroll-ready attendance exports.", link_url: "attendance.html", link_label: "Open Solution ->" }
     ]);
     const why = await ensureSection(page.id, "why", {
       title: "<strong>Built For</strong><br><em>Serious Delivery</em>",

@@ -319,12 +319,12 @@ body:not(.theme-dark) .empty-link:hover{
 
 <script>
 const API_BASE = ["localhost", "127.0.0.1"].includes(location.hostname) || location.origin === "null" ? "http://localhost:4000" : "";
-const API_FALLBACKS = API_BASE ? [API_BASE] : [
-  "",
-  "https://tandeminfraservices.com",
-  "https://www.tandeminfraservices.com",
-  "https://tandem-infrastructure.vercel.app"
-];
+const IS_VERCEL_HOST = /\.vercel\.app$/i.test(location.hostname);
+const API_FALLBACKS = API_BASE
+  ? [API_BASE]
+  : IS_VERCEL_HOST
+    ? ["", "https://tandeminfraservices.com"]
+    : [""];
 const TOKEN_KEY = "tis_token";
 const USER_KEY = "tis_user";
 const THEME_KEY = "tis_theme";

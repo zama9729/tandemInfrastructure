@@ -300,7 +300,8 @@ join (values
   ('Building Information Modeling','Advanced BIM for 3D coordination, 4D scheduling, clash detection and real-time collaboration across all architecture and engineering disciplines.','#contact','Enquire Now ->',2),
   ('Quality Assurance & Control','Rigorous QA/QC protocols, material testing, construction audits and ISO-aligned documentation for defect-free project delivery.','#contact','Enquire Now ->',3),
   ('Infrastructure Planning','Strategic planning for roads, bridges, utilities and civic infrastructure integrating communication networks, data systems and IoT resilience.','#contact','Enquire Now ->',4),
-  ('Sustainable Construction','Green building solutions targeting LEED, GRIHA and IGBC certifications - passive design, renewable energy integration, smart water systems.','#contact','Enquire Now ->',5)
+  ('Sustainable Construction','Green building solutions targeting LEED, GRIHA and IGBC certifications - passive design, renewable energy integration, smart water systems.','#contact','Enquire Now ->',5),
+  ('Face Recognition Attendance','Touchless face and fingerprint time capture with live dashboards, shift status tracking, and payroll-ready attendance exports.','attendance.html','Open Solution ->',6)
 ) as i(title,body,link_url,link_label,sort_order)
 on cs.key = 'services'
 where cs.page_id in (select id from cms_pages where slug = 'home');
