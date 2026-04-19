@@ -12,7 +12,7 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 app.use("/api", (_req, res, next) => {
-  const configError = getJwtConfigError() || getSupabaseConfigError();
+  const configError = getSupabaseConfigError();
   if (configError) {
     return res.status(500).json({ error: configError });
   }
@@ -119,6 +119,10 @@ async function signInWithSupabasePassword(email: string, password: string) {
     email,
     password
   });
+}
+
+function getAuthRouteConfigError(): string | null {
+  return getJwtConfigError() || getSupabaseConfigError();
 }
 
 function getErrorMessage(error: any, fallback = "Request failed.") {
@@ -325,6 +329,11 @@ app.post("/api/auth/signup", async (req, res) => {
   let createdAuthUserId: string | null = null;
 
   try {
+    const configError = getAuthRouteConfigError();
+    if (configError) {
+      return res.status(500).json({ error: configError });
+    }
+
     const {
       firstName,
       lastName,
@@ -461,6 +470,11 @@ app.post("/api/auth/signup", async (req, res) => {
 
 app.post("/api/admin/login", async (req, res) => {
   try {
+    const configError = getAuthRouteConfigError();
+    if (configError) {
+      return res.status(500).json({ error: configError });
+    }
+
     const { email, password } = req.body || {};
     if (!email || !password) {
       return res.status(400).json({ error: "Missing email or password." });
@@ -487,6 +501,11 @@ app.post("/api/admin/login", async (req, res) => {
 
 app.post("/api/auth/signin", async (req, res) => {
   try {
+    const configError = getAuthRouteConfigError();
+    if (configError) {
+      return res.status(500).json({ error: configError });
+    }
+
     const { email, password } = req.body || {};
     if (!email || !password) {
       return res.status(400).json({ error: "Missing email or password." });
