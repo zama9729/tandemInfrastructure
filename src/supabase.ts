@@ -19,7 +19,13 @@ function getSupabaseServiceRoleKey() {
 }
 
 function getSupabaseAuthKey() {
-  return (process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY) as string;
+  return (
+    process.env.SUPABASE_PUBLISHABLE_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  ) as string;
 }
 
 export function getSupabaseConfigError(): string | null {
@@ -46,6 +52,8 @@ export function getSupabase() {
 
 // Create a fresh auth client for password sign-in calls so user sessions
 // never replace the shared service-role session used for database access.
+// Prefer a publishable/anon key for end-user password auth and fall back to
+// the service-role key only for older environments that do not expose one.
 export function createSupabaseAuthClient() {
   const configError = getSupabaseConfigError();
   if (configError) throw new Error(configError);

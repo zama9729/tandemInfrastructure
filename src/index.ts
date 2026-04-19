@@ -176,6 +176,130 @@ async function createCandidateRecord(input: Parameters<typeof buildCandidatePayl
   return supabase.from("candidates").insert(buildCandidatePayload(input)).select().single();
 }
 
+async function findCandidateByEmail(email: string) {
+  return supabase.from("candidates").select("*").eq("email", email).maybeSingle();
+}
+
+function normalizeOptionalText(value: unknown): string | null {
+  const text = String(value ?? "").trim();
+  return text || null;
+}
+
+function mergeCandidateProfile(
+  authUser: { user_metadata?: Record<string, unknown> | null },
+  overrides: {
+    firstName?: string | null;
+    lastName?: string | null;
+    name?: string | null;
+    phone?: string | null;
+    dob?: string | null;
+    city?: string | null;
+    qualification?: string | null;
+    department?: string | null;
+  } = {}
+) {
+  const authProfile = getAuthProfile(authUser);
+  const firstName = normalizeOptionalText(overrides.firstName) || authProfile.firstName;
+  const lastName = normalizeOptionalText(overrides.lastName) || authProfile.lastName;
+  const fallbackName = `${firstName} ${lastName}`.trim();
+
+  return {
+    firstName,
+    lastName,
+    name: normalizeOptionalText(overrides.name) || authProfile.name || fallbackName,
+    phone: normalizeOptionalText(overrides.phone) ?? authProfile.phone,
+    dob: normalizeOptionalText(overrides.dob) ?? authProfile.dob,
+    city: normalizeOptionalText(overrides.city) ?? authProfile.city,
+    qualification: normalizeOptionalText(overrides.qualification) ?? authProfile.qualification,
+    department: normalizeOptionalText(overrides.department) ?? authProfile.department
+  };
+}
+
+async function updateCandidateFromAuth(
+  existingCandidate: any,
+  input: ReturnType<typeof mergeCandidateProfile> & { passwordHash: string }
+) {
+  const update = {
+    first_name: normalizeOptionalText(existingCandidate.first_name) || input.firstName,
+    last_name: normalizeOptionalText(existingCandidate.last_name) || input.lastName,
+    name: normalizeOptionalText(existingCandidate.name) || input.name,
+    phone: normalizeOptionalText(existingCandidate.phone) ?? input.phone,
+    dob: normalizeOptionalText(existingCandidate.dob) ?? input.dob,
+    city: normalizeOptionalText(existingCandidate.city) ?? input.city,
+    qualification: normalizeOptionalText(existingCandidate.qualification) ?? input.qualification,
+    department: normalizeOptionalText(existingCandidate.department) ?? input.department,
+    password_hash: input.passwordHash
+  };
+
+  const shouldUpdate = Object.entries(update).some(([key, value]) => {
+    const currentValue = existingCandidate[key];
+    return (currentValue ?? null) !== value;
+  });
+
+  if (!shouldUpdate) {
+    return { data: existingCandidate, error: null };
+  }
+
+  return supabase
+    .from("candidates")
+    .update(update)
+    .eq("id", existingCandidate.id)
+    .select()
+    .single();
+}
+
+async function syncCandidateFromAuthUser(params: {
+  authUser: { id: string; user_metadata?: Record<string, unknown> | null };
+  email: string;
+  rawPassword: string;
+  existingCandidate?: any | null;
+  profileOverrides?: {
+    firstName?: string | null;
+    lastName?: string | null;
+    name?: string | null;
+    phone?: string | null;
+    dob?: string | null;
+    city?: string | null;
+    qualification?: string | null;
+    department?: string | null;
+  };
+}) {
+  const passwordHash = await bcrypt.hash(params.rawPassword, 10);
+  const profile = mergeCandidateProfile(params.authUser, params.profileOverrides);
+
+  if (params.existingCandidate) {
+    return updateCandidateFromAuth(params.existingCandidate, { ...profile, passwordHash });
+  }
+
+  const created = await createCandidateRecord({
+    id: params.authUser.id,
+    firstName: profile.firstName,
+    lastName: profile.lastName,
+    name: profile.name,
+    email: params.email,
+    phone: profile.phone,
+    dob: profile.dob,
+    city: profile.city,
+    qualification: profile.qualification,
+    department: profile.department,
+    passwordHash
+  });
+
+  if (!created.error || !isDuplicateAccountError(created.error)) {
+    return created;
+  }
+
+  const { data: existingCandidate, error: existingCandidateErr } = await findCandidateByEmail(params.email);
+  if (existingCandidateErr || !existingCandidate) {
+    return {
+      data: null,
+      error: existingCandidateErr || created.error
+    };
+  }
+
+  return updateCandidateFromAuth(existingCandidate, { ...profile, passwordHash });
+}
+
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true });
 });
@@ -221,11 +345,7 @@ app.post("/api/auth/signup", async (req, res) => {
     const rawPassword = String(password);
     const fullName = `${String(firstName).trim()} ${String(lastName).trim()}`.trim();
 
-    const { data: existing, error: existingErr } = await supabase
-      .from("candidates")
-      .select("*")
-      .eq("email", emailLower)
-      .maybeSingle();
+    const { data: existing, error: existingErr } = await findCandidateByEmail(emailLower);
 
     if (existingErr) {
       return res.status(500).json({ error: getErrorMessage(existingErr, "Signup failed.") });
@@ -252,25 +372,53 @@ app.post("/api/auth/signup", async (req, res) => {
 
     if (authCreateErr || !authCreated?.user) {
       if (isDuplicateAccountError(authCreateErr)) {
-        return res.status(409).json({ error: "Account already exists. Please sign in." });
+        const { data: authData, error: authSignInErr } = await signInWithSupabasePassword(emailLower, rawPassword);
+        if (authSignInErr || !authData?.user) {
+          return res.status(409).json({ error: "Account already exists. Please sign in." });
+        }
+
+        const { data: syncedCandidate, error: syncErr } = await syncCandidateFromAuthUser({
+          authUser: authData.user,
+          email: emailLower,
+          rawPassword,
+          existingCandidate: existing || null,
+          profileOverrides: {
+            firstName: String(firstName).trim(),
+            lastName: String(lastName).trim(),
+            name: fullName,
+            phone: String(phone).trim(),
+            dob: dob || null,
+            city: city || null,
+            qualification: qualification || null,
+            department: department || null
+          }
+        });
+
+        if (syncErr || !syncedCandidate) {
+          return res.status(500).json({ error: getErrorMessage(syncErr, "Signup failed.") });
+        }
+
+        const token = signToken(syncedCandidate.id);
+        return res.json({ token, user: sanitizeCandidate(syncedCandidate) });
       }
       return res.status(500).json({ error: getErrorMessage(authCreateErr, "Signup failed.") });
     }
 
     createdAuthUserId = authCreated.user.id;
-    const passwordHash = await bcrypt.hash(rawPassword, 10);
-    const { data, error } = await createCandidateRecord({
-      id: authCreated.user.id,
-      firstName: String(firstName).trim(),
-      lastName: String(lastName).trim(),
-      name: fullName,
+    const { data, error } = await syncCandidateFromAuthUser({
+      authUser: authCreated.user,
       email: emailLower,
-      phone: String(phone).trim(),
-      dob: dob || null,
-      city: city || null,
-      qualification: qualification || null,
-      department: department || null,
-      passwordHash
+      rawPassword,
+      profileOverrides: {
+        firstName: String(firstName).trim(),
+        lastName: String(lastName).trim(),
+        name: fullName,
+        phone: String(phone).trim(),
+        dob: dob || null,
+        city: city || null,
+        qualification: qualification || null,
+        department: department || null
+      }
     });
 
     if (error || !data) {
@@ -380,62 +528,19 @@ app.post("/api/auth/signin", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials." });
     }
 
-    const passwordHash = await bcrypt.hash(rawPassword, 10);
+    const { data: syncedCandidate, error: syncErr } = await syncCandidateFromAuthUser({
+      authUser: authData.user,
+      email: emailLower,
+      rawPassword,
+      existingCandidate: data || null
+    });
 
-    if (!data) {
-      const profile = getAuthProfile(authData.user);
-      const { data: created, error: createErr } = await createCandidateRecord({
-        id: authData.user.id,
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-        name: profile.name,
-        email: emailLower,
-        phone: profile.phone,
-        dob: profile.dob,
-        city: profile.city,
-        qualification: profile.qualification,
-        department: profile.department,
-        passwordHash
-      });
-
-      if (createErr || !created) {
-        // If a candidate row already exists (race/duplicate), fetch and continue.
-        if (isDuplicateAccountError(createErr)) {
-          const { data: existingCandidate, error: existingCandidateErr } = await supabase
-            .from("candidates")
-            .select("*")
-            .eq("email", emailLower)
-            .maybeSingle();
-
-          if (existingCandidateErr) {
-            return res.status(500).json({ error: existingCandidateErr.message });
-          }
-          if (existingCandidate) {
-            const token = signToken(existingCandidate.id);
-            return res.json({ token, user: sanitizeCandidate(existingCandidate) });
-          }
-        }
-        return res.status(500).json({ error: createErr?.message || "Sync failed." });
-      }
-
-      const token = signToken(created.id);
-      return res.json({ token, user: sanitizeCandidate(created) });
+    if (syncErr || !syncedCandidate) {
+      return res.status(500).json({ error: getErrorMessage(syncErr, "Sync failed.") });
     }
 
-    if (!localPasswordValid) {
-      const { error: updateErr } = await supabase
-        .from("candidates")
-        .update({ password_hash: passwordHash })
-        .eq("id", data.id);
-
-      if (updateErr) {
-        // eslint-disable-next-line no-console
-        console.error("Failed to refresh candidate password hash:", updateErr);
-      }
-    }
-
-    const token = signToken(data.id);
-    return res.json({ token, user: sanitizeCandidate(data) });
+    const token = signToken(syncedCandidate.id);
+    return res.json({ token, user: sanitizeCandidate(syncedCandidate) });
   } catch (routeError: any) {
     // eslint-disable-next-line no-console
     console.error("Candidate sign-in failed unexpectedly:", routeError);
@@ -1032,7 +1137,13 @@ app.post("/api/admin/upload", requireSuperAdmin, async (req, res) => {
 
 export default app;
 
-const isDirectRun = Boolean(process.argv[1]) && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+const isServerlessRuntime = Boolean(
+  process.env.VERCEL ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  process.env.LAMBDA_TASK_ROOT ||
+  process.env.NOW_REGION
+);
+const isDirectRun = !isServerlessRuntime && Boolean(process.argv[1]) && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isDirectRun) {
   const port = Number(process.env.PORT || 4000);
